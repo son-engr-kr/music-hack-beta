@@ -99,11 +99,10 @@
   .timeline { height: 116px; border: 1px solid var(--line); border-radius: 12px; background: #090806; position: relative; overflow: hidden; user-select: none; }
   .timeline-grid { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(240,179,90,.22) calc(25% - 1px) 25%); pointer-events: none; }
   .track-lane { position: relative; height: 30px; margin: 9px 8px; border-radius: 8px; background: #15130f; border: 1px solid #2b251a; }
-  .track-clip { position: absolute; top: 3px; height: 22px; border-radius: 7px; background-color: #3e6fa9; background-size: 100% 100%; background-repeat: no-repeat; color: #061006; font-size: .62rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: ew-resize; min-width: 18px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+  .track-ghost { position: absolute; top: 3px; height: 22px; border-radius: 7px; overflow: hidden; opacity: .34; pointer-events: none; background-color: #253247; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
+  .track-clip { position: absolute; top: 3px; height: 22px; border-radius: 7px; background-color: #3e6fa9; color: #061006; font-size: .62rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: ew-resize; min-width: 18px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
   .track-clip.base { background-color: #3f8d54; }
-  .trim-mask { position: absolute; top: 0; bottom: 0; background: rgba(9,8,6,.72); pointer-events: none; }
-  .trim-mask.left { left: 0; border-right: 1px solid rgba(255,210,138,.75); }
-  .trim-mask.right { right: 0; border-left: 1px solid rgba(255,210,138,.75); }
+  .waveform-layer { position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat; pointer-events: none; }
   .track-clip span { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
   .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 10px rgba(240,179,90,.8); pointer-events: none; }
   .loop-stats { display: flex; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: .62rem; }
@@ -948,14 +947,34 @@ function trackSourceRange(track) {
   return { sourceStartSamples, sourceEndSamples };
 }
 
-function trimmedLengthPct(track) {
-  const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
-  return clamp((sourceEndSamples - sourceStartSamples) / loopLengthSamples * 100, 1, 100);
+function trackTrimBounds(track) {
+  const startPct = clamp(track.trimStartPct ?? 0, 0, 99);
+  const endPct = clamp(track.trimEndPct ?? 100, startPct + 1, 100);
+  return { startPct, endPct };
+}
+
+function trackAudibleLengthPct(track) {
+  const { startPct, endPct } = trackTrimBounds(track);
+  return clamp(track.lengthPct * (endPct - startPct) / 100, 1, 100);
+}
+
+function trackGhostLeftPct(track) {
+  const { startPct } = trackTrimBounds(track);
+  return track.offsetPct - track.lengthPct * startPct / 100;
+}
+
+function activeWaveformStyle(track) {
+  const { startPct, endPct } = trackTrimBounds(track);
+  const visiblePct = endPct - startPct;
+  const scale = 10000 / visiblePct;
+  const left = -startPct * 100 / visiblePct;
+  return `background-image:${waveformBackground(track)}; width:${scale}%; left:${left}%`;
 }
 
 function sendLoopTrack(track) {
   if (!worklet) return;
   const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
+  const audibleLengthPct = trackAudibleLengthPct(track);
   const left = track.left.slice();
   const right = track.right.slice();
   worklet.port.postMessage({
@@ -965,7 +984,7 @@ function sendLoopTrack(track) {
       left: left.buffer,
       right: right.buffer,
       offsetSamples: Math.round(loopLengthSamples * track.offsetPct / 100),
-      playSamples: Math.round(loopLengthSamples * track.lengthPct / 100),
+      playSamples: Math.round(loopLengthSamples * audibleLengthPct / 100),
       sourceStartSamples,
       sourceEndSamples,
       loopLengthSamples,
@@ -979,12 +998,13 @@ function sendLoopTrack(track) {
 function updateLoopTrack(track) {
   if (!worklet) return;
   const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
+  const audibleLengthPct = trackAudibleLengthPct(track);
   worklet.port.postMessage({
     type: 'updateLoopTrack',
     track: {
       id: track.id,
       offsetSamples: Math.round(loopLengthSamples * track.offsetPct / 100),
-      playSamples: Math.round(loopLengthSamples * track.lengthPct / 100),
+      playSamples: Math.round(loopLengthSamples * audibleLengthPct / 100),
       sourceStartSamples,
       sourceEndSamples,
       gain: track.gain,
@@ -1122,15 +1142,20 @@ function drawTimeline() {
   for (const track of loopTracks) {
     const lane = document.createElement('div');
     lane.className = 'track-lane';
+    const ghost = document.createElement('div');
+    ghost.className = 'track-ghost';
+    ghost.style.left = `${trackGhostLeftPct(track)}%`;
+    ghost.style.width = `${Math.max(2, track.lengthPct)}%`;
+    ghost.innerHTML = `<div class="waveform-layer" style="background-image:${waveformBackground(track)}"></div>`;
+    lane.appendChild(ghost);
+
     const clip = document.createElement('div');
     clip.className = `track-clip ${track.id === baseTrackId ? 'base' : ''}`;
     clip.dataset.trackId = track.id;
     clip.style.left = `${track.offsetPct}%`;
-    clip.style.width = `${Math.max(2, track.lengthPct)}%`;
-    clip.style.backgroundImage = waveformBackground(track);
+    clip.style.width = `${Math.max(2, trackAudibleLengthPct(track))}%`;
     clip.innerHTML = `
-      <div class="trim-mask left" style="width:${track.trimStartPct || 0}%"></div>
-      <div class="trim-mask right" style="width:${100 - (track.trimEndPct ?? 100)}%"></div>
+      <div class="waveform-layer" style="${activeWaveformStyle(track)}"></div>
       <span>${track.name} ${Math.round(track.offsetPct)}%</span>
     `;
     clip.addEventListener('pointerdown', event => {
@@ -1141,7 +1166,9 @@ function drawTimeline() {
     });
     clip.addEventListener('wheel', event => {
       event.preventDefault();
-      track.lengthPct = clamp(track.lengthPct + Math.sign(-event.deltaY) * 2, 1, 100);
+      const { startPct, endPct } = trackTrimBounds(track);
+      const minLengthPct = 100 / Math.max(1, endPct - startPct);
+      track.lengthPct = clamp(track.lengthPct + Math.sign(-event.deltaY) * 2, minLengthPct, 100);
       updateLoopTrack(track);
       drawTimeline();
     }, { passive: false });
@@ -1196,12 +1223,10 @@ function updateMixerControl(control) {
   } else if (control.dataset.field === 'trimStartPct') {
     track.trimStartPct = clamp(Number(control.value), 0, (track.trimEndPct ?? 100) - 1);
     control.value = String(Math.round(track.trimStartPct));
-    track.lengthPct = trimmedLengthPct(track);
     drawTimeline();
   } else if (control.dataset.field === 'trimEndPct') {
     track.trimEndPct = clamp(Number(control.value), (track.trimStartPct || 0) + 1, 100);
     control.value = String(Math.round(track.trimEndPct));
-    track.lengthPct = trimmedLengthPct(track);
     drawTimeline();
   } else if (control.dataset.field === 'effect') {
     track.effect = control.value;
@@ -1226,6 +1251,8 @@ function initTimelineDrag() {
       clip.style.left = `${track.offsetPct}%`;
       const label = clip.querySelector('span');
       if (label) label.textContent = `${track.name} ${Math.round(track.offsetPct)}%`;
+      const ghost = clip.parentElement?.querySelector('.track-ghost');
+      if (ghost) ghost.style.left = `${trackGhostLeftPct(track)}%`;
     }
   });
   window.addEventListener('pointerup', () => {
