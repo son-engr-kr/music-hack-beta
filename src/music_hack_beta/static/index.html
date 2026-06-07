@@ -3997,7 +3997,7 @@
   /* Nodes mode: align knobs and mode buttons like Prompt/Clone controls. */
   .generation-card.nodes-layout {
     grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
-    grid-template-rows: 30px 66px minmax(210px, 1fr) 116px 94px !important;
+    grid-template-rows: 30px 66px minmax(0, 1fr) 108px 86px !important;
     gap: 12px !important;
     align-content: stretch !important;
     overflow: hidden !important;
@@ -4018,6 +4018,7 @@
   }
 
   .generation-card.nodes-layout > .field:first-of-type,
+  .generation-card.nodes-layout > .preset-select-field,
   .generation-card.nodes-layout .node-editor-dock {
     display: none !important;
   }
@@ -4031,8 +4032,9 @@
 
   .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field {
     display: grid !important;
-    grid-template-rows: minmax(0, 1fr) 42px auto !important;
-    gap: 8px !important;
+    grid-template-columns: minmax(0, .86fr) minmax(280px, 1fr) !important;
+    grid-template-rows: 42px minmax(0, 1fr) !important;
+    gap: 10px 12px !important;
     height: 100% !important;
     min-height: 0 !important;
     padding: 0 !important;
@@ -4048,18 +4050,77 @@
   .generation-card.nodes-layout #prompt-surface {
     height: 100% !important;
     min-height: 0 !important;
-    max-height: none !important;
+    max-height: 234px !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+    align-self: start !important;
+    width: 100% !important;
+    max-width: 380px !important;
   }
 
   .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow {
     display: grid !important;
+    grid-column: 2 !important;
+    grid-row: 1 !important;
     grid-template-columns: minmax(0, 1fr) 112px !important;
     gap: 8px !important;
+    align-self: start !important;
   }
 
   .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-list {
-    max-height: 76px !important;
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    max-height: 164px !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    align-self: start !important;
     overflow-y: auto !important;
+    display: grid !important;
+    grid-auto-rows: 41px !important;
+    gap: 5px !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 168px !important;
+    gap: 6px !important;
+    align-items: center !important;
+    min-height: 41px !important;
+    height: 41px !important;
+    padding: 3px 4px !important;
+    overflow: hidden !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row.influence {
+    display: none !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row input {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 5px !important;
+    font-size: .62rem !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 3px !important;
+    min-width: 0 !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row .smallbtn {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 4px !important;
+    font-size: .52rem !important;
+    line-height: .9 !important;
+    white-space: normal !important;
+    transform: translateY(-3px) !important;
   }
 
   .generation-card.nodes-layout > .split {
@@ -4068,16 +4129,16 @@
 
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
     grid-row: 4 !important;
-    width: calc(100% + 20px) !important;
-    min-height: 116px !important;
-    height: 116px !important;
-    padding: 8px 6px 10px !important;
+    width: 100% !important;
+    min-height: 106px !important;
+    height: 106px !important;
+    padding: 5px 6px 7px !important;
     display: grid !important;
     grid-template-rows: 40px 1fr !important;
     gap: 6px !important;
     align-self: stretch !important;
     justify-self: stretch !important;
-    transform: translateY(50px) !important;
+    transform: none !important;
     overflow: visible !important;
   }
 
@@ -4094,6 +4155,8 @@
     min-height: 40px !important;
     grid-template-rows: 18px 18px !important;
     overflow: visible !important;
+    transform: translateY(-2px) !important;
+    font-size: .62rem !important;
   }
 
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label b {
@@ -4103,7 +4166,7 @@
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
     width: 40px !important;
     height: 40px !important;
-    margin: 6px auto 0 !important;
+    margin: 1px auto 0 !important;
   }
 
   .generation-card.nodes-layout .advanced-mode-row {
@@ -4112,8 +4175,8 @@
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 10px !important;
-    height: 92px !important;
-    min-height: 92px !important;
+    height: 86px !important;
+    min-height: 86px !important;
     margin: 0 !important;
     align-self: stretch !important;
   }
@@ -4123,16 +4186,16 @@
   }
 
   .generation-card.nodes-layout .advanced-mode-field {
-    height: 92px !important;
-    min-height: 92px !important;
-    padding: 8px 5px 10px !important;
+    height: 86px !important;
+    min-height: 86px !important;
+    padding: 5px 5px 7px !important;
     grid-template-rows: 20px 46px !important;
     gap: 5px !important;
   }
 
   .generation-card.nodes-layout .advanced-mode-field:not(.numeric-field) .segrow {
     display: grid !important;
-    grid-template-columns: repeat(2, 55px) !important;
+    grid-template-columns: repeat(2, 85px) !important;
     gap: 6px !important;
     align-items: center !important;
     justify-content: center !important;
@@ -4142,7 +4205,7 @@
   }
 
   .generation-card.nodes-layout .advanced-mode-field:not(.numeric-field) .seg {
-    width: 55px !important;
+    width: 85px !important;
     height: 42px !important;
     min-height: 42px !important;
     max-height: 42px !important;
