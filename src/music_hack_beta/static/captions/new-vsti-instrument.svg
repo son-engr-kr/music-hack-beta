@@ -1,0 +1,10 @@
+<svg width="1600" height="360" viewBox="0 0 1600 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Create a New VSTi Instrument">
+  <rect width="1600" height="360" fill="none"/>
+  <rect x="38" y="24" width="1524" height="294" rx="42" fill="#171717" opacity="0.9"/>
+  <rect x="75" y="58" width="1450" height="230" rx="34" fill="#c9b6ff"/>
+  <rect x="58" y="38" width="1450" height="230" rx="34" fill="#f6f1ff" stroke="#171717" stroke-width="10"/>
+  <rect x="112" y="98" width="230" height="118" rx="18" fill="#ffffff" stroke="#171717" stroke-width="8"/>
+  <path d="M130 176h34v-45h28v45h34v-60h28v60h34v-38h28v38" stroke="#171717" stroke-width="8" stroke-linejoin="round"/>
+  <text x="390" y="162" fill="#171717" font-family="Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif" font-size="70" font-weight="900">Create a New VSTi Instrument</text>
+  <text x="392" y="213" fill="#3b3b3b" font-family="Arial Rounded MT Bold, Trebuchet MS, Arial, sans-serif" font-size="30" font-weight="700">turn generation into a playable instrument</text>
+</svg>
