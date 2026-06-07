@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magenta RT 2 Live Lab</title>
+<style>
+  :root {
+    --bg: #11100d; --panel: #1d1a14; --panel2: #272116; --line: #3c3424;
+    --text: #f7ead5; --muted: #aa9d88; --accent: #f0b35a; --green: #8fd18f;
+    --red: #ff735c; --blue: #80b7ff; --black: #080706;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100vh; color: var(--text);
+    font-family: Georgia, 'Times New Roman', serif;
+    background: radial-gradient(circle at 18% 0%, rgba(240,179,90,.18), transparent 32rem), linear-gradient(145deg, #0f0e0b, #17140f 55%, #100f0c);
+    overflow: hidden;
+  }
+  button, input, select { font: inherit; }
+  .shell { width: 100vw; height: 100vh; margin: 0 auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+  header { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; border-bottom: 1px solid var(--line); padding-bottom: 8px; flex: 0 0 auto; }
+  h1 { margin: 0; font-size: clamp(1.5rem, 3.2vw, 2.9rem); line-height: .9; letter-spacing: -.055em; }
+  .sub { display: none; }
+  .status { min-width: 300px; border: 1px solid var(--line); border-radius: 14px; background: rgba(29,26,20,.9); padding: 8px 10px; box-shadow: 0 12px 30px rgba(0,0,0,.24); }
+  .stat { display: flex; justify-content: space-between; gap: 18px; color: var(--muted); font-size: .78rem; margin: 2px 0; }
+  .stat strong { color: var(--text); font-variant-numeric: tabular-nums; }
+  .led { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--red); margin-right: 8px; }
+  .led.on { background: var(--green); } .led.busy { background: var(--accent); }
+
+  .transport { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; flex: 0 0 auto; }
+  button { border: 1px solid var(--line); border-radius: 11px; background: linear-gradient(180deg, #342817, #1c1711); color: var(--text); min-height: 38px; cursor: pointer; font-weight: 800; font-size: .86rem; }
+  button:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .primary { background: linear-gradient(180deg, #efb75d, #a46528); color: #120d07; border-color: #ffd28a; }
+  .danger { background: linear-gradient(180deg, #ff735c, #8a2a21); }
+
+  .grid { display: grid; grid-template-columns: minmax(300px, .95fr) minmax(430px, 1.15fr) minmax(320px, .95fr); gap: 10px; flex: 1 1 auto; min-height: 0; }
+  .grid > * { min-width: 0; }
+  .card { min-width: 0; min-height: 0; background: rgba(29,26,20,.9); border: 1px solid var(--line); border-radius: 16px; padding: 10px; box-shadow: 0 16px 46px rgba(0,0,0,.2); overflow: hidden; }
+  h2 { margin: 0 0 8px; letter-spacing: -.035em; font-size: 1rem; }
+  label { display: flex; justify-content: space-between; color: var(--muted); font-size: .72rem; margin-bottom: 4px; }
+  label b { color: var(--accent); font-variant-numeric: tabular-nums; }
+  input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 9px; padding: .42rem .55rem; color: var(--text); background: #15130f; outline: none; font-size: .78rem; }
+  input[type="range"] { display: none; }
+  .field { margin-bottom: 7px; }
+  .hint { color: var(--muted); font-size: .64rem; line-height: 1.22; margin-top: 4px; }
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  .knob { width: 48px; height: 48px; margin: 3px auto 2px; border-radius: 50%; cursor: ns-resize; border: 1px solid #4a3a21; position: relative; touch-action: none;
+    background: radial-gradient(circle at 50% 50%, #292116 0 45%, transparent 46%), conic-gradient(from 215deg, var(--accent) var(--fill, 45%), #3a3323 0 78%, transparent 0), radial-gradient(circle at 38% 28%, #514028, #16120d 68%);
+    box-shadow: inset 0 0 0 8px #14110d, 0 10px 28px rgba(0,0,0,.34); }
+  .knob::after { content: ""; position: absolute; left: 50%; top: 7px; width: 3px; height: 14px; border-radius: 99px; background: #f8d08b; transform-origin: 50% 17px; transform: translateX(-50%) rotate(var(--angle, 0deg)); }
+
+  .segrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+  .seg { border: 1px solid var(--line); border-radius: 9px; padding: .34rem .3rem; text-align: center; color: var(--muted); background: #15130f; cursor: pointer; user-select: none; font-size: .72rem; }
+  .seg.on { color: #130d06; background: var(--accent); border-color: #ffd08c; font-weight: 800; }
+  .minirow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .smallbtn { min-height: 32px; border-radius: 9px; font-size: .72rem; }
+
+  .typing { display: grid; gap: 5px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: #15130f; overflow: hidden; }
+  .typing-row { display: flex; gap: 4px; justify-content: center; min-width: 0; }
+  .key { min-width: 30px; min-height: 30px; border-radius: 8px; border: 1px solid #343028; display: flex; align-items: center; justify-content: center; color: #111; background: #f2e8d8; font-weight: 800; box-shadow: 0 2px 0 rgba(0,0,0,.35); user-select: none; font-size: .78rem; }
+  .key.black { background: #050505; color: #fff; min-height: 27px; }
+  .key.func { background: #d39b00; color: #161007; min-width: 74px; }
+  .key.active { background: var(--green); color: #061006; transform: translateY(2px); box-shadow: none; }
+
+  .piano-wrap { max-width: 100%; overflow-x: hidden; padding-bottom: 0; margin-top: 7px; }
+  .piano { position: relative; height: 108px; width: 100%; user-select: none; }
+  .piano-focus { position: absolute; top: 0; bottom: 0; border: 2px solid var(--accent); background: rgba(240,179,90,.16); border-radius: 10px; z-index: 0; pointer-events: none; }
+  .white, .blackp { position: absolute; border: 1px solid #2a241a; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 5px; font-size: .52rem; }
+  .white { bottom: 0; height: 102px; background: #f4e7d1; color: #4d3a20; border-radius: 0 0 6px 6px; z-index: 1; }
+  .blackp { top: 0; height: 64px; background: #050505; color: #d9c2a0; border-radius: 0 0 5px 5px; z-index: 2; }
+  .white.on, .blackp.on { background: var(--green); color: #061006; }
+  .white.sustain, .blackp.sustain { background: var(--blue); color: #08111f; }
+  .white.masked, .blackp.masked { background: var(--red); color: #fff; }
+  .legend { display: flex; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: .62rem; margin-top: 6px; }
+  .chip { border: 1px solid var(--line); border-radius: 999px; padding: .22rem .42rem; background: #15130f; }
+
+  canvas { width: 100%; border: 1px solid var(--line); border-radius: 14px; background: #090806; display: block; }
+  #roll { height: 295px; } #wave { height: 92px; } #queue { height: 50px; }
+  .log { height: 90px; overflow-y: auto; white-space: pre-wrap; color: #c9bea9; line-height: 1.32; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .62rem; background: #090806; border: 1px solid var(--line); border-radius: 11px; padding: 8px; }
+
+  @media (max-width: 1120px) { header, .grid { grid-template-columns: 1fr; } .status { min-width: 0; } }
+  @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow { grid-template-columns: 1fr 1fr; } .transport button { min-height: 52px; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>Magenta RT 2<br>Live Lab</h1>
+      <div class="sub">Binary Float32 streaming into an AudioWorklet ring buffer. QWERTY notes are momentary, clicked piano notes are latched, and onset events are preserved for the next generated frame.</div>
+    </div>
+    <div class="status">
+      <div class="stat"><span><i class="led" id="led"></i><span id="status">Disconnected</span></span><strong id="mode">idle</strong></div>
+      <div class="stat"><span>Worklet queue</span><strong id="queue-text">0.00s</strong></div>
+      <div class="stat"><span>Model speed</span><strong id="speed">-</strong></div>
+      <div class="stat"><span>Underruns</span><strong id="underruns">0</strong></div>
+    </div>
+  </header>
+
+  <nav class="transport">
+    <button class="primary" id="start">Start Live</button>
+    <button id="once">Generate Once</button>
+    <button id="reset">Reset State</button>
+    <button id="clear">Clear Notes</button>
+    <button class="danger" id="panic">Panic</button>
+  </nav>
+
+  <main class="grid">
+    <section class="card">
+      <h2>Generation</h2>
+      <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
+      <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"></div>
+      <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Uses MusicCoCa audio embedding as the style prompt, matching the public demo's audio prompt idea. Full audio prefill still requires C++ core.</div></div>
+      <div class="split">
+        <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style. Only active after uploading audio.</div></div>
+        <div class="field"><label>Text weight <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+      </div>
+      <div class="field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
+      <div class="field"><label>Style mode</label><div class="segrow" id="style-mode"><div class="seg on" data-value="prompt">Prompt</div><div class="seg" data-value="unconditioned">None</div></div><div class="hint">Prompt uses MusicCoCa style tokens. None masks style conditioning.</div></div>
+      <div class="split">
+        <div class="field"><label>Frames/request <b id="frames-v">1</b></label><input id="frames" type="range" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
+        <div class="field"><label>Target queue <b id="target-v">0.24s</b></label><input id="target" type="range" min="4" max="80" value="24"><div class="hint">Producer fills only up to this queue. Lower is more responsive, higher avoids gaps.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>Temperature <b id="temp-v">1.10</b></label><input id="temp" type="range" min="0" max="220" value="110"><div class="hint">Official default: 1.1. Higher means more surprise and more instability.</div></div>
+        <div class="field"><label>Top-k <b id="topk-v">50</b></label><input id="topk" type="range" min="1" max="200" value="50"><div class="hint">Official default: 50. Higher allows broader token choices. Lower is safer and more repetitive.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>Style CFG <b id="cfgs-v">1.6</b></label><input id="cfgs" type="range" min="0" max="100" value="16"><div class="hint">Official default: 1.6. Higher follows prompt harder but can reduce musicality.</div></div>
+        <div class="field"><label>Notes CFG <b id="cfgn-v">2.4</b></label><input id="cfgn" type="range" min="0" max="100" value="24"><div class="hint">Official default: 2.4. Higher follows your pitches more strictly.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>Unmask width <b id="unmask-v">0</b></label><input id="unmask" type="range" min="0" max="127" value="0"><div class="hint">Official Jam uses 0 for accompaniment and 127 for Solo. Higher lets the model see more off-notes around what you play.</div></div>
+        <div class="field"><label>Voice response</label><div class="segrow" id="voice-mode"><div class="seg on" data-value="jam">Jam</div><div class="seg" data-value="solo">Solo</div></div><div class="hint">Jam follows chords. Solo adds the SOLO prompt prefix and unmasks all pitches for a more playable instrument.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>Drums CFG <b id="cfgd-v">4.0</b></label><input id="cfgd" type="range" min="0" max="100" value="40"><div class="hint">Official default: 4.0. Higher enforces drum conditioning.</div></div>
+        <div class="field"><label>Gain <b id="gain-v">0.85</b></label><input id="gain" type="range" min="0" max="120" value="85"><div class="hint">AudioWorklet output gain with smoothing.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>No Drums</label><div class="segrow" id="drumless"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">Official demos expose drumless. In Python mode this maps drum conditioning to off.</div></div>
+        <div class="field"><label>Variation seed <b id="seed-v">0</b></label><input id="seed" type="range" min="0" max="24" value="0"><div class="hint">Python API lacks C++ seed_rotation. This app approximates it by resetting state and adding a stable variation tag to the prompt.</div></div>
+      </div>
+      <div class="split">
+        <div class="field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset/Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
+        <div class="field"><label>MIDI gate</label><div class="segrow" id="midi-gate"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">When enabled, generated audio fades down while no notes are held. Useful for playable Solo mode.</div></div>
+      </div>
+      <div class="field"><label>Streaming state</label><select id="continuous"><option value="true">Keep state</option><option value="false">Fresh each request</option></select><div class="hint">Keep state gives continuity. Fresh is more reactive but less musical.</div></div>
+    </section>
+
+    <section class="card">
+      <h2>Keyboard</h2>
+      <div class="field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
+      <div class="field"><label>Notes mode</label><div class="segrow" id="notes-mode"><div class="seg on" data-value="masked">Conditioned</div><div class="seg" data-value="unconditioned">Off</div></div><div class="hint">Physical keyboard notes are momentary. Clicked piano notes latch. Tap events become onset tokens for the next frame.</div></div>
+      <div class="typing">
+        <div class="typing-row"><div class="key black" data-code="KeyW">W</div><div class="key black" data-code="KeyE">E</div><div class="key black" data-code="KeyT">T</div><div class="key black" data-code="KeyY">Y</div><div class="key black" data-code="KeyU">U</div><div class="key black" data-code="KeyO">O</div><div class="key black" data-code="KeyP">P</div></div>
+        <div class="typing-row"><div class="key" data-code="KeyA">A</div><div class="key" data-code="KeyS">S</div><div class="key" data-code="KeyD">D</div><div class="key" data-code="KeyF">F</div><div class="key" data-code="KeyG">G</div><div class="key" data-code="KeyH">H</div><div class="key" data-code="KeyJ">J</div><div class="key" data-code="KeyK">K</div><div class="key" data-code="KeyL">L</div><div class="key" data-code="Semicolon">;</div><div class="key" data-code="Quote">'</div></div>
+        <div class="typing-row"><div class="key func" data-code="KeyZ">Z octave -</div><div class="key func" data-code="KeyX">X octave +</div><span class="chip">Octave <b id="octave">C4</b></span><span class="chip">Held <b id="held">0</b></span><span class="chip">Latched <b id="latched">0</b></span></div>
+      </div>
+      <div class="piano-wrap"><div class="piano" id="piano"></div></div>
+      <div class="legend"><span class="chip">M masked</span><span class="chip">0 off</span><span class="chip">S sustain</span><span class="chip">On onset</span><span class="chip">A auto</span></div>
+      <h2 style="margin-top:18px;">Drums</h2>
+      <div class="segrow" id="drums-mode"><div class="seg on" data-value="-1">Masked</div><div class="seg" data-value="0">Off</div><div class="seg" data-value="1">On</div></div>
+    </section>
+
+    <aside class="card">
+      <h2>Stream</h2>
+      <canvas id="roll"></canvas>
+      <div class="hint">Piano-roll recorder. Colored blocks are what you played. Orange is input-now; blue estimates the audio currently heard. The gap is your control latency.</div>
+      <div style="height:10px"></div>
+      <canvas id="wave"></canvas>
+      <div style="height:10px"></div>
+      <canvas id="queue"></canvas>
+      <div style="height:10px"></div>
+      <div class="log" id="log">Ready. Press Start Live, then play A/W/S/E/D... like Musical Typing.</div>
+    </aside>
+  </main>
+</div>
+
+<script>
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const TYPING = {KeyA:0,KeyW:1,KeyS:2,KeyE:3,KeyD:4,KeyF:5,KeyT:6,KeyG:7,KeyY:8,KeyH:9,KeyU:10,KeyJ:11,KeyK:12,KeyO:13,KeyL:14,KeyP:15,Semicolon:16,Quote:17};
+const STATE = {'-1':'M','0':'0','1':'S','2':'On','3':'A'};
+const CLASS = {'-1':'masked','0':'','1':'sustain','2':'on','3':'on'};
+const PROMPT_PRESETS = [
+  "Dreamy Ambient Pads", "Jazz Piano Trio", "Electro Synthpop", "Chiptune", "Synthwave", "Jazz Guitar",
+  "Saturated Gamelan Choir", "Flamenco Nylon Guitar Rasgueado", "Reggae Rhythm Guitar", "Synthpop Groove Club Mix",
+  "Fast Swing Jazz Clarinet and Guitar", "Afrobeat Band with Horns and Complex Drums", "French House Disco Loops Filter Sweeps",
+  "Country Banjo Picking", "R&B Smooth Keys", "Soft Rock", "Cyberpunk Synthwave Mariachi Horns", "Trap Beat with Sampled Funk",
+  "UK Post-Dubstep String Quartet", "African Kalimba", "Lo-fi Hip Hop Beat", "Smooth Bossa Nova",
+  "West African Kora Polyrhythms", "Danceable Latin Jazz Salsa with Trombone", "Celtic Fiddle Jig", "Acoustic Folk Guitar",
+  "Church Organ", "Surf Rock Guitar", "Cavernous Endless Reverb Electric Guitar Swells", "Japanese Koto",
+  "Gritty Garage Rock", "Indian Classical Sitar and Tabla Raga", "Middle Eastern Oud and Darbuka Groove",
+  "Ambient IDM Glitch Beats", "Euphoric Washed-Out Noise Pop Fuzz", "Andean Pan Flute Mountain Melody",
+  "Balinese Gamelan Metallic Percussion", "Dark Cinematic Soundtrack", "Brazilian Samba Batucada Percussion Ensemble",
+];
+const INSTRUMENT_PRESETS = [
+  "Heavily Digitally Distorted Harp Shimmer", "Warm Vinyl Crackle Dusty Organ Chords", "Supersaw Complextro Chords",
+  "Melodramatic Tremolo Mandolin", "Trance Arpeggiated Synth", "Baroque Cello Meets 90s Trance Euphoria",
+  "Polka Accordion", "Dubstep Wobble Bass Synth", "Medieval Rain", "Granular Synthesis Frozen Vocal Textures",
+  "Slow Pad Sweeps Up", "Cinematic Orchestral Hits", "Violin Chamber Ensemble", "Fanfare French Horn",
+  "Retro Synthwave Analog Lead", "Ambient Pad Synthesizer", "Bowed Vibraphone Sustained Metallic Ringing",
+  "Classical Cello", "Delicate Vintage Music Box", "Bluegrass Picked Banjo", "Gentle Microtonal Flutes",
+  "Latin Mallet Marimba", "Fingerpicked Acoustic Guitar", "Chinese Guzheng", "Euphoric Washed-Out Noise Pop Fuzz",
+  "Cavernous Endless Reverb Electric Guitar Swells", "Orchestral Sustained Oboe", "Nylon String Classical Guitar",
+];
+let ws, audioCtx, worklet, pendingMeta;
+let live = false, waiting = false, connected = false;
+let queuedSeconds = 0, underruns = 0, generated = 0;
+let noteState = new Map(), held = new Map(), onset = new Map();
+let midiAccess = null, midiInput = null, midiHeld = new Set();
+let noteEvents = [];
+let octaveBase = 48;
+let lastWave = new Float32Array(0);
+let audioStyleKey = null;
+
+function $(id) { return document.getElementById(id); }
+function selected(id) { return document.querySelector(`#${id} .seg.on`).dataset.value; }
+function setLed(text, cls) { $('status').textContent = text; $('led').className = 'led ' + (cls || ''); }
+function log(msg) { const el = $('log'); el.textContent += `\n${new Date().toLocaleTimeString()} ${msg}`; el.scrollTop = el.scrollHeight; }
+
+async function ensureAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 48000 });
+    await audioCtx.audioWorklet.addModule('/static/audio-worklet.js');
+    worklet = new AudioWorkletNode(audioCtx, 'mrt2-stream-processor', { outputChannelCount: [2] });
+    worklet.connect(audioCtx.destination);
+    worklet.port.onmessage = (event) => {
+      if (event.data.type !== 'metrics') return;
+      queuedSeconds = event.data.queuedSamples / event.data.sampleRate;
+      underruns = event.data.underruns;
+      updateReadouts();
+      drawQueue();
+      drawRoll();
+      pump();
+    };
+  }
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
+}
+
+function connect() {
+  ws = new WebSocket(`ws://${location.host}/ws`);
+  ws.binaryType = 'arraybuffer';
+  ws.onopen = () => { connected = true; setLed('Connected', 'on'); pump(); };
+  ws.onclose = () => { connected = false; setLed('Disconnected', ''); setTimeout(connect, 800); };
+  ws.onmessage = (event) => {
+    if (typeof event.data === 'string') {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'audio_meta') pendingMeta = msg;
+      return;
+    }
+    if (!pendingMeta) return;
+    waiting = false;
+    generated += 1;
+    const buffer = event.data;
+    worklet.port.postMessage({ type: 'audio', buffer }, [buffer]);
+    $('speed').textContent = `${pendingMeta.ms_per_frame.toFixed(1)}ms/f`;
+    lastWave = new Float32Array(buffer).filter((_, i) => i % 2 === 0);
+    drawWave();
+    log(`frame ${generated}: ${pendingMeta.audio_seconds.toFixed(3)}s audio, ${pendingMeta.ms_per_frame.toFixed(1)}ms/frame, ${pendingMeta.payload_bytes} bytes`);
+    pendingMeta = null;
+    pump();
+  };
+}
+
+function sendGenerate() {
+  if (!connected || waiting || !worklet) return false;
+  waiting = true;
+  ws.send(JSON.stringify(buildMessage()));
+  return true;
+}
+
+function buildMessage() {
+  const merged = new Map();
+  for (const [p, v] of noteState) merged.set(p, v);
+  const onsetMode = selected('onset-mode') === 'unmasked';
+  for (const [p] of held) merged.set(p, onsetMode ? 1 : 3);
+  for (const [p] of onset) merged.set(p, onsetMode ? 2 : 3);
+  const notes = [...merged.entries()].map(([p, v]) => [p, v]);
+  onset.clear();
+  return {
+    action: 'generate', mode: 'lab', style_mode: selected('style-mode'), prompt: effectivePrompt(),
+    style_sources: styleSources(),
+    notes_mode: selected('notes-mode'), notes,
+    drums: selected('drumless') === 'on' ? [0] : [parseInt(selected('drums-mode'))],
+    unmask_width: parseInt($('unmask').value),
+    frames: parseInt($('frames').value), continuous: $('continuous').value === 'true',
+    temperature: parseInt($('temp').value) / 100,
+    top_k: parseInt($('topk').value),
+    cfg_musiccoca: parseInt($('cfgs').value) / 10,
+    cfg_notes: parseInt($('cfgn').value) / 10,
+    cfg_drums: parseInt($('cfgd').value) / 10,
+  };
+}
+
+function effectivePrompt() {
+  const text = $('prompt').value.trim();
+  const seed = parseInt($('seed').value);
+  const variation = seed > 0 ? ` variation ${seed}` : '';
+  if ((selected('jam-mode') === 'solo' || selected('voice-mode') === 'solo') && text) return `SOLO ${text}${variation}`;
+  return text ? `${text}${variation}` : 'silence';
+}
+
+function styleSources() {
+  if (!audioStyleKey) return null;
+  const audioWeight = parseInt($('audio-weight').value) / 100;
+  const textWeight = parseInt($('text-weight').value) / 100;
+  const sources = [];
+  if (audioWeight > 0) sources.push({ kind: 'audio', key: audioStyleKey, weight: audioWeight });
+  if (textWeight > 0) sources.push({ kind: 'text', text: effectivePrompt(), weight: textWeight });
+  return sources.length ? sources : [{ kind: 'audio', key: audioStyleKey, weight: 1 }];
+}
+
+function pump() {
+  if (!live || waiting || !connected || !worklet) return;
+  const target = parseInt($('target').value) / 100;
+  if (queuedSeconds < target) sendGenerate();
+}
+
+function panic() {
+  live = false; waiting = false; pendingMeta = null;
+  if (worklet) worklet.port.postMessage({ type: 'clear' });
+  if (ws && connected) ws.send(JSON.stringify({ action: 'reset' }));
+  noteEvents = [];
+  $('start').textContent = 'Start Live';
+  log('panic: cleared worklet queue and reset model state');
+  updateReadouts();
+}
+
+function bindSegments(id) {
+  document.querySelectorAll(`#${id} .seg`).forEach(el => el.addEventListener('click', () => {
+    document.querySelectorAll(`#${id} .seg`).forEach(x => x.classList.remove('on'));
+    el.classList.add('on'); updateReadouts();
+  }));
+}
+
+function buildPresets() {
+  const select = $('preset');
+  select.innerHTML = '';
+  const addGroup = (label, presets, mode) => {
+    const group = document.createElement('optgroup');
+    group.label = label;
+    presets.forEach(text => {
+      const option = document.createElement('option');
+      option.value = `${mode}:${text}`;
+      option.textContent = text;
+      group.appendChild(option);
+    });
+    select.appendChild(group);
+  };
+  addGroup('Official Jam presets', PROMPT_PRESETS, 'accompany');
+  addGroup('Official Solo instrument presets', INSTRUMENT_PRESETS, 'solo');
+  select.value = `accompany:${PROMPT_PRESETS[0]}`;
+  select.addEventListener('change', () => {
+    const [mode, ...parts] = select.value.split(':');
+    const prompt = parts.join(':');
+    $('prompt').value = prompt;
+    document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === mode));
+    document.querySelectorAll('#voice-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === (mode === 'solo' ? 'solo' : 'jam')));
+    applyOfficialDefaults();
+    applyVoiceMode(mode === 'solo' ? 'solo' : 'jam');
+    resetForPromptChange();
+    log(`preset: ${mode === 'solo' ? 'SOLO ' : ''}${prompt}`);
+  });
+}
+
+function applyOfficialDefaults() {
+  $('temp').value = '110';
+  $('topk').value = '50';
+  $('cfgs').value = '16';
+  $('cfgn').value = '24';
+  $('cfgd').value = '40';
+  $('unmask').value = selected('voice-mode') === 'solo' ? '127' : '0';
+  $('seed').value = '0';
+  document.querySelectorAll('input[type="range"]').forEach(input => input.dispatchEvent(new Event('input', { bubbles: true })));
+}
+
+function applyVoiceMode(mode) {
+  if (mode === 'solo') {
+    $('unmask').value = '127';
+    document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'solo'));
+    document.querySelectorAll('#onset-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'unmasked'));
+  } else {
+    $('unmask').value = '0';
+    document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'accompany'));
+  }
+  $('unmask').dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function resetForPromptChange() {
+  if (ws && connected) ws.send(JSON.stringify({ action: 'reset' }));
+  if (worklet) worklet.port.postMessage({ type: 'clear' });
+  queuedSeconds = 0;
+  waiting = false;
+}
+
+function buildKnobs() {
+  document.querySelectorAll('input[type="range"]').forEach(input => {
+    const knob = document.createElement('div'); knob.className = 'knob'; input.after(knob);
+    const min = Number(input.min), max = Number(input.max), step = Number(input.step || 1);
+    let y0 = 0, v0 = 0;
+    const set = value => { input.value = String(Math.max(min, Math.min(max, Math.round(value / step) * step))); input.dispatchEvent(new Event('input', { bubbles: true })); paintKnob(knob, input); };
+    knob.addEventListener('pointerdown', e => { e.preventDefault(); knob.setPointerCapture(e.pointerId); y0 = e.clientY; v0 = Number(input.value); });
+    knob.addEventListener('pointermove', e => { if (knob.hasPointerCapture(e.pointerId)) set(v0 + (y0 - e.clientY) * (max - min) / 170); });
+    knob.addEventListener('wheel', e => { e.preventDefault(); set(Number(input.value) + Math.sign(-e.deltaY) * step * 3); }, { passive: false });
+    input.addEventListener('input', () => { paintKnob(knob, input); updateReadouts(); });
+    paintKnob(knob, input);
+  });
+}
+function paintKnob(knob, input) { const n = (Number(input.value) - Number(input.min)) / (Number(input.max) - Number(input.min)); knob.style.setProperty('--angle', `${-135 + n * 270}deg`); knob.style.setProperty('--fill', `${n * 75}%`); }
+
+function buildPiano() {
+  const root = $('piano'); const whitePcs = [0,2,4,5,7,9,11], black = {1:.7,3:1.7,6:3.2,8:4.2,10:5.2}; let wi = 0;
+  root.innerHTML = '';
+  const whiteCount = countWhites(24, 97);
+  const whiteW = root.clientWidth / whiteCount;
+  const blackW = whiteW * .66;
+  const focus = document.createElement('div'); focus.className = 'piano-focus'; focus.id = 'piano-focus'; root.appendChild(focus);
+  for (let p = 24; p <= 96; p++) if (whitePcs.includes(p % 12)) { const el = keyEl(p, 'white'); el.style.left = `${wi++ * whiteW}px`; el.style.width = `${whiteW}px`; root.appendChild(el); }
+  for (let p = 24; p <= 96; p++) if (black[p % 12] !== undefined) { const el = keyEl(p, 'blackp'); el.style.left = `${(countWhites(24, Math.floor(p / 12) * 12) + black[p % 12]) * whiteW - blackW / 2}px`; el.style.width = `${blackW}px`; root.appendChild(el); }
+}
+function countWhites(start, limit) { let c = 0; for (let p = start; p < limit; p++) if ([0,2,4,5,7,9,11].includes(p % 12)) c++; return c; }
+function keyEl(p, cls) { const el = document.createElement('div'); el.className = cls; el.dataset.pitch = p; el.innerHTML = `<b>M</b><span>${NOTE_NAMES[p%12]}${Math.floor(p/12)}</span>`; el.onclick = () => cycleLatch(p, el); return el; }
+function cycleLatch(p, el) { const order = [-1,0,1,2,3]; const cur = noteState.has(p) ? noteState.get(p) : -1; const next = order[(order.indexOf(cur) + 1) % order.length]; if (next === -1) noteState.delete(p); else noteState.set(p, next); paintPianoKey(el, next); updateReadouts(); }
+function paintPianoKey(el, v) { el.classList.remove('masked','sustain','on'); const cls = CLASS[String(v)]; if (cls) el.classList.add(cls); el.querySelector('b').textContent = STATE[String(v)]; }
+
+function down(e) {
+  if (e.repeat || e.target.matches('input, textarea, select')) return;
+  if (e.code === 'KeyZ') { dropHeldNotes(); octaveBase = Math.max(24, octaveBase - 12); mark(e.code, true); updateReadouts(); return; }
+  if (e.code === 'KeyX') { dropHeldNotes(); octaveBase = Math.min(84, octaveBase + 12); mark(e.code, true); updateReadouts(); return; }
+  if (!(e.code in TYPING)) return;
+  e.preventDefault(); const p = octaveBase + TYPING[e.code]; onset.set(p, 2); held.set(p, 3); beginNoteEvent(p); mark(e.code, true); updateReadouts(); pump();
+}
+function up(e) { if (e.code === 'KeyZ' || e.code === 'KeyX') { mark(e.code, false); return; } if (!(e.code in TYPING)) return; const p = octaveBase + TYPING[e.code]; held.delete(p); endNoteEvent(p); mark(e.code, false); updateReadouts(); }
+function mark(code, active) { const el = document.querySelector(`.key[data-code="${code}"]`); if (el) el.classList.toggle('active', active); }
+
+function dropHeldNotes() {
+  for (const pitch of [...midiHeld]) midiNoteOff(pitch);
+  const openPitches = [...held.keys()];
+  for (const pitch of openPitches) endNoteEvent(pitch);
+  held.clear();
+  onset.clear();
+  document.querySelectorAll('.key').forEach(el => {
+    if (el.dataset.code !== 'KeyZ' && el.dataset.code !== 'KeyX') el.classList.remove('active');
+  });
+}
+
+async function initMidi() {
+  if (!navigator.requestMIDIAccess) {
+    $('midi-status').textContent = 'Web MIDI is not available in this browser. Use Chrome.';
+    return;
+  }
+  midiAccess = await navigator.requestMIDIAccess();
+  midiAccess.onstatechange = refreshMidiInputs;
+  refreshMidiInputs();
+}
+
+function refreshMidiInputs() {
+  const select = $('midi-input');
+  const previous = select.value;
+  select.innerHTML = '<option value="">No MIDI device</option>';
+  if (!midiAccess) return;
+  for (const input of midiAccess.inputs.values()) {
+    const option = document.createElement('option');
+    option.value = input.id;
+    option.textContent = input.name || input.manufacturer || input.id;
+    select.appendChild(option);
+  }
+  if ([...select.options].some(option => option.value === previous)) select.value = previous;
+  if (!select.value && select.options.length > 1) select.value = select.options[1].value;
+  connectMidiInput();
+}
+
+function connectMidiInput() {
+  if (midiInput) midiInput.onmidimessage = null;
+  midiInput = null;
+  midiHeld.clear();
+  const id = $('midi-input').value;
+  if (!midiAccess || !id) {
+    $('midi-status').textContent = 'No MIDI device selected.';
+    return;
+  }
+  midiInput = midiAccess.inputs.get(id);
+  assertMidiInput();
+  midiInput.onmidimessage = handleMidiMessage;
+  $('midi-status').textContent = `MIDI active: ${midiInput.name || id}`;
+}
+
+function assertMidiInput() {
+  if (!midiInput) throw new Error('MIDI input is not selected');
+}
+
+function handleMidiMessage(event) {
+  const [status, data1, data2] = event.data;
+  const command = status & 0xf0;
+  const pitch = data1;
+  const velocity = data2;
+  if (command === 0x90 && velocity > 0) {
+    midiNoteOn(pitch);
+  } else if (command === 0x80 || (command === 0x90 && velocity === 0)) {
+    midiNoteOff(pitch);
+  } else if (command === 0xb0 && data1 === 64) {
+    if (velocity < 64) releaseMidiSustain();
+  }
+}
+
+function midiNoteOn(pitch) {
+  if (pitch < 0 || pitch > 127) return;
+  midiHeld.add(pitch);
+  held.set(pitch, 3);
+  onset.set(pitch, 2);
+  beginNoteEvent(pitch);
+  highlightPianoPitch(pitch, true);
+  updateReadouts();
+  pump();
+}
+
+function midiNoteOff(pitch) {
+  midiHeld.delete(pitch);
+  held.delete(pitch);
+  endNoteEvent(pitch);
+  highlightPianoPitch(pitch, false);
+  updateReadouts();
+}
+
+function releaseMidiSustain() {
+  for (const pitch of [...midiHeld]) midiNoteOff(pitch);
+}
+
+function highlightPianoPitch(pitch, active) {
+  const el = document.querySelector(`[data-pitch="${pitch}"]`);
+  if (el) el.classList.toggle('on', active);
+}
+
+function inputNow() {
+  return audioCtx ? audioCtx.currentTime : performance.now() / 1000;
+}
+
+function beginNoteEvent(pitch) {
+  const t = inputNow();
+  if (!noteEvents.find(event => event.pitch === pitch && event.end === null)) {
+    noteEvents.push({ pitch, start: t, end: null });
+  }
+  if (noteEvents.length > 512) noteEvents = noteEvents.slice(-512);
+}
+
+function endNoteEvent(pitch) {
+  const t = inputNow();
+  for (let i = noteEvents.length - 1; i >= 0; i--) {
+    if (noteEvents[i].pitch === pitch && noteEvents[i].end === null) {
+      noteEvents[i].end = t;
+      return;
+    }
+  }
+}
+
+function updateReadouts() {
+  $('frames-v').textContent = $('frames').value;
+  $('target-v').textContent = `${(parseInt($('target').value) / 100).toFixed(2)}s`;
+  $('temp-v').textContent = (parseInt($('temp').value) / 100).toFixed(2);
+  $('topk-v').textContent = $('topk').value;
+  $('cfgs-v').textContent = (parseInt($('cfgs').value) / 10).toFixed(1);
+  $('cfgn-v').textContent = (parseInt($('cfgn').value) / 10).toFixed(1);
+  $('cfgd-v').textContent = (parseInt($('cfgd').value) / 10).toFixed(1);
+  $('unmask-v').textContent = $('unmask').value;
+  $('seed-v').textContent = $('seed').value;
+  $('gain-v').textContent = (parseInt($('gain').value) / 100).toFixed(2);
+  $('audio-weight-v').textContent = (parseInt($('audio-weight').value) / 100).toFixed(2);
+  $('text-weight-v').textContent = (parseInt($('text-weight').value) / 100).toFixed(2);
+  $('queue-text').textContent = `${queuedSeconds.toFixed(2)}s`;
+  $('underruns').textContent = underruns;
+  $('mode').textContent = live ? (waiting ? 'live generating' : 'live') : 'idle';
+  $('octave').textContent = `${NOTE_NAMES[octaveBase % 12]}${Math.floor(octaveBase / 12)}`;
+  $('held').textContent = held.size;
+  $('latched').textContent = noteState.size;
+  updatePianoFocus();
+  if (worklet) {
+    worklet.port.postMessage({ type: 'gain', value: parseInt($('gain').value) / 100 });
+    worklet.port.postMessage({ type: 'midiGate', enabled: selected('midi-gate') === 'on', active: held.size > 0 || noteState.size > 0 });
+  }
+}
+
+function resize() { buildPiano(); document.querySelectorAll('canvas').forEach(c => { c.width = c.clientWidth * 2; c.height = c.clientHeight * 2; }); drawWave(); drawQueue(); drawRoll(); updateReadouts(); }
+function drawWave() { const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h/2; ctx.fillStyle = '#090806'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#3c3424'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(w,mid); ctx.stroke(); if (!lastWave.length) return; ctx.strokeStyle = '#f0b35a'; ctx.lineWidth = 2; ctx.beginPath(); for (let x=0;x<w;x++) { const s = lastWave[Math.floor(x/w*lastWave.length)] || 0; const y = mid - s * mid * .86; x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke(); }
+function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#090806'; ctx.fillRect(0,0,w,h); ctx.fillStyle = '#272116'; ctx.fillRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#ff735c' : queuedSeconds < target ? '#f0b35a' : '#8fd18f'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#f7ead5'; ctx.font = '20px Georgia'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
+
+function drawRoll() {
+  const c = $('roll');
+  if (!c) return;
+  const ctx = c.getContext('2d'), w = c.width, h = c.height;
+  const current = inputNow();
+  const heard = current - queuedSeconds;
+  const windowSec = 8;
+  const pitchMin = 24, pitchMax = 96, pitchSpan = pitchMax - pitchMin + 1;
+  const toY = t => h - ((t - (current - windowSec)) / windowSec) * h;
+  const toX = pitch => ((pitch - pitchMin + .5) / pitchSpan) * w;
+  ctx.fillStyle = '#090806'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#1f1a12'; ctx.lineWidth = 1;
+  for (let p = pitchMin; p <= pitchMax; p += 12) {
+    const x = toX(p);
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+    ctx.fillStyle = '#6f6250'; ctx.font = '18px Georgia'; ctx.fillText(`${NOTE_NAMES[p % 12]}${Math.floor(p / 12)}`, x + 4, h - 10);
+  }
+  for (const event of noteEvents) {
+    const end = event.end ?? current;
+    if (end < current - windowSec || event.start > current) continue;
+    const x = toX(event.pitch) - Math.max(5, w / pitchSpan * .42);
+    const y1 = toY(event.start), y2 = toY(end);
+    ctx.fillStyle = event.end === null ? 'rgba(143,209,143,.95)' : 'rgba(128,183,255,.78)';
+    ctx.fillRect(x, Math.min(y1, y2), Math.max(8, w / pitchSpan * .84), Math.max(4, Math.abs(y2 - y1)));
+  }
+  drawRollMarker(ctx, w, h, toY(heard), '#80b7ff', `heard now (${queuedSeconds.toFixed(2)}s behind)`);
+  drawRollMarker(ctx, w, h, toY(current), '#f0b35a', 'input now');
+}
+
+function drawRollMarker(ctx, w, h, y, color, label) {
+  if (y < 0 || y > h) return;
+  ctx.strokeStyle = color; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+  ctx.fillStyle = color; ctx.font = '20px Georgia';
+  ctx.fillText(label, 10, Math.max(22, y - 6));
+}
+
+function updatePianoFocus() {
+  const focus = $('piano-focus');
+  if (!focus) return;
+  const root = $('piano');
+  const whiteW = root.clientWidth / countWhites(24, 97);
+  const left = noteToKeyboardX(octaveBase);
+  const right = noteToKeyboardX(Math.min(96, octaveBase + 17)) + whiteW;
+  focus.style.left = `${left}px`;
+  focus.style.width = `${Math.max(30, right - left)}px`;
+}
+
+function noteToKeyboardX(pitch) {
+  const whitePcs = [0,2,4,5,7,9,11];
+  let count = 0;
+  for (let p = 24; p < pitch; p++) if (whitePcs.includes(p % 12)) count++;
+  return count * ($('piano').clientWidth / countWhites(24, 97));
+}
+
+$('start').onclick = async () => { await ensureAudio(); live = !live; $('start').textContent = live ? 'Stop Live' : 'Start Live'; log(live ? 'live producer started' : 'live producer stopped'); updateReadouts(); pump(); };
+$('once').onclick = async () => { await ensureAudio(); sendGenerate(); };
+$('panic').onclick = panic;
+$('reset').onclick = () => { if (ws && connected) ws.send(JSON.stringify({ action:'reset' })); log('model state reset'); };
+$('clear').onclick = () => { dropHeldNotes(); noteState.clear(); held.clear(); onset.clear(); noteEvents = []; document.querySelectorAll('.white,.blackp').forEach(el => paintPianoKey(el, -1)); document.querySelectorAll('.key').forEach(el => el.classList.remove('active')); updateReadouts(); };
+
+connect(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
+buildPresets(); bindSegments('jam-mode'); bindSegments('onset-mode'); bindSegments('midi-gate');
+bindSegments('voice-mode');
+document.querySelectorAll('#voice-mode .seg').forEach(el => el.addEventListener('click', () => applyVoiceMode(el.dataset.value)));
+$('prompt').addEventListener('change', resetForPromptChange);
+$('seed').addEventListener('change', resetForPromptChange);
+$('upload-audio').addEventListener('click', () => $('audio-file').click());
+$('clear-audio').addEventListener('click', () => {
+  audioStyleKey = null;
+  $('audio-style-status').textContent = 'Audio prompt cleared. Text prompt is active.';
+  resetForPromptChange();
+});
+$('audio-file').addEventListener('change', async () => {
+  const file = $('audio-file').files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append('file', file);
+  $('audio-style-status').textContent = `Encoding ${file.name}...`;
+  const response = await fetch('/style/audio', { method: 'POST', body: form });
+  const data = await response.json();
+  audioStyleKey = data.key;
+  $('audio-style-status').textContent = `Audio style active: ${data.name} (${Math.round(data.bytes / 1024)} KB).`;
+  document.querySelectorAll('#style-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'prompt'));
+  resetForPromptChange();
+});
+$('midi-refresh').addEventListener('click', initMidi);
+$('midi-input').addEventListener('change', connectMidiInput);
+window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('resize', resize);
+setInterval(() => { updateReadouts(); drawRoll(); pump(); }, 120);
+setTimeout(resize, 80); updateReadouts();
+</script>
+</body>
+</html>
