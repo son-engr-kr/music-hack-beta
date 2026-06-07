@@ -101,7 +101,7 @@
   .loop-pad.recording { background: linear-gradient(180deg, #ffb75f, #9b2f22); color: #120d07; border-color: #ffd28a; box-shadow: 0 0 0 2px rgba(255,210,138,.42), 0 0 16px rgba(240,179,90,.48); }
   .loop-pad span { display: block; font-size: .62rem; color: var(--muted); font-weight: 700; }
   .loop-pad.recording span { color: #2a1207; }
-  .timeline { height: 116px; border: 1px solid var(--line); border-radius: 12px; background: #090806; position: relative; overflow: hidden; user-select: none; }
+  .timeline { min-height: 116px; max-height: 220px; border: 1px solid var(--line); border-radius: 12px; background: #090806; position: relative; overflow-y: auto; overflow-x: hidden; user-select: none; }
   .timeline-grid { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(240,179,90,.22) calc(25% - 1px) 25%); pointer-events: none; }
   .track-lane { position: relative; height: 30px; margin: 9px 8px; border-radius: 8px; background: #15130f; border: 1px solid #2b251a; }
   .track-ghost { position: absolute; top: 3px; height: 22px; border-radius: 7px; overflow: hidden; opacity: .34; pointer-events: none; background-color: #253247; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
@@ -111,7 +111,7 @@
   .track-clip span { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
   .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 10px rgba(240,179,90,.8); pointer-events: none; }
   .loop-stats { display: flex; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: .62rem; }
-  .track-mixer { max-height: 118px; overflow-y: auto; display: grid; gap: 6px; }
+  .track-mixer { max-height: 168px; overflow-y: auto; display: grid; gap: 6px; }
   .mixer-row { display: grid; grid-template-columns: 1fr 70px 70px 76px 68px 66px; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 9px; padding: 5px; background: #15130f; }
   .mixer-row strong { color: var(--text); font-size: .7rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mixer-row label { margin: 0; display: grid; gap: 3px; font-size: .58rem; }
@@ -166,7 +166,7 @@
       <div class="source-panel on" data-panel="prompt">
         <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"><div class="hint">Direct text prompt source. Nodes and audio clone are ignored while this tab is active.</div></div>
       </div>
-      <div class="field"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><div class="hint">Keeps the current prompt and applies a solo, no-drums, MIDI-gated setup with stronger note following.</div></div>
+      <div class="field"><div class="minirow"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><button class="smallbtn" id="default-instrument">Default Setup</button></div><div class="hint">Playable applies solo, no-drums, MIDI-gated note following. Default restores the general jam-style generation settings.</div></div>
       <div class="source-panel" data-panel="nodes">
         <div class="field">
           <label>Prompt nodes</label>
@@ -240,6 +240,12 @@
           <button class="smallbtn" id="loop-stop">Stop Loops</button>
           <button class="smallbtn danger" id="loop-clear">Clear</button>
         </div>
+        <div class="loop-head">
+          <button class="smallbtn primary" id="save-project-state">Save State</button>
+          <button class="smallbtn" id="load-project-state">Load State</button>
+          <button class="smallbtn" id="add-main-node">Add Main</button>
+          <input id="load-state-file" type="file" accept="application/json" hidden>
+        </div>
         <div class="metro-row">
           <label>Metronome <b id="metro-bpm-v">120 BPM</b></label>
           <input id="metro-bpm" type="range" min="40" max="220" value="120">
@@ -311,7 +317,9 @@ let audioStyleKey = null;
 let sourceMode = 'prompt';
 let promptNodes = [];
 let nextPromptNodeId = 1;
-let mainNode = { x: .5, y: .5 };
+let mainNodes = [{ id: 1, x: .5, y: .5 }];
+let nextMainNodeId = 2;
+let selectedMainNodeId = 1;
 let draggedPromptNode = null;
 let selectedPromptNodeId = null;
 let promptDragStart = null;
@@ -501,24 +509,60 @@ function playableGenerationParams(base = currentGenerationParams()) {
   };
 }
 
+function defaultGenerationParams(base = currentGenerationParams()) {
+  return {
+    ...base,
+    jamMode: 'accompany',
+    voiceMode: 'jam',
+    styleMode: 'prompt',
+    notesMode: 'masked',
+    drumless: 'off',
+    drumsMode: '-1',
+    onsetMode: 'masked',
+    midiGate: 'off',
+    continuous: true,
+    frames: 1,
+    target: .24,
+    temperature: 1.1,
+    topK: 50,
+    cfgMusicCoca: 1.6,
+    cfgNotes: 2.4,
+    cfgDrums: 4,
+    unmask: 0,
+    seed: 0,
+  };
+}
+
 function promptNodeBlend() {
   if (!promptNodes.length) return null;
   const maxDistance = .72;
-  let overlap = null;
-  const weighted = promptNodes.map(node => {
-    const distance = Math.hypot(mainNode.x - node.x, mainNode.y - node.y);
-    if (distance <= .035) overlap = node;
-    return { node, weight: Math.max(0, 1 - distance / maxDistance) };
-  }).filter(item => item.weight > 0);
-  if (overlap) return [{ node: overlap, weight: 1 }];
-  if (!weighted.length) return null;
-  return weighted;
+  const weights = new Map();
+  for (const main of mainNodes) {
+    let overlap = null;
+    for (const node of promptNodes) {
+      const distance = Math.hypot(main.x - node.x, main.y - node.y);
+      if (distance <= .035) overlap = node;
+    }
+    if (overlap) {
+      weights.set(overlap.id, (weights.get(overlap.id) || 0) + 1);
+      continue;
+    }
+    for (const node of promptNodes) {
+      const distance = Math.hypot(main.x - node.x, main.y - node.y);
+      const weight = Math.max(0, 1 - distance / maxDistance);
+      if (weight > 0) weights.set(node.id, (weights.get(node.id) || 0) + weight);
+    }
+  }
+  const weighted = [...weights.entries()].map(([id, weight]) => ({ node: findPromptNode(id), weight })).filter(item => item.weight > 0);
+  return weighted.length ? weighted : null;
 }
 
 function promptNodeSources() {
   const blend = promptNodeBlend();
   if (!blend) return null;
-  return blend.map(item => ({ kind: 'text', text: promptTextWithNode(item.node), weight: item.weight }));
+  const total = blend.reduce((sum, item) => sum + item.weight, 0);
+  if (total <= 0) return null;
+  return blend.map(item => ({ kind: 'text', text: promptTextWithNode(item.node), weight: item.weight / total }));
 }
 
 function weightedGenerationParams(blend) {
@@ -646,11 +690,13 @@ function selectPromptNode(id) {
   updateReadouts();
 }
 
-function selectMainNode() {
+function selectMainNode(id = selectedMainNodeId) {
+  if (sourceMode !== 'nodes') setSourceMode('nodes');
   selectedPromptNodeId = null;
+  selectedMainNodeId = id;
   drawPromptSurface();
   updateReadouts();
-  log('editing main controls');
+  log(`editing main ${id}`);
 }
 
 function applyPlayableInstrumentSetup() {
@@ -674,6 +720,27 @@ function applyPlayableInstrumentSetup() {
   log(node && sourceMode === 'nodes' ? `playable setup applied to node ${node.id}` : `playable instrument setup applied: ${effectivePrompt()}`);
 }
 
+function applyDefaultInstrumentSetup() {
+  const defaultParams = defaultGenerationParams(currentGenerationParams());
+  applyParamsToControls(defaultParams);
+  syncSelectedNodeParamsFromControls();
+  const node = selectedPromptNode();
+  if (sourceMode === 'nodes' && !node) {
+    const influenced = influencedPromptNodes();
+    for (const item of influenced) {
+      item.params = defaultGenerationParams(item.params || defaultParams);
+    }
+    drawPromptSurface();
+    resetForPromptChange();
+    updateReadouts();
+    log(influenced.length ? `default setup applied to ${influenced.length} influenced node(s)` : 'default setup applied');
+    return;
+  }
+  resetForPromptChange();
+  updateReadouts();
+  log(node && sourceMode === 'nodes' ? `default setup applied to node ${node.id}` : 'default setup applied');
+}
+
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
@@ -688,12 +755,35 @@ function canvasPoint(canvas, event) {
 
 function nodeAt(point) {
   const radius = .055;
-  if (Math.hypot(point.x - mainNode.x, point.y - mainNode.y) <= radius) return { type: 'main' };
+  for (let i = mainNodes.length - 1; i >= 0; i--) {
+    const node = mainNodes[i];
+    if (Math.hypot(point.x - node.x, point.y - node.y) <= radius) return { type: 'main', id: node.id };
+  }
   for (let i = promptNodes.length - 1; i >= 0; i--) {
     const node = promptNodes[i];
     if (Math.hypot(point.x - node.x, point.y - node.y) <= radius) return { type: 'prompt', id: node.id };
   }
   return null;
+}
+
+function activeMainNode() {
+  const node = mainNodes.find(item => item.id === selectedMainNodeId);
+  if (!node) throw new Error(`Missing main node: ${selectedMainNodeId}`);
+  return node;
+}
+
+function addMainNode() {
+  if (sourceMode !== 'nodes') setSourceMode('nodes');
+  const angle = nextMainNodeId * 2.399;
+  mainNodes.push({
+    id: nextMainNodeId++,
+    x: clamp(.5 + Math.cos(angle) * .22, .08, .92),
+    y: clamp(.5 + Math.sin(angle) * .22, .1, .9),
+  });
+  selectedPromptNodeId = null;
+  selectedMainNodeId = mainNodes[mainNodes.length - 1].id;
+  drawPromptSurface();
+  resetForPromptChange();
 }
 
 function addPromptNode(text) {
@@ -742,21 +832,28 @@ function drawPromptSurface() {
   }
 
   const weights = new Map(promptWeightsForDisplay().map(item => [item.id, item.weight]));
-  for (const node of promptNodes) {
-    const weight = weights.get(node.id) || 0;
-    ctx.strokeStyle = `rgba(240,179,90,${.18 + weight * .75})`;
-    ctx.lineWidth = 1 + weight * 5;
-    ctx.beginPath();
-    ctx.moveTo(mainNode.x * w, mainNode.y * h);
-    ctx.lineTo(node.x * w, node.y * h);
-    ctx.stroke();
+  for (const main of mainNodes) {
+    for (const node of promptNodes) {
+      const distance = Math.hypot(main.x - node.x, main.y - node.y);
+      const weight = Math.max(0, 1 - distance / .72);
+      if (weight <= 0) continue;
+      ctx.strokeStyle = `rgba(240,179,90,${.1 + weight * .45})`;
+      ctx.lineWidth = 1 + weight * 3;
+      ctx.beginPath();
+      ctx.moveTo(main.x * w, main.y * h);
+      ctx.lineTo(node.x * w, node.y * h);
+      ctx.stroke();
+    }
   }
 
   for (const node of promptNodes) {
     const weight = weights.get(node.id) || 0;
     drawNode(ctx, node.x * w, node.y * h, 15, selectedPromptNodeId === node.id ? '#8fd18f' : '#80b7ff', node.text, `${Math.round(weight * 100)}%`);
   }
-  drawNode(ctx, mainNode.x * w, mainNode.y * h, 18, selectedPromptNodeId === null ? '#ffd28a' : '#f0b35a', 'Main', selectedPromptNodeId === null ? 'editing' : 'drag');
+  for (const main of mainNodes) {
+    const selected = selectedPromptNodeId === null && selectedMainNodeId === main.id;
+    drawNode(ctx, main.x * w, main.y * h, 18, selected ? '#ffd28a' : '#f0b35a', `Main ${main.id}`, selected ? 'editing' : 'mix');
+  }
   drawPromptNodeList();
 }
 
@@ -853,7 +950,10 @@ function initPromptSurface() {
     if (!draggedPromptNode || !canvas.hasPointerCapture(event.pointerId)) return;
     const point = canvasPoint(canvas, event);
     if (draggedPromptNode.type === 'main') {
-      mainNode = point;
+      const node = mainNodes.find(item => item.id === draggedPromptNode.id);
+      if (!node) throw new Error(`Missing main node: ${draggedPromptNode.id}`);
+      node.x = point.x;
+      node.y = point.y;
     } else {
       const node = promptNodes.find(item => item.id === draggedPromptNode.id);
       if (!node) throw new Error(`Missing prompt node: ${draggedPromptNode.id}`);
@@ -867,7 +967,7 @@ function initPromptSurface() {
     const point = canvasPoint(canvas, event);
     const moved = promptDragStart ? Math.hypot(point.x - promptDragStart.x, point.y - promptDragStart.y) : 1;
     if (draggedPromptNode && moved < .015) {
-      if (draggedPromptNode.type === 'main') selectMainNode();
+      if (draggedPromptNode.type === 'main') selectMainNode(draggedPromptNode.id);
       else selectPromptNode(draggedPromptNode.id);
     }
     draggedPromptNode = null;
@@ -1201,6 +1301,136 @@ function encodeWav({ left, right, sampleRate }) {
     offset += 4;
   }
   return new Blob([buffer], { type: 'audio/wav' });
+}
+
+function stereoToBase64(left, right) {
+  if (left.length !== right.length) throw new Error('Stereo buffers do not match');
+  const bytes = new Uint8Array(left.length * 4);
+  const view = new DataView(bytes.buffer);
+  let offset = 0;
+  for (let i = 0; i < left.length; i++) {
+    view.setInt16(offset, Math.round(clamp(left[i], -1, 1) * 32767), true);
+    view.setInt16(offset + 2, Math.round(clamp(right[i], -1, 1) * 32767), true);
+    offset += 4;
+  }
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  }
+  return btoa(binary);
+}
+
+function base64ToStereo(value, frames) {
+  const binary = atob(value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  if (bytes.length !== frames * 4) throw new Error('Saved audio length does not match metadata');
+  const view = new DataView(bytes.buffer);
+  const left = new Float32Array(frames);
+  const right = new Float32Array(frames);
+  let offset = 0;
+  for (let i = 0; i < frames; i++) {
+    left[i] = view.getInt16(offset, true) / 32767;
+    right[i] = view.getInt16(offset + 2, true) / 32767;
+    offset += 4;
+  }
+  return { left, right };
+}
+
+function serializableControlState() {
+  return {
+    prompt: $('prompt').value,
+    sourceMode,
+    audioStyleKey,
+    audioWeight: $('audio-weight').value,
+    textWeight: $('text-weight').value,
+    generation: currentGenerationParams(),
+    loopLengthSamples,
+    nextPromptNodeId,
+    nextMainNodeId,
+    nextLoopTrackId,
+    selectedMainNodeId,
+    selectedPromptNodeId,
+    mainNodes,
+    promptNodes,
+    tracks: loopTracks.map(track => ({
+      id: track.id,
+      name: track.name,
+      padIndex: track.padIndex,
+      trimStartPct: track.trimStartPct,
+      trimEndPct: track.trimEndPct,
+      startSamples: track.startSamples,
+      repeatSamples: track.repeatSamples,
+      gain: track.gain,
+      effect: track.effect,
+      effectAmount: track.effectAmount,
+      frames: track.left.length,
+      audio: stereoToBase64(track.left, track.right),
+    })),
+  };
+}
+
+function saveProjectState() {
+  const blob = new Blob([JSON.stringify(serializableControlState())], { type: 'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `music-hack-loop-state-${Date.now()}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  log('state saved');
+}
+
+async function loadProjectStateFile(file) {
+  const state = JSON.parse(await file.text());
+  assertSavedState(state);
+  $('prompt').value = state.prompt;
+  $('audio-weight').value = state.audioWeight;
+  $('text-weight').value = state.textWeight;
+  audioStyleKey = state.audioStyleKey;
+  sourceMode = state.sourceMode;
+  applyParamsToControls(state.generation);
+  loopLengthSamples = state.loopLengthSamples;
+  nextPromptNodeId = state.nextPromptNodeId;
+  nextMainNodeId = state.nextMainNodeId;
+  nextLoopTrackId = state.nextLoopTrackId;
+  selectedMainNodeId = state.selectedMainNodeId;
+  selectedPromptNodeId = state.selectedPromptNodeId;
+  mainNodes = state.mainNodes;
+  promptNodes = state.promptNodes;
+  loopTracks = state.tracks.map(track => {
+    const audio = base64ToStereo(track.audio, track.frames);
+    return {
+      ...track,
+      left: audio.left,
+      right: audio.right,
+      waveform: makeTrackWaveform(audio.left, audio.right, 96),
+    };
+  });
+  if (sourceMode === 'clone' && loopTracks.length) {
+    const wav = encodeWav(bounceLoopMix());
+    const form = new FormData();
+    form.append('file', new File([wav], 'loaded-loop-clone.wav', { type: 'audio/wav' }));
+    const response = await fetch('/style/audio', { method: 'POST', body: form });
+    if (!response.ok) throw new Error(`Loaded clone upload failed: ${response.status}`);
+    const data = await response.json();
+    audioStyleKey = data.key;
+    $('audio-style-status').textContent = `Loaded clone active: ${data.name} (${(wav.size / 1024).toFixed(0)} KB).`;
+  }
+  syncLoopTracks();
+  setSourceMode(sourceMode);
+  renderPads();
+  drawPromptSurface();
+  drawTimeline();
+  drawTrackMixer();
+  updateReadouts();
+  log(`state loaded: ${file.name}`);
+}
+
+function assertSavedState(state) {
+  if (!state || state.sourceMode === undefined || !Array.isArray(state.promptNodes) || !Array.isArray(state.mainNodes) || !Array.isArray(state.tracks)) {
+    throw new Error('Invalid saved state file');
+  }
 }
 
 async function cloneCurrentLoopToAudioPrompt() {
@@ -1833,10 +2063,20 @@ $('panic').onclick = panic;
 $('reset').onclick = () => { if (ws && connected) ws.send(JSON.stringify({ action:'reset' })); log('model state reset'); };
 $('clear').onclick = () => { dropHeldNotes(); noteState.clear(); held.clear(); onset.clear(); noteEvents = []; document.querySelectorAll('.white,.blackp').forEach(el => paintPianoKey(el, -1)); document.querySelectorAll('.key').forEach(el => el.classList.remove('active')); updateReadouts(); };
 $('playable-instrument').onclick = applyPlayableInstrumentSetup;
+$('default-instrument').onclick = applyDefaultInstrumentSetup;
 $('add-node').onclick = () => addPromptNode($('node-prompt').value);
 $('loop-play').onclick = playLoops;
 $('loop-stop').onclick = stopLoops;
 $('loop-clear').onclick = clearLoops;
+$('save-project-state').onclick = saveProjectState;
+$('load-project-state').onclick = () => $('load-state-file').click();
+$('load-state-file').addEventListener('change', async () => {
+  const file = $('load-state-file').files[0];
+  if (!file) return;
+  await loadProjectStateFile(file);
+  $('load-state-file').value = '';
+});
+$('add-main-node').onclick = addMainNode;
 $('metro-toggle').onclick = toggleMetronome;
 $('metro-bpm').addEventListener('input', updateReadouts);
 $('clone-loop-audio').onclick = () => cloneCurrentLoopToAudioPrompt().finally(() => {
