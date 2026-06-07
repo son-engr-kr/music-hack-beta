@@ -7,14 +7,14 @@
 <style>
   :root {
     --bg: #11100d; --panel: #1d1a14; --panel2: #272116; --line: #3c3424;
-    --text: #f7ead5; --muted: #aa9d88; --accent: #f0b35a; --green: #8fd18f;
+    --text: #f7ead5; --muted: #aa9d88; --accent: #bda7ff; --green: #8fd18f;
     --red: #ff735c; --blue: #80b7ff; --black: #080706;
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; height: 100vh; color: var(--text);
     font-family: Georgia, 'Times New Roman', serif;
-    background: radial-gradient(circle at 18% 0%, rgba(240,179,90,.18), transparent 32rem), linear-gradient(145deg, #0f0e0b, #17140f 55%, #100f0c);
+    background: radial-gradient(circle at 18% 0%, rgba(189,167,255,.18), transparent 32rem), linear-gradient(145deg, #0f0e0b, #17140f 55%, #100f0c);
     overflow: hidden;
   }
   button, input, select { font: inherit; }
@@ -39,7 +39,7 @@
   button { border: 1px solid var(--line); border-radius: 11px; background: linear-gradient(180deg, #342817, #1c1711); color: var(--text); min-height: 38px; cursor: pointer; font-weight: 800; font-size: .86rem; }
   button:hover:not(:disabled) { border-color: var(--accent); transform: translateY(-1px); }
   button:disabled { opacity: .45; cursor: not-allowed; }
-  .primary { background: linear-gradient(180deg, #efb75d, #a46528); color: #120d07; border-color: #ffd28a; }
+  .primary { background: linear-gradient(180deg, #d8ccff, #a995ef); color: #120d07; border-color: #eadfff; }
   .danger { background: linear-gradient(180deg, #ff735c, #8a2a21); }
 
   .preset-topbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 14px; background: rgba(29,26,20,.92); padding: 8px 10px; box-shadow: 0 12px 30px rgba(0,0,0,.22); }
@@ -57,13 +57,14 @@
   .preset-folder summary { cursor: pointer; padding: 9px 10px; color: var(--accent); font-weight: 800; font-size: .78rem; }
   .preset-folder-items { display: grid; gap: 4px; padding: 0 8px 8px; }
   .preset-item { min-height: 30px; border-radius: 8px; text-align: left; font-size: .68rem; font-weight: 700; padding: 0 8px; background: #0f0d09; color: var(--muted); }
-  .preset-item.active { color: #130d06; background: var(--accent); border-color: #ffd08c; }
+  .preset-item.active { color: #130d06; background: var(--accent); border-color: #eadfff; }
   .drawer-scrim { position: fixed; inset: 0; z-index: 39; display: none; background: rgba(0,0,0,.36); }
   .drawer-scrim.open { display: block; }
 
-  .grid { display: grid; grid-template-columns: minmax(330px, .9fr) minmax(390px, 1.1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "generation loop" "keyboard keyboard"; gap: 10px; flex: 1 1 auto; min-height: 0; }
+  .grid { display: grid; grid-template-columns: minmax(430px, 1.22fr) minmax(220px, .42fr) minmax(330px, .78fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "generation visual loop" "keyboard keyboard keyboard"; gap: 10px; flex: 1 1 auto; min-height: 0; }
   .grid > * { min-width: 0; }
   .generation-card { grid-area: generation; }
+  .visual-card { grid-area: visual; }
   .keyboard-card { grid-area: keyboard; max-height: 260px; }
   .loop-card { grid-area: loop; }
   .card { min-width: 0; min-height: 0; background: rgba(29,26,20,.9); border: 1px solid var(--line); border-radius: 16px; padding: 10px; box-shadow: 0 16px 46px rgba(0,0,0,.2); overflow-y: auto; overflow-x: hidden; }
@@ -77,18 +78,18 @@
   .split { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
   .source-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
   .source-tab { min-height: 34px; border-radius: 9px; font-size: .74rem; }
-  .source-tab.on { background: linear-gradient(180deg, #efb75d, #a46528); color: #120d07; border-color: #ffd28a; }
+  .source-tab.on { background: linear-gradient(180deg, #d8ccff, #a995ef); color: #120d07; border-color: #eadfff; }
   .source-panel { display: none; }
   .source-panel.on { display: block; }
 
   .knob { width: 48px; height: 48px; margin: 3px auto 2px; border-radius: 50%; cursor: ns-resize; border: 1px solid #4a3a21; position: relative; touch-action: none;
     background: radial-gradient(circle at 50% 50%, #292116 0 45%, transparent 46%), conic-gradient(from 215deg, var(--accent) var(--fill, 45%), #3a3323 0 78%, transparent 0), radial-gradient(circle at 38% 28%, #514028, #16120d 68%);
     box-shadow: inset 0 0 0 8px #14110d, 0 10px 28px rgba(0,0,0,.34); }
-  .knob::after { content: ""; position: absolute; left: 50%; top: 7px; width: 3px; height: 14px; border-radius: 99px; background: #f8d08b; transform-origin: 50% 17px; transform: translateX(-50%) rotate(var(--angle, 0deg)); }
+  .knob::after { content: ""; position: absolute; left: 50%; top: 7px; width: 3px; height: 14px; border-radius: 99px; background: #e7dcff; transform-origin: 50% 17px; transform: translateX(-50%) rotate(var(--angle, 0deg)); }
 
   .segrow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
   .seg { border: 1px solid var(--line); border-radius: 9px; padding: .34rem .3rem; text-align: center; color: var(--muted); background: #15130f; cursor: pointer; user-select: none; font-size: .72rem; }
-  .seg.on { color: #130d06; background: var(--accent); border-color: #ffd08c; font-weight: 800; }
+  .seg.on { color: #130d06; background: var(--accent); border-color: #eadfff; font-weight: 800; }
   .minirow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .smallbtn { min-height: 32px; border-radius: 9px; font-size: .72rem; }
 
@@ -101,7 +102,7 @@
 
   .piano-wrap { max-width: 100%; overflow-x: hidden; padding-bottom: 0; margin-top: 7px; }
   .piano { position: relative; height: 108px; width: 100%; user-select: none; }
-  .piano-focus { position: absolute; top: 0; bottom: 0; border: 2px solid var(--accent); background: rgba(240,179,90,.16); border-radius: 10px; z-index: 0; pointer-events: none; }
+  .piano-focus { position: absolute; top: 0; bottom: 0; border: 2px solid var(--accent); background: rgba(189,167,255,.16); border-radius: 10px; z-index: 0; pointer-events: none; }
   .white, .blackp { position: absolute; border: 1px solid #2a241a; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 5px; font-size: .52rem; }
   .white { bottom: 0; height: 102px; background: #f4e7d1; color: #4d3a20; border-radius: 0 0 6px 6px; z-index: 1; }
   .blackp { top: 0; height: 64px; background: #050505; color: #d9c2a0; border-radius: 0 0 5px 5px; z-index: 2; }
@@ -124,18 +125,18 @@
   .pad-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
   .loop-pad { min-height: 44px; border-radius: 8px; border: 1px solid #47391f; background: linear-gradient(180deg, #241d13, #100d09); color: var(--text); font-weight: 900; position: relative; overflow: hidden; }
   .loop-pad.has-track { background: linear-gradient(180deg, #315f77, #173042); border-color: #80b7ff; }
-  .loop-pad.recording { background: linear-gradient(180deg, #ffb75f, #9b2f22); color: #120d07; border-color: #ffd28a; box-shadow: 0 0 0 2px rgba(255,210,138,.42), 0 0 16px rgba(240,179,90,.48); }
+  .loop-pad.recording { background: linear-gradient(180deg, #c9b6ff, #9b2f22); color: #120d07; border-color: #eadfff; box-shadow: 0 0 0 2px rgba(234,223,255,.42), 0 0 16px rgba(189,167,255,.48); }
   .loop-pad span { display: block; font-size: .62rem; color: var(--muted); font-weight: 700; }
   .loop-pad.recording span { color: #2a1207; }
   .timeline { min-height: 116px; max-height: 220px; border: 1px solid var(--line); border-radius: 12px; background: #090806; position: relative; overflow-y: auto; overflow-x: hidden; user-select: none; }
-  .timeline-grid { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(240,179,90,.22) calc(25% - 1px) 25%); pointer-events: none; }
+  .timeline-grid { position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 1px), rgba(189,167,255,.22) calc(25% - 1px) 25%); pointer-events: none; }
   .track-lane { position: relative; height: 30px; margin: 9px 8px; border-radius: 8px; background: #15130f; border: 1px solid #2b251a; }
   .track-ghost { position: absolute; top: 3px; height: 22px; border-radius: 7px; overflow: hidden; opacity: .34; pointer-events: none; background-color: #253247; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1); }
   .track-clip { position: absolute; top: 3px; height: 22px; border-radius: 7px; background-color: #3e6fa9; color: #061006; font-size: .62rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: ew-resize; min-width: 18px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
   .track-clip.base { background-color: #3f8d54; }
   .waveform-layer { position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat; pointer-events: none; }
   .track-clip span { position: relative; z-index: 1; text-shadow: 0 1px 2px rgba(255,255,255,.35); }
-  .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 10px rgba(240,179,90,.8); pointer-events: none; }
+  .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent); box-shadow: 0 0 10px rgba(189,167,255,.8); pointer-events: none; }
   .loop-stats { display: flex; flex-wrap: wrap; gap: 5px; color: var(--muted); font-size: .62rem; }
   .track-mixer { max-height: 168px; overflow-y: auto; display: grid; gap: 6px; }
   .mixer-row { display: grid; grid-template-columns: 1fr 70px 70px 76px 68px 66px; gap: 6px; align-items: center; border: 1px solid var(--line); border-radius: 9px; padding: 5px; background: #15130f; }
@@ -290,7 +291,8 @@
     border-color: #bff7ff;
   }
   .grid {
-    grid-template-columns: minmax(380px, .95fr) minmax(420px, 1.05fr);
+    grid-template-columns: minmax(430px, 1.22fr) minmax(220px, .42fr) minmax(330px, .78fr);
+    grid-template-areas: "generation visual loop" "keyboard keyboard keyboard";
     grid-template-rows: minmax(0, 1fr) minmax(210px, 34vh);
     gap: 12px;
   }
@@ -2546,13 +2548,14 @@
   :root {
     --bg: #ffffff;
     --panel: #ffffff;
-    --panel2: #fff6df;
+    --panel2: #f6f1ff;
     --line: #171717;
     --text: #171717;
     --muted: #3b3b3b;
-    --accent: #f8b844;
+    --accent: #c9b6ff;
     --green: #a8d8a1;
     --red: #f26349;
+    --record-yellow: #f7d98c;
     --blue: #a8c9f6;
     --black: #171717;
   }
@@ -2572,10 +2575,36 @@
     box-shadow: none !important;
     padding: 14px !important;
     gap: 12px !important;
+    position: relative !important;
+    overflow: hidden !important;
+  }
+
+  .shell::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: -14% !important;
+    z-index: 0 !important;
+    pointer-events: none !important;
+    opacity: .55 !important;
+    background-image: url("data:image/svg+xml,%3Csvg width='640' height='240' viewBox='0 0 640 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke-linecap='round'%3E%3Cpath d='M-40 46 C60 4 137 96 235 48 S430 4 530 52 S700 92 760 34' stroke='%23bda7ff' stroke-width='7' stroke-opacity='.58'/%3E%3Cpath d='M-30 92 C80 42 145 142 260 88 S455 44 560 98 S690 130 750 78' stroke='%23171717' stroke-width='4' stroke-opacity='.18'/%3E%3Cpath d='M-50 146 C55 100 142 196 260 140 S440 104 560 150 S700 190 760 126' stroke='%23c9b6ff' stroke-width='6' stroke-opacity='.52'/%3E%3Cpath d='M-20 198 C80 154 175 236 300 196 S500 154 640 200 S735 232 800 182' stroke='%23171717' stroke-width='4' stroke-opacity='.15'/%3E%3C/g%3E%3C/svg%3E") !important;
+    background-size: 640px 240px !important;
+    animation: ambientWaveField 18s linear infinite !important;
+  }
+
+  .shell > * {
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  @keyframes ambientWaveField {
+    0% { transform: translate3d(0, 0, 0); }
+    100% { transform: translate3d(-320px, 42px, 0); }
   }
 
   .grid {
     gap: 16px !important;
+    grid-template-columns: minmax(430px, 1.22fr) minmax(220px, .42fr) minmax(330px, .78fr) !important;
+    grid-template-areas: "generation visual loop" "keyboard keyboard keyboard" !important;
   }
 
   .card,
@@ -2585,7 +2614,7 @@
     background: #ffffff !important;
     border: 4px solid var(--line) !important;
     border-radius: 18px !important;
-    box-shadow: 8px 8px 0 #f3b32e !important;
+    box-shadow: 8px 8px 0 #c9b6ff !important;
   }
 
   .card {
@@ -2679,7 +2708,7 @@
   select,
   .metro-bpm-stepper {
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border: 3px solid var(--line) !important;
     border-radius: 12px !important;
     box-shadow: none !important;
@@ -2697,7 +2726,7 @@
   .timeline,
   .log {
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border: 3px solid var(--line) !important;
     border-radius: 14px !important;
     box-shadow: none !important;
@@ -2878,7 +2907,7 @@
 
   .piano-focus {
     border-color: var(--line) !important;
-    background: rgba(248, 184, 68, .22) !important;
+    background: rgba(201, 182, 255, .22) !important;
     box-shadow: none !important;
   }
 
@@ -2887,7 +2916,7 @@
   #roll,
   #wave,
   #queue {
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border-color: var(--line) !important;
   }
 
@@ -2921,7 +2950,7 @@
 
   .preset-folder summary {
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
   }
 
   .preset-item {
@@ -3122,7 +3151,7 @@
     background: #ffffff !important;
     border: 4px solid var(--line) !important;
     border-radius: 18px !important;
-    box-shadow: 8px 8px 0 #f3b32e !important;
+    box-shadow: 8px 8px 0 #c9b6ff !important;
     overflow: hidden !important;
   }
 
@@ -3207,7 +3236,7 @@
     height: 32px !important;
     min-width: 42px !important;
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border: 3px solid var(--line) !important;
     border-radius: 8px !important;
     font-size: .9rem !important;
@@ -3229,7 +3258,7 @@
     height: 48px !important;
     min-height: 48px !important;
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border: 4px solid var(--line) !important;
     border-radius: 12px !important;
     font-size: .78rem !important;
@@ -3271,7 +3300,7 @@
     border: 4px solid var(--line) !important;
     border-radius: 18px !important;
     background: #ffffff !important;
-    box-shadow: inset 0 0 0 4px #fff6df, 0 4px 0 var(--line) !important;
+    box-shadow: inset 0 0 0 4px #f6f1ff, 0 4px 0 var(--line) !important;
     overflow: hidden !important;
   }
 
@@ -3345,7 +3374,7 @@
 
   .piano-focus {
     border: 4px solid var(--accent) !important;
-    background: rgba(248, 184, 68, .2) !important;
+    background: rgba(201, 182, 255, .2) !important;
     box-shadow: none !important;
   }
 
@@ -3520,11 +3549,12 @@
   .loop-card {
     padding: 12px !important;
     display: grid !important;
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, .85fr) minmax(0, .7fr) minmax(0, 1.2fr) !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     grid-template-rows: minmax(0, 1fr) 75px !important;
     gap: 8px !important;
     overflow: hidden !important;
-    min-height: calc(100% + 10px) !important;
+    min-height: 0 !important;
+    height: 100% !important;
   }
 
   .loop-panel {
@@ -3533,8 +3563,8 @@
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
     grid-template-columns: minmax(0, 2fr) minmax(260px, .85fr) !important;
-    grid-template-rows: 28px 94px 34px 34px minmax(5px, 1.35fr) minmax(75px, .65fr) 18px !important;
-    gap: 7px !important;
+    grid-template-rows: 28px 88px 32px 32px minmax(0, 1fr) 82px 0 !important;
+    gap: 6px !important;
     overflow: hidden !important;
   }
 
@@ -3582,11 +3612,11 @@
     justify-self: end !important;
     align-self: start !important;
     display: grid !important;
-    grid-template-columns: auto 50px 38px 76px !important;
-    gap: 6px !important;
+    grid-template-columns: auto 44px 27px 42px !important;
+    gap: 5px !important;
     align-items: center !important;
     margin: 0 !important;
-    transform: translateY(0) !important;
+    transform: translate(-15px, -5px) !important;
   }
 
   .record-head .metro-row label {
@@ -3606,10 +3636,10 @@
   }
 
   .record-head .metro-bpm-stepper {
-    width: 50px !important;
-    min-width: 50px !important;
-    height: 32px !important;
-    min-height: 32px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 28px !important;
+    min-height: 28px !important;
     border-width: 3px !important;
     border-radius: 12px !important;
     font-size: .72rem !important;
@@ -3617,19 +3647,56 @@
   }
 
   .record-head .metro-volume-knob {
-    width: 38px !important;
-    height: 38px !important;
+    width: 27px !important;
+    height: 27px !important;
     align-self: center !important;
   }
 
+  .record-head .metro-volume-knob::before {
+    inset: 8px !important;
+  }
+
+  .record-head .metro-volume-knob::after {
+    width: 3px !important;
+    height: 11px !important;
+    transform-origin: 50% 100% !important;
+  }
+
   .record-head #metro-toggle {
-    width: 76px !important;
-    height: 32px !important;
-    min-height: 32px !important;
-    padding: 0 8px !important;
-    font-size: .64rem !important;
+    width: 46px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
     border-width: 3px !important;
-    border-radius: 12px !important;
+    border-radius: 999px !important;
+    position: relative !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    box-shadow: 0 3px 0 var(--line) !important;
+  }
+
+  .record-head #metro-toggle::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 3px !important;
+    top: 50% !important;
+    width: 14px !important;
+    height: 14px !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 50% !important;
+    background: #ffffff !important;
+    transform: translateY(-50%) !important;
+    transition: left .16s ease, background .16s ease !important;
+  }
+
+  .record-head #metro-toggle.on {
+    background: var(--accent) !important;
+  }
+
+  .record-head #metro-toggle.on::after {
+    left: 23px !important;
+    background: #ffffff !important;
   }
 
   .pad-grid {
@@ -3642,13 +3709,13 @@
     align-items: stretch !important;
     justify-self: start !important;
     margin: 0 !important;
-    transform: translateY(15px) !important;
+    transform: none !important;
   }
 
   .loop-pad {
     aspect-ratio: auto !important;
-    height: 88px !important;
-    min-height: 88px !important;
+    height: 82px !important;
+    min-height: 82px !important;
     padding: 8px !important;
     border-width: 4px !important;
     border-radius: 12px !important;
@@ -3678,7 +3745,7 @@
   }
 
   .track-clip[data-pad="1"] { background-color: #f26349 !important; }
-  .track-clip[data-pad="2"] { background-color: #f8b844 !important; }
+  .track-clip[data-pad="2"] { background-color: #c9b6ff !important; }
   .track-clip[data-pad="3"] { background-color: #a8d8a1 !important; }
   .track-clip[data-pad="4"] { background-color: #a8c5e4 !important; }
   .track-clip[data-pad="5"] { background-color: #d9b3ff !important; }
@@ -3690,7 +3757,7 @@
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 10px !important;
     height: 34px !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .loop-head:nth-of-type(3) {
@@ -3718,7 +3785,7 @@
     grid-template-rows: 20px 34px !important;
     gap: 5px 10px !important;
     align-items: center !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .loop-length-row label {
@@ -3726,7 +3793,7 @@
     color: var(--text) !important;
     font-size: .76rem !important;
     margin: 0 !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .loop-length-row input[type="range"] {
@@ -3786,7 +3853,7 @@
     border-width: 3px !important;
     border-radius: 10px !important;
     font-size: .72rem !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .loop-length-row .knob {
@@ -3803,7 +3870,7 @@
     border-radius: 12px !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .timeline .track-lane {
@@ -3853,10 +3920,10 @@
     overflow: hidden !important;
     padding: 6px 8px !important;
     color: var(--text) !important;
-    background: #fff6df !important;
+    background: #f6f1ff !important;
     border: 4px solid var(--line) !important;
     border-radius: 12px !important;
-    transform: translateY(10px) !important;
+    transform: none !important;
   }
 
   .track-mixer::before {
@@ -3926,7 +3993,7 @@
     color: var(--text) !important;
     border-color: var(--line) !important;
     background:
-      conic-gradient(from 0deg, var(--red) 0 var(--record-fill), #ffffff var(--record-fill) 100%) !important;
+      conic-gradient(from 0deg, var(--record-yellow) 0 var(--record-fill), #ffffff var(--record-fill) 100%) !important;
     animation: recordFillClockwise 1.35s linear infinite !important;
   }
 
@@ -3945,8 +4012,8 @@
     bottom: 24px;
     height: 28px;
     display: grid;
-    grid-template-columns: repeat(14, minmax(0, 1fr));
-    gap: 3px;
+    grid-template-columns: repeat(9, minmax(0, 1fr));
+    gap: 5px;
     align-items: end;
     z-index: 1;
     pointer-events: none;
@@ -3958,7 +4025,7 @@
     height: 20%;
     border: 2px solid var(--line);
     border-radius: 999px 999px 4px 4px;
-    background: var(--red);
+    background: var(--record-yellow);
     animation: recordWaveBars .72s ease-in-out infinite alternate;
   }
 
@@ -4495,7 +4562,7 @@
   .clone-mix-fill.text {
     left: var(--audio);
     right: 0;
-    background: #f8b844;
+    background: #c9b6ff;
     border-radius: 0 999px 999px 0;
   }
 
@@ -4744,7 +4811,26 @@
     line-height: .95 !important;
   }
 
-  @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
+  .visual-card {
+    padding: 8px !important;
+    overflow: hidden !important;
+    display: grid !important;
+    background: #fff !important;
+    border: 4px solid #171717 !important;
+    border-radius: 14px !important;
+    box-shadow: 8px 8px 0 #c9b6ff !important;
+  }
+  #magnet-visual {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: block;
+    border: 4px solid #171717;
+    border-radius: 12px;
+    background: #ffffff;
+  }
+
+  @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto auto; grid-template-areas: "generation" "visual" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } .visual-card { min-height: 260px; } }
   @media (max-width: 1120px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field { grid-column: auto !important; } }
   @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow, .preset-topbar { grid-template-columns: 1fr 1fr; } .preset-current { grid-column: 1 / -1; order: -1; } .preset-current-meta { justify-content: flex-start; } .transport button { min-height: 52px; } }
   @media (max-width: 720px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field .segrow { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
@@ -4861,6 +4947,10 @@
       </div>
     </section>
 
+    <section class="card visual-card" aria-label="Adaptive audio visualizer">
+      <canvas id="magnet-visual"></canvas>
+    </section>
+
     <section class="card keyboard-card">
       <h2>Keyboard</h2>
       <div class="field midi-device-field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button><button class="smallbtn keyboard-stop-button" id="keyboard-stop">Stop</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
@@ -4901,7 +4991,7 @@
         <div class="metro-row">
           <label><b id="metro-bpm-v">BPM</b></label>
           <input id="metro-bpm" type="range" min="40" max="220" value="120">
-          <button class="smallbtn" id="metro-toggle">BPM Off</button>
+          <button class="smallbtn" id="metro-toggle" aria-label="BPM off">Off</button>
         </div>
         <div class="loop-length-row">
           <label>Loop length <b id="loop-length-v">-</b></label>
@@ -5027,6 +5117,7 @@ let noteEvents = [];
 let octaveBase = 48;
 const OCTAVE_ZERO_BASE = 48;
 let lastWave = new Float32Array(0);
+let visualPhase = 0;
 let audioStyleKey = null;
 let sourceMode = 'prompt';
 let promptNodes = [];
@@ -5895,7 +5986,7 @@ function drawPromptSurface() {
   const ctx = canvas.getContext('2d');
   const scale = window.devicePixelRatio || 1;
   const w = canvas.width / scale, h = canvas.height / scale;
-  ctx.fillStyle = '#fff6df';
+  ctx.fillStyle = '#f6f1ff';
   ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = '#d9cfb7';
   ctx.lineWidth = 1.5;
@@ -5925,7 +6016,7 @@ function drawPromptSurface() {
   }
   for (const main of mainNodes) {
     const selected = selectedPromptNodeId === null && selectedMainNodeId === main.id;
-    drawNode(ctx, main.x * w, main.y * h, 18, selected ? '#f8b844' : '#f8b844', `Main ${main.id}`, selected ? 'editing' : 'mix');
+    drawNode(ctx, main.x * w, main.y * h, 18, selected ? '#c9b6ff' : '#c9b6ff', `Main ${main.id}`, selected ? 'editing' : 'mix');
   }
   drawPromptNodeList();
 }
@@ -6645,7 +6736,9 @@ function clearLoops() {
 async function toggleMetronome() {
   await ensureAudio();
   metronomeEnabled = !metronomeEnabled;
-  $('metro-toggle').textContent = metronomeEnabled ? 'BPM On' : 'BPM Off';
+  $('metro-toggle').textContent = metronomeEnabled ? 'On' : 'Off';
+  $('metro-toggle').classList.toggle('on', metronomeEnabled);
+  $('metro-toggle').setAttribute('aria-label', metronomeEnabled ? 'BPM on' : 'BPM off');
   if (metronomeEnabled) {
     metronomeBeat = 0;
     scheduleMetronome();
@@ -6686,7 +6779,7 @@ function renderPads() {
     const button = document.createElement('button');
     button.className = `loop-pad ${hasTrack ? 'has-track' : ''} ${recordingPad === pad ? 'recording' : ''}`;
     button.dataset.tooltip = `Record into Slot ${pad}. Press the same slot again to stop recording.`;
-    button.innerHTML = `<strong class="slot-title">Slot ${pad}</strong><span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span><b class="record-meter" aria-hidden="true">${'<i></i>'.repeat(14)}</b>`;
+    button.innerHTML = `<strong class="slot-title">Slot ${pad}</strong><span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span><b class="record-meter" aria-hidden="true">${'<i></i>'.repeat(9)}</b>`;
     button.onclick = () => togglePadRecord(pad).catch(error => log(`slot ${pad} error: ${error.message}`));
     root.appendChild(button);
   }
@@ -7357,13 +7450,14 @@ function resize() {
   drawTimeline();
   drawTrackMixer();
   drawWave();
+  drawMagnetVisual();
   drawQueue();
   drawRoll();
   updateReadouts();
 }
 function drawWave() {
   const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h / 2;
-  ctx.fillStyle = '#fff6df';
+  ctx.fillStyle = '#f6f1ff';
   ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = '#171717';
   ctx.lineWidth = 3;
@@ -7379,7 +7473,7 @@ function drawWave() {
   const columns = Math.min(w, 180);
   const step = w / columns;
 
-  ctx.fillStyle = '#f26349';
+  ctx.fillStyle = '#f7d98c';
   ctx.strokeStyle = '#171717';
   ctx.lineWidth = 2;
   for (let i = 0; i < columns; i++) {
@@ -7399,7 +7493,129 @@ function drawWave() {
   }
   ctx.stroke();
 }
-function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#fff6df'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.lineWidth = 3; ctx.strokeRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#f26349' : queuedSeconds < target ? '#f8b844' : '#a8d8a1'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#171717'; ctx.font = 'bold 20px Arial'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
+function drawMagnetVisual() {
+  const c = $('magnet-visual');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const w = c.width;
+  const h = c.height;
+  if (!w || !h) return;
+
+  let rms = 0;
+  let peak = 0;
+  if (lastWave.length) {
+    for (const sample of lastWave) {
+      const value = Math.abs(sample);
+      rms += sample * sample;
+      peak = Math.max(peak, value);
+    }
+    rms = Math.sqrt(rms / lastWave.length);
+  }
+  const activity = Math.min(2.25, rms * 12 + peak * 2.2 + (loopRecording ? .42 : 0) + (held.size ? .26 : 0));
+  visualPhase += .06 + activity * .055;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+
+  const cx = w * .5;
+  const cy = h * .5;
+  const radius = Math.min(w, h) * .31;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (let layer = 0; layer < 9; layer++) {
+    const yBase = h * (.13 + layer * .095);
+    const amplitude = h * (.015 + layer * .0025) * (1 + activity * .55);
+    const frequency = .008 + layer * .00145;
+    const drift = visualPhase * (1.15 + layer * .14);
+    ctx.globalAlpha = .05 + layer * .011 + Math.min(.05, activity * .016);
+    ctx.strokeStyle = layer % 2 ? '#c9b6ff' : '#171717';
+    ctx.lineWidth = Math.max(1.5, Math.min(w, h) * (.0026 + layer * .00025));
+    ctx.beginPath();
+    for (let x = -20; x <= w + 20; x += 9) {
+      const sample = lastWave.length ? lastWave[Math.floor((x / Math.max(1, w)) * (lastWave.length - 1))] || 0 : 0;
+      const y =
+        yBase +
+        Math.sin(x * frequency + drift) * amplitude +
+        Math.sin(x * frequency * 2.2 - drift * .7) * amplitude * .38 +
+        sample * activity * h * .025;
+      x === -20 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(201, 182, 255, .62)';
+  ctx.shadowBlur = Math.max(10, radius * .1);
+  ctx.strokeStyle = '#c9b6ff';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = Math.max(9, radius * .085) * (1 + activity * .08);
+  ctx.beginPath();
+  const ringPoints = 280;
+  for (let i = 0; i <= ringPoints; i++) {
+    const t = i / ringPoints;
+    const a = t * Math.PI * 2 - Math.PI / 2;
+    const sample = lastWave.length ? lastWave[Math.floor(t * (lastWave.length - 1))] : 0;
+    const magnetic = Math.sin(a * 4 + visualPhase * 2.05) * .055 + Math.sin(a * 10 - visualPhase * 1.35) * .035;
+    const pulse = Math.sin(visualPhase * 3.1 + a * 2) * .025 * (1 + activity);
+    const r = radius * (1.04 + magnetic + pulse + sample * activity * .14);
+    const x = cx + Math.cos(a) * r;
+    const y = cy + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(23, 23, 23, .18)';
+  ctx.shadowBlur = Math.max(3, radius * .035);
+  ctx.strokeStyle = '#171717';
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.globalAlpha = .72 + Math.min(.2, activity * .06);
+  ctx.lineWidth = Math.max(3, radius * (.019 + activity * .003));
+  ctx.beginPath();
+  const innerPoints = 280;
+  const breathe = .5 + .5 * Math.sin(visualPhase * 2.15);
+  const innerRadius = radius * (.53 + breathe * .28 + activity * .035);
+  const offset = radius * (.18 + breathe * .12 + activity * .03);
+  const innerCx = cx + Math.cos(visualPhase * .62) * offset;
+  const innerCy = cy + Math.sin(visualPhase * .48) * offset * .52;
+  for (let i = 0; i <= innerPoints; i++) {
+    const t = i / innerPoints;
+    const a = t * Math.PI * 2 - Math.PI / 2;
+    const sample = lastWave.length ? lastWave[Math.floor(t * (lastWave.length - 1))] : 0;
+    const warp =
+      Math.sin(a * 3 + visualPhase * 1.7) * radius * .028 * (1 + activity) +
+      Math.sin(a * 8 - visualPhase * 1.2) * radius * .016 * (1 + activity) +
+      sample * activity * radius * .09;
+    const r = innerRadius + warp;
+    const x = innerCx + Math.cos(a) * r;
+    const y = innerCy + Math.sin(a) * r;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.globalAlpha = .14 + Math.min(.16, activity * .08);
+  ctx.strokeStyle = '#c9b6ff';
+  ctx.lineWidth = Math.max(2, radius * .012);
+  for (let ring = 0; ring < 2; ring++) {
+    const grow = 1.24 + ring * .18 + (visualPhase % 1) * .08 * (ring + 1) + activity * .025;
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * grow, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+}
+function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#f6f1ff'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.lineWidth = 3; ctx.strokeRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#f26349' : queuedSeconds < target ? '#c9b6ff' : '#a8d8a1'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#171717'; ctx.font = 'bold 20px Arial'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
 
 function drawRoll() {
   const c = $('roll');
@@ -7411,7 +7627,7 @@ function drawRoll() {
   const pitchMin = 24, pitchMax = 96, pitchSpan = pitchMax - pitchMin + 1;
   const toY = t => h - ((t - (current - windowSec)) / windowSec) * h;
   const toX = pitch => ((pitch - pitchMin + .5) / pitchSpan) * w;
-  ctx.fillStyle = '#fff6df'; ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = '#f6f1ff'; ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = '#d9cfb7'; ctx.lineWidth = 1;
   for (let p = pitchMin; p <= pitchMax; p += 12) {
     const x = toX(p);
@@ -7427,7 +7643,7 @@ function drawRoll() {
     ctx.fillRect(x, Math.min(y1, y2), Math.max(8, w / pitchSpan * .84), Math.max(4, Math.abs(y2 - y1)));
   }
   drawRollMarker(ctx, w, h, toY(heard), '#a8c9f6', `heard now (${queuedSeconds.toFixed(2)}s behind)`);
-  drawRollMarker(ctx, w, h, toY(current), '#f8b844', 'input now');
+  drawRollMarker(ctx, w, h, toY(current), '#c9b6ff', 'input now');
 }
 
 function drawRollMarker(ctx, w, h, y, color, label) {
@@ -7577,7 +7793,7 @@ $('midi-refresh').addEventListener('click', async () => {
 $('keyboard-stop').addEventListener('click', () => stopLiveInput('keyboard stop'));
 $('midi-input').addEventListener('change', connectMidiInput);
 window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('resize', resize);
-setInterval(() => { updateReadouts(); if (!loopRecording) drawRoll(); updateTimelinePlayhead(); pump(); }, 120);
+setInterval(() => { updateReadouts(); if (!loopRecording) drawRoll(); drawMagnetVisual(); updateTimelinePlayhead(); pump(); }, 120);
 setTimeout(resize, 80); updateReadouts();
 </script>
 </body>
