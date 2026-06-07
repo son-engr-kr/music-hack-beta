@@ -49,6 +49,11 @@
   .field { margin-bottom: 7px; }
   .hint { color: var(--muted); font-size: .64rem; line-height: 1.22; margin-top: 4px; }
   .split { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+  .source-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+  .source-tab { min-height: 34px; border-radius: 9px; font-size: .74rem; }
+  .source-tab.on { background: linear-gradient(180deg, #efb75d, #a46528); color: #120d07; border-color: #ffd28a; }
+  .source-panel { display: none; }
+  .source-panel.on { display: block; }
 
   .knob { width: 48px; height: 48px; margin: 3px auto 2px; border-radius: 50%; cursor: ns-resize; border: 1px solid #4a3a21; position: relative; touch-action: none;
     background: radial-gradient(circle at 50% 50%, #292116 0 45%, transparent 46%), conic-gradient(from 215deg, var(--accent) var(--fill, 45%), #3a3323 0 78%, transparent 0), radial-gradient(circle at 38% 28%, #514028, #16120d 68%);
@@ -153,19 +158,30 @@
     <section class="card">
       <h2>Generation</h2>
       <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
-      <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"></div>
-      <div class="field"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><div class="hint">Keeps the current prompt and applies a solo, no-drums, MIDI-gated setup with stronger note following.</div></div>
-      <div class="field">
-        <label>Prompt nodes</label>
-        <div class="surface-wrap"><canvas id="prompt-surface"></canvas></div>
-        <div class="minirow"><input id="node-prompt" type="text" value="warm electric piano"><button class="smallbtn" id="add-node">Add Node</button></div>
-        <div class="hint">Drag Main and prompt nodes. Influence falls linearly with distance; exact overlap is 100%. Main wins when nodes overlap.</div>
-        <div class="node-list" id="node-list"></div>
+      <div class="source-tabs" id="source-tabs">
+        <button class="source-tab on" data-source="prompt">Prompt</button>
+        <button class="source-tab" data-source="nodes">Nodes</button>
+        <button class="source-tab" data-source="clone">Clone</button>
       </div>
-      <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Uses MusicCoCa audio embedding as the style prompt, matching the public demo's audio prompt idea. Full audio prefill still requires C++ core.</div></div>
-      <div class="split">
-        <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style. Only active after uploading audio.</div></div>
-        <div class="field"><label>Text weight <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+      <div class="source-panel on" data-panel="prompt">
+        <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"><div class="hint">Direct text prompt source. Nodes and audio clone are ignored while this tab is active.</div></div>
+      </div>
+      <div class="field"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><div class="hint">Keeps the current prompt and applies a solo, no-drums, MIDI-gated setup with stronger note following.</div></div>
+      <div class="source-panel" data-panel="nodes">
+        <div class="field">
+          <label>Prompt nodes</label>
+          <div class="surface-wrap"><canvas id="prompt-surface"></canvas></div>
+          <div class="minirow"><input id="node-prompt" type="text" value="warm electric piano"><button class="smallbtn" id="add-node">Add Node</button></div>
+          <div class="hint">Node source mode. Drag Main and prompt nodes; influence falls linearly with distance.</div>
+          <div class="node-list" id="node-list"></div>
+        </div>
+      </div>
+      <div class="source-panel" data-panel="clone">
+        <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn primary" id="clone-loop-audio">Clone Current Loop</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Clone source mode. Upload audio or bounce the loop station, then play using that audio style.</div></div>
+        <div class="split">
+          <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style.</div></div>
+          <div class="field"><label>Text weight <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+        </div>
       </div>
       <div class="field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
       <div class="field"><label>Style mode</label><div class="segrow" id="style-mode"><div class="seg on" data-value="prompt">Prompt</div><div class="seg" data-value="unconditioned">None</div></div><div class="hint">Prompt uses MusicCoCa style tokens. None masks style conditioning.</div></div>
@@ -292,6 +308,7 @@ let noteEvents = [];
 let octaveBase = 48;
 let lastWave = new Float32Array(0);
 let audioStyleKey = null;
+let sourceMode = 'prompt';
 let promptNodes = [];
 let nextPromptNodeId = 1;
 let mainNode = { x: .5, y: .5 };
@@ -411,9 +428,8 @@ function effectivePrompt() {
 }
 
 function styleSources() {
-  const nodeSources = promptNodeSources();
-  if (nodeSources) return nodeSources;
-  if (!audioStyleKey) return null;
+  if (sourceMode === 'nodes') return promptNodeSources();
+  if (sourceMode !== 'clone' || !audioStyleKey) return null;
   const audioWeight = parseInt($('audio-weight').value) / 100;
   const textWeight = parseInt($('text-weight').value) / 100;
   const sources = [];
@@ -529,7 +545,18 @@ function weightedGenerationParams(blend) {
 }
 
 function activeGenerationParams() {
-  return weightedGenerationParams(promptNodeBlend());
+  return sourceMode === 'nodes' ? weightedGenerationParams(promptNodeBlend()) : currentGenerationParams();
+}
+
+function setSourceMode(mode) {
+  if (!['prompt', 'nodes', 'clone'].includes(mode)) throw new Error(`Invalid source mode: ${mode}`);
+  sourceMode = mode;
+  document.querySelectorAll('.source-tab').forEach(button => button.classList.toggle('on', button.dataset.source === mode));
+  document.querySelectorAll('.source-panel').forEach(panel => panel.classList.toggle('on', panel.dataset.panel === mode));
+  drawPromptSurface();
+  resetForPromptChange();
+  updateReadouts();
+  log(`source mode: ${mode}`);
 }
 
 function influencedPromptNodes() {
@@ -607,6 +634,7 @@ function syncSelectedNodeParamsFromControls() {
 }
 
 function selectPromptNode(id) {
+  if (sourceMode !== 'nodes') setSourceMode('nodes');
   selectedPromptNodeId = id;
   const node = selectedPromptNode();
   if (node) {
@@ -630,7 +658,7 @@ function applyPlayableInstrumentSetup() {
   applyParamsToControls(playableParams);
   syncSelectedNodeParamsFromControls();
   const node = selectedPromptNode();
-  if (!node) {
+  if (sourceMode === 'nodes' && !node) {
     const influenced = influencedPromptNodes();
     for (const item of influenced) {
       item.params = playableGenerationParams(item.params || playableParams);
@@ -643,7 +671,7 @@ function applyPlayableInstrumentSetup() {
   }
   resetForPromptChange();
   updateReadouts();
-  log(`playable setup applied to node ${node.id}`);
+  log(node && sourceMode === 'nodes' ? `playable setup applied to node ${node.id}` : `playable instrument setup applied: ${effectivePrompt()}`);
 }
 
 function clamp(value, min, max) {
@@ -671,6 +699,7 @@ function nodeAt(point) {
 function addPromptNode(text) {
   const clean = text.trim();
   if (!clean) throw new Error('Prompt node text is empty');
+  if (sourceMode !== 'nodes') setSourceMode('nodes');
   const angle = nextPromptNodeId * 2.399;
   const radius = .28 + (nextPromptNodeId % 3) * .08;
   promptNodes.push({
@@ -1062,6 +1091,139 @@ function updateLoopTrack(track) {
       effectAmount: track.effectAmount,
     },
   });
+}
+
+function renderTrackSampleOffline(track, loopPos, state) {
+  state.left = 0;
+  state.right = 0;
+  const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
+  const offsetSamples = ((track.startSamples % loopLengthSamples) + loopLengthSamples) % loopLengthSamples;
+  const rel = (loopPos - offsetSamples + loopLengthSamples) % loopLengthSamples;
+  const playSamples = Math.round(loopLengthSamples * trackAudibleLengthPct(track) / 100);
+  if (rel >= playSamples) return;
+  const sourceLength = Math.max(1, Math.min(track.left.length, sourceEndSamples) - sourceStartSamples);
+  const sourceIndex = sourceStartSamples + (rel % sourceLength);
+  let left = (track.left[sourceIndex] || 0) * track.gain;
+  let right = (track.right[sourceIndex] || 0) * track.gain;
+  const amount = clamp(track.effectAmount || 0, 0, 1);
+  if (amount <= 0 || track.effect === 'none') {
+    state.left = left;
+    state.right = right;
+    return;
+  }
+
+  if (track.effect === 'lowpass') {
+    const alpha = 0.04 + (1 - amount) * 0.42;
+    state.lpL += (left - state.lpL) * alpha;
+    state.lpR += (right - state.lpR) * alpha;
+    state.left = state.lpL;
+    state.right = state.lpR;
+    return;
+  }
+  if (track.effect === 'highpass') {
+    const alpha = 0.985 - amount * 0.22;
+    const hpL = alpha * (state.hpL + left - state.hpPrevL);
+    const hpR = alpha * (state.hpR + right - state.hpPrevR);
+    state.hpPrevL = left;
+    state.hpPrevR = right;
+    state.hpL = hpL;
+    state.hpR = hpR;
+    state.left = hpL;
+    state.right = hpR;
+    return;
+  }
+  if (track.effect === 'distortion') {
+    const drive = 1 + amount * 24;
+    state.left = Math.tanh(left * drive) / Math.tanh(drive);
+    state.right = Math.tanh(right * drive) / Math.tanh(drive);
+    return;
+  }
+  if (track.effect === 'tremolo') {
+    const rate = 2 + amount * 10;
+    state.tremoloPhase = (state.tremoloPhase + rate / 48000) % 1;
+    const mod = 1 - amount * .85 * (.5 + .5 * Math.sin(state.tremoloPhase * Math.PI * 2));
+    state.left = left * mod;
+    state.right = right * mod;
+    return;
+  }
+  state.left = left;
+  state.right = right;
+}
+
+function bounceLoopMix() {
+  if (!loopLengthSamples || !loopTracks.length) throw new Error('No loop tracks to clone');
+  const left = new Float32Array(loopLengthSamples);
+  const right = new Float32Array(loopLengthSamples);
+  const states = new Map(loopTracks.map(track => [track.id, { lpL: 0, lpR: 0, hpPrevL: 0, hpPrevR: 0, hpL: 0, hpR: 0, tremoloPhase: 0 }]));
+  for (let i = 0; i < loopLengthSamples; i++) {
+    let mixedLeft = 0;
+    let mixedRight = 0;
+    for (const track of loopTracks) {
+      const state = states.get(track.id);
+      renderTrackSampleOffline(track, i, state);
+      mixedLeft += state.left;
+      mixedRight += state.right;
+    }
+    left[i] = clamp(mixedLeft, -1, 1);
+    right[i] = clamp(mixedRight, -1, 1);
+  }
+  return { left, right, sampleRate: 48000 };
+}
+
+function encodeWav({ left, right, sampleRate }) {
+  if (left.length !== right.length) throw new Error('Stereo buffers do not match');
+  const channels = 2;
+  const bytesPerSample = 2;
+  const blockAlign = channels * bytesPerSample;
+  const dataBytes = left.length * blockAlign;
+  const buffer = new ArrayBuffer(44 + dataBytes);
+  const view = new DataView(buffer);
+  const writeString = (offset, value) => {
+    for (let i = 0; i < value.length; i++) view.setUint8(offset + i, value.charCodeAt(i));
+  };
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + dataBytes, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bytesPerSample * 8, true);
+  writeString(36, 'data');
+  view.setUint32(40, dataBytes, true);
+  let offset = 44;
+  for (let i = 0; i < left.length; i++) {
+    view.setInt16(offset, Math.round(clamp(left[i], -1, 1) * 32767), true);
+    view.setInt16(offset + 2, Math.round(clamp(right[i], -1, 1) * 32767), true);
+    offset += 4;
+  }
+  return new Blob([buffer], { type: 'audio/wav' });
+}
+
+async function cloneCurrentLoopToAudioPrompt() {
+  const button = $('clone-loop-audio');
+  button.disabled = true;
+  $('audio-style-status').textContent = 'Bouncing current loop mix...';
+  const wav = encodeWav(bounceLoopMix());
+  const form = new FormData();
+  form.append('file', new File([wav], 'loop-station-clone.wav', { type: 'audio/wav' }));
+  $('audio-style-status').textContent = 'Uploading loop clone as audio prompt...';
+  const response = await fetch('/style/audio', { method: 'POST', body: form });
+  if (!response.ok) throw new Error(`Loop clone upload failed: ${response.status}`);
+  const data = await response.json();
+  audioStyleKey = data.key;
+  setSourceMode('clone');
+  document.querySelectorAll('#style-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'prompt'));
+  $('audio-weight').value = '80';
+  $('text-weight').value = '20';
+  $('audio-style-status').textContent = `Loop clone active: ${data.name} (${(wav.size / 1024).toFixed(0)} KB).`;
+  applyPlayableInstrumentSetup();
+  resetForPromptChange();
+  updateReadouts();
+  log('loop clone uploaded and playable setup applied');
 }
 
 async function togglePadRecord(padIndex) {
@@ -1677,6 +1839,10 @@ $('loop-stop').onclick = stopLoops;
 $('loop-clear').onclick = clearLoops;
 $('metro-toggle').onclick = toggleMetronome;
 $('metro-bpm').addEventListener('input', updateReadouts);
+$('clone-loop-audio').onclick = () => cloneCurrentLoopToAudioPrompt().finally(() => {
+  $('clone-loop-audio').disabled = false;
+});
+document.querySelectorAll('.source-tab').forEach(button => button.addEventListener('click', () => setSourceMode(button.dataset.source)));
 $('loop-length-control').addEventListener('input', event => {
   setLoopLengthSamples(Math.round(Number(event.target.value) * 480));
 });
@@ -1712,6 +1878,7 @@ $('upload-audio').addEventListener('click', () => $('audio-file').click());
 $('clear-audio').addEventListener('click', () => {
   audioStyleKey = null;
   $('audio-style-status').textContent = 'Audio prompt cleared. Text prompt is active.';
+  if (sourceMode === 'clone') setSourceMode('prompt');
   resetForPromptChange();
 });
 $('audio-file').addEventListener('change', async () => {
@@ -1721,9 +1888,11 @@ $('audio-file').addEventListener('change', async () => {
   form.append('file', file);
   $('audio-style-status').textContent = `Encoding ${file.name}...`;
   const response = await fetch('/style/audio', { method: 'POST', body: form });
+  if (!response.ok) throw new Error(`Audio upload failed: ${response.status}`);
   const data = await response.json();
   audioStyleKey = data.key;
   $('audio-style-status').textContent = `Audio style active: ${data.name} (${Math.round(data.bytes / 1024)} KB).`;
+  setSourceMode('clone');
   document.querySelectorAll('#style-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'prompt'));
   resetForPromptChange();
 });

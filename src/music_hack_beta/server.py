@@ -26,6 +26,14 @@ app = FastAPI(title="Magenta RT 2 Low-Latency Lab")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 
+@app.middleware("http")
+async def disable_static_cache(request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/static/"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 @app.get("/")
 async def root():
     return RedirectResponse(url="/static/index.html")
