@@ -3782,7 +3782,7 @@
     height: 92px !important;
     min-height: 92px !important;
     margin: 0 !important;
-    padding: 8px 8px 10px !important;
+    padding: 8px 5px 10px !important;
     grid-template-rows: 20px 46px !important;
     gap: 5px !important;
     align-content: start !important;
@@ -3860,17 +3860,46 @@
   .generation-card:not(.nodes-layout) > .source-panel.on {
     display: grid !important;
     align-items: center !important;
+    justify-items: stretch !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-style-row {
-    align-items: center !important;
+    align-items: end !important;
+    align-self: center !important;
+    height: auto !important;
+    transform: translateY(-8px) !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field,
-  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field {
+    align-self: end !important;
+    grid-template-rows: 20px 50px !important;
+  }
+
   .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle,
   .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
-    align-self: center !important;
+    align-self: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .segrow {
+    height: 50px !important;
+    align-items: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
+    min-height: 76px !important;
+    grid-template-rows: 26px 50px !important;
+    justify-items: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field .knob {
+    align-self: end !important;
+    margin-bottom: 0 !important;
   }
 
   .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) {
@@ -3916,21 +3945,22 @@
 
   .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .segrow {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 8px !important;
+    grid-template-columns: repeat(2, 48px) !important;
+    gap: 6px !important;
     align-items: center !important;
-    justify-items: stretch !important;
+    justify-content: center !important;
+    justify-items: center !important;
     height: 46px !important;
-    padding: 0 1px 2px !important;
+    padding: 0 0 2px !important;
     box-sizing: border-box !important;
   }
 
   .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .seg {
-    width: 100% !important;
+    width: 48px !important;
     height: 42px !important;
     min-height: 42px !important;
     max-height: 42px !important;
-    padding: 0 6px !important;
+    padding: 0 4px !important;
     display: grid !important;
     place-items: center !important;
     line-height: .95 !important;
