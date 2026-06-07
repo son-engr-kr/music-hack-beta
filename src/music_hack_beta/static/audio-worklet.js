@@ -102,6 +102,8 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
     if (rel >= track.playSamples) return;
     const sourceLength = Math.max(1, Math.min(track.left.length, track.sourceEndSamples) - track.sourceStartSamples);
     const sourceIndex = track.sourceStartSamples + (rel % sourceLength);
+    track.currentSourceIndex = sourceIndex;
+    track.currentSourceLength = sourceLength;
     this.applyTrackEffect(track, track.left[sourceIndex] * track.gain, track.right[sourceIndex] * track.gain);
   }
 
@@ -148,6 +150,27 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
       const mod = 1 - amount * .85 * (.5 + .5 * Math.sin(track.tremoloPhase * Math.PI * 2));
       this.mixLeft = left * mod;
       this.mixRight = right * mod;
+      return;
+    }
+
+    if (track.effect === 'reverb') {
+      const sourceLength = Math.max(1, track.currentSourceLength || track.left.length || 1);
+      const sourceIndex = track.currentSourceIndex || track.sourceStartSamples || 0;
+      const relativeIndex = sourceIndex - track.sourceStartSamples;
+      const tapA = Math.max(1, Math.floor(sourceLength * .071));
+      const tapB = Math.max(1, Math.floor(sourceLength * .137));
+      const tapC = Math.max(1, Math.floor(sourceLength * .233));
+      const idx = tap => track.sourceStartSamples + ((relativeIndex - tap + sourceLength) % sourceLength);
+      const wetL =
+        (track.left[idx(tapA)] || 0) * .44 +
+        (track.left[idx(tapB)] || 0) * .28 +
+        (track.left[idx(tapC)] || 0) * .18;
+      const wetR =
+        (track.right[idx(tapB)] || 0) * .44 +
+        (track.right[idx(tapC)] || 0) * .28 +
+        (track.right[idx(tapA)] || 0) * .18;
+      this.mixLeft = left * (1 - amount * .45) + wetL * track.gain * amount;
+      this.mixRight = right * (1 - amount * .45) + wetR * track.gain * amount;
       return;
     }
 

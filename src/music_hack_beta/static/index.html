@@ -3521,9 +3521,10 @@
     padding: 12px !important;
     display: grid !important;
     grid-template-columns: minmax(0, 1.45fr) minmax(0, .85fr) minmax(0, .7fr) minmax(0, 1.2fr) !important;
-    grid-template-rows: minmax(0, 2fr) 22px minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) 75px !important;
     gap: 8px !important;
     overflow: hidden !important;
+    min-height: calc(100% + 10px) !important;
   }
 
   .loop-panel {
@@ -3532,7 +3533,7 @@
     grid-column: 1 / -1 !important;
     grid-row: 1 !important;
     grid-template-columns: minmax(0, 2fr) minmax(260px, .85fr) !important;
-    grid-template-rows: 28px 94px 34px 34px 58px 18px !important;
+    grid-template-rows: 28px 94px 34px 34px minmax(5px, 1.35fr) minmax(75px, .65fr) 18px !important;
     gap: 7px !important;
     overflow: hidden !important;
   }
@@ -3542,40 +3543,24 @@
   }
 
   .loop-card > h2 {
-    grid-column: 1 / -1 !important;
-    grid-row: 2 !important;
-    margin: 0 !important;
-    align-self: end !important;
-    transform: translateY(10px) !important;
+    display: none !important;
   }
 
   .loop-card > canvas,
   .loop-card > .log {
-    grid-row: 3 !important;
-    min-height: 0 !important;
-    height: 100% !important;
-    width: 100% !important;
-    border-width: 3px !important;
-    border-radius: 12px !important;
-    transform: translateY(10px) !important;
-  }
-
-  #roll {
-    grid-column: 1 !important;
+    display: none !important;
   }
 
   #wave {
-    grid-column: 2 !important;
-  }
-
-  #queue {
-    grid-column: 3 !important;
-  }
-
-  #log {
-    grid-column: 4 !important;
-    overflow: hidden !important;
-    font-size: .58rem !important;
+    display: block !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    height: 75px !important;
+    min-height: 75px !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+    transform: none !important;
   }
 
   .record-head {
@@ -3601,6 +3586,7 @@
     gap: 6px !important;
     align-items: center !important;
     margin: 0 !important;
+    transform: translateY(0) !important;
   }
 
   .record-head .metro-row label {
@@ -3610,6 +3596,7 @@
     margin: 0 !important;
     font-size: .72rem !important;
     color: var(--text) !important;
+    transform: translateY(2px) !important;
   }
 
   .record-head .metro-row label b {
@@ -3626,7 +3613,7 @@
     border-width: 3px !important;
     border-radius: 12px !important;
     font-size: .72rem !important;
-    transform: translateY(2px) !important;
+    transform: translateY(3px) !important;
   }
 
   .record-head .metro-volume-knob {
@@ -3655,7 +3642,7 @@
     align-items: stretch !important;
     justify-self: start !important;
     margin: 0 !important;
-    transform: translateY(10px) !important;
+    transform: translateY(15px) !important;
   }
 
   .loop-pad {
@@ -3675,7 +3662,27 @@
     font-weight: 900 !important;
     margin-top: auto !important;
     text-transform: uppercase !important;
+    position: relative !important;
+    z-index: 2 !important;
   }
+
+  .loop-pad .slot-title {
+    position: relative !important;
+    z-index: 2 !important;
+  }
+
+  .track-clip.selected {
+    background-image:
+      repeating-linear-gradient(135deg, rgba(23,23,23,.38) 0 5px, transparent 5px 10px) !important;
+    box-shadow: inset 0 0 0 4px var(--accent), 0 0 0 3px var(--line) !important;
+  }
+
+  .track-clip[data-pad="1"] { background-color: #f26349 !important; }
+  .track-clip[data-pad="2"] { background-color: #f8b844 !important; }
+  .track-clip[data-pad="3"] { background-color: #a8d8a1 !important; }
+  .track-clip[data-pad="4"] { background-color: #a8c5e4 !important; }
+  .track-clip[data-pad="5"] { background-color: #d9b3ff !important; }
+  .track-clip[data-pad="6"] { background-color: #ff9ac1 !important; }
 
   .loop-head {
     display: grid !important;
@@ -3719,13 +3726,55 @@
     color: var(--text) !important;
     font-size: .76rem !important;
     margin: 0 !important;
+    transform: translateY(10px) !important;
   }
 
   .loop-length-row input[type="range"] {
     grid-column: 2 !important;
     grid-row: 2 !important;
     display: block !important;
-    width: 100% !important;
+    width: calc(100% - 15px) !important;
+    accent-color: var(--accent) !important;
+    justify-self: start !important;
+  }
+
+  .loop-length-row input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px !important;
+    border: 2px solid var(--line) !important;
+    border-radius: 999px !important;
+    background: var(--accent) !important;
+  }
+
+  .loop-length-row input[type="range"]::-webkit-slider-thumb {
+    width: 18px !important;
+    height: 18px !important;
+    margin-top: -7px !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 50% !important;
+    background: var(--accent) !important;
+  }
+
+  .loop-length-row input[type="range"]:disabled::-webkit-slider-thumb {
+    background: #ffffff !important;
+  }
+
+  .loop-length-row input[type="range"]::-moz-range-track {
+    height: 8px !important;
+    border: 2px solid var(--line) !important;
+    border-radius: 999px !important;
+    background: var(--accent) !important;
+  }
+
+  .loop-length-row input[type="range"]::-moz-range-thumb {
+    width: 18px !important;
+    height: 18px !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 50% !important;
+    background: var(--accent) !important;
+  }
+
+  .loop-length-row input[type="range"]:disabled::-moz-range-thumb {
+    background: #ffffff !important;
   }
 
   .loop-length-row #loop-length-reset {
@@ -3737,6 +3786,7 @@
     border-width: 3px !important;
     border-radius: 10px !important;
     font-size: .72rem !important;
+    transform: translateY(10px) !important;
   }
 
   .loop-length-row .knob {
@@ -3744,20 +3794,36 @@
   }
 
   .timeline {
-    min-height: 58px !important;
-    max-height: 58px !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
     border-width: 4px !important;
     border-radius: 12px !important;
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     transform: translateY(10px) !important;
   }
 
+  .timeline .track-lane {
+    height: 34px !important;
+    margin: 10px 10px !important;
+    border-width: 3px !important;
+    border-radius: 12px !important;
+    background: #ffffff !important;
+  }
+
+  .timeline .track-clip,
+  .timeline .track-ghost {
+    top: 50% !important;
+    height: 22px !important;
+    border-radius: 9px !important;
+    transform: translateY(-50%) !important;
+  }
+
   .loop-stats {
-    display: flex !important;
-    gap: 6px !important;
-    align-items: center !important;
-    margin: 0 !important;
-    transform: translateY(10px) !important;
+    display: none !important;
   }
 
   .loop-stats .chip {
@@ -3769,8 +3835,83 @@
     padding: 3px 8px !important;
   }
 
-  .track-mixer,
   .loop-panel > .hint {
+    display: none !important;
+  }
+
+  .track-mixer {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+    display: grid !important;
+    gap: 6px !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+    align-items: center !important;
+    align-content: center !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: hidden !important;
+    padding: 6px 8px !important;
+    color: var(--text) !important;
+    background: #fff6df !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 12px !important;
+    transform: translateY(10px) !important;
+  }
+
+  .track-mixer::before {
+    content: "Effects";
+    color: var(--text);
+    font-size: .76rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .mixer-row {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 5px !important;
+    align-items: center !important;
+    align-self: center !important;
+    padding: 5px !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 10px !important;
+    background: #ffffff !important;
+    min-width: 0 !important;
+  }
+
+  .mixer-row label {
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-rows: 13px 28px !important;
+    gap: 4px !important;
+    align-items: center !important;
+    align-self: center !important;
+    color: var(--text) !important;
+    font-size: .56rem !important;
+    font-weight: 900 !important;
+    text-transform: uppercase !important;
+  }
+
+  .mixer-row input[type="range"] {
+    display: block !important;
+    width: 100% !important;
+    accent-color: var(--accent) !important;
+    align-self: center !important;
+  }
+
+  .mixer-row select {
+    min-width: 0 !important;
+    height: 28px !important;
+    align-self: center !important;
+    padding: 0 4px !important;
+    border-width: 2px !important;
+    border-radius: 8px !important;
+    font-size: .58rem !important;
+  }
+
+  .track-mixer:empty {
     display: none !important;
   }
 
@@ -3791,6 +3932,46 @@
 
   .loop-pad.recording span {
     color: var(--text) !important;
+  }
+
+  .record-meter {
+    display: none;
+  }
+
+  .loop-pad.recording .record-meter {
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    bottom: 24px;
+    height: 28px;
+    display: grid;
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    gap: 3px;
+    align-items: end;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .loop-pad.recording .record-meter i {
+    display: block;
+    width: 100%;
+    height: 20%;
+    border: 2px solid var(--line);
+    border-radius: 999px 999px 4px 4px;
+    background: var(--red);
+    animation: recordWaveBars .72s ease-in-out infinite alternate;
+  }
+
+  .loop-pad.recording .record-meter i:nth-child(2n) { animation-delay: -.12s; }
+  .loop-pad.recording .record-meter i:nth-child(3n) { animation-delay: -.24s; }
+  .loop-pad.recording .record-meter i:nth-child(4n) { animation-delay: -.36s; }
+  .loop-pad.recording .record-meter i:nth-child(5n) { animation-delay: -.48s; }
+
+  @keyframes recordWaveBars {
+    0% { height: 18%; }
+    35% { height: 78%; }
+    70% { height: 42%; }
+    100% { height: 92%; }
   }
 
   @keyframes recordFillClockwise {
@@ -4869,6 +5050,7 @@ let loopPositionSamples = 0;
 let draggedTrackId = null;
 let draggedTrackGrabPct = 0;
 let recordingPad = null;
+let selectedEffectPad = null;
 let metronomeEnabled = false;
 let metronomeTimer = null;
 let metronomeBeat = 0;
@@ -6148,6 +6330,24 @@ function renderTrackSampleOffline(track, loopPos, state) {
     state.right = right * mod;
     return;
   }
+  if (track.effect === 'reverb') {
+    const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
+    const sourceLength = Math.max(1, Math.min(track.left.length, sourceEndSamples) - sourceStartSamples);
+    const tapA = Math.max(1, Math.floor(sourceLength * .071));
+    const tapB = Math.max(1, Math.floor(sourceLength * .137));
+    const tapC = Math.max(1, Math.floor(sourceLength * .233));
+    const wetL =
+      (track.left[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapA + sourceLength) % sourceLength)] || 0) * .44 +
+      (track.left[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapB + sourceLength) % sourceLength)] || 0) * .28 +
+      (track.left[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapC + sourceLength) % sourceLength)] || 0) * .18;
+    const wetR =
+      (track.right[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapB + sourceLength) % sourceLength)] || 0) * .44 +
+      (track.right[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapC + sourceLength) % sourceLength)] || 0) * .28 +
+      (track.right[sourceStartSamples + ((sourceIndex - sourceStartSamples - tapA + sourceLength) % sourceLength)] || 0) * .18;
+    state.left = left * (1 - amount * .45) + wetL * track.gain * amount;
+    state.right = right * (1 - amount * .45) + wetR * track.gain * amount;
+    return;
+  }
   state.left = left;
   state.right = right;
 }
@@ -6396,6 +6596,7 @@ function finishPadRecording(data) {
   track.name = `Slot ${padIndex}`;
   loopTracks = loopTracks.filter(item => item.padIndex !== padIndex);
   loopTracks.push(track);
+  selectedEffectPad = padIndex;
   syncLoopTracks();
   renderPads();
   drawTimeline();
@@ -6431,6 +6632,7 @@ function clearLoops() {
   loopPositionSamples = 0;
   loopRecording = false;
   recordingPad = null;
+  selectedEffectPad = null;
   resetLoopRecordingBuffer();
   if (worklet) worklet.port.postMessage({ type: 'clearLoopTracks' });
   renderPads();
@@ -6484,7 +6686,7 @@ function renderPads() {
     const button = document.createElement('button');
     button.className = `loop-pad ${hasTrack ? 'has-track' : ''} ${recordingPad === pad ? 'recording' : ''}`;
     button.dataset.tooltip = `Record into Slot ${pad}. Press the same slot again to stop recording.`;
-    button.innerHTML = `Slot ${pad}<span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span>`;
+    button.innerHTML = `<strong class="slot-title">Slot ${pad}</strong><span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span><b class="record-meter" aria-hidden="true">${'<i></i>'.repeat(14)}</b>`;
     button.onclick = () => togglePadRecord(pad).catch(error => log(`slot ${pad} error: ${error.message}`));
     root.appendChild(button);
   }
@@ -6507,8 +6709,9 @@ function drawTimeline() {
     lane.appendChild(ghost);
 
     const clip = document.createElement('div');
-    clip.className = `track-clip ${track.id === baseTrackId ? 'base' : ''}`;
+    clip.className = `track-clip ${track.id === baseTrackId ? 'base' : ''} ${selectedEffectPad === track.padIndex ? 'selected' : ''}`;
     clip.dataset.trackId = track.id;
+    clip.dataset.pad = track.padIndex;
     clip.style.left = `${trackOffsetPct(track)}%`;
     clip.style.width = `${Math.max(2, trackAudibleLengthPct(track))}%`;
     clip.innerHTML = `
@@ -6517,6 +6720,9 @@ function drawTimeline() {
     `;
     clip.addEventListener('pointerdown', event => {
       event.preventDefault();
+      selectedEffectPad = track.padIndex;
+      drawTrackMixer();
+      drawTimeline();
       draggedTrackId = track.id;
       draggedTrackGrabPct = ((event.clientX - clip.getBoundingClientRect().left) / rootWidth) * 100;
       clip.setPointerCapture(event.pointerId);
@@ -6546,31 +6752,32 @@ function drawTrackMixer() {
   const mixer = $('track-mixer');
   if (!mixer) return;
   mixer.innerHTML = '';
-  for (const track of loopTracks) {
-    const row = document.createElement('div');
-    row.className = 'mixer-row';
-    row.innerHTML = `
-      <strong>${track.name}</strong>
-      <label>Volume<input data-track="${track.id}" data-field="gain" type="range" min="0" max="150" value="${Math.round(track.gain * 100)}"></label>
-      <label>Trim In<input data-track="${track.id}" data-field="trimStartPct" type="range" min="0" max="99" value="${Math.round(track.trimStartPct || 0)}"></label>
-      <label>Trim Out<input data-track="${track.id}" data-field="trimEndPct" type="range" min="1" max="100" value="${Math.round(track.trimEndPct ?? 100)}"></label>
-      <label>Effect<select data-track="${track.id}" data-field="effect">
-        <option value="none">None</option>
-        <option value="lowpass">Lowpass</option>
-        <option value="highpass">Highpass</option>
-        <option value="distortion">Drive</option>
-        <option value="tremolo">Tremolo</option>
-      </select></label>
-      <label>Amount<input data-track="${track.id}" data-field="effectAmount" type="range" min="0" max="100" value="${Math.round(track.effectAmount * 100)}"></label>
-    `;
-    const effectSelect = row.querySelector('select[data-field="effect"]');
-    effectSelect.value = track.effect;
-    row.querySelectorAll('input, select').forEach(control => {
-      control.addEventListener('input', () => updateMixerControl(control));
-      control.addEventListener('change', () => updateMixerControl(control));
-    });
-    mixer.appendChild(row);
-  }
+  const track = loopTracks.find(item => item.padIndex === selectedEffectPad) || loopTracks[0];
+  if (!track) return;
+  selectedEffectPad = track.padIndex;
+  const row = document.createElement('div');
+  row.className = 'mixer-row';
+  row.innerHTML = `
+    <label>Volume<input data-track="${track.id}" data-field="gain" type="range" min="0" max="150" value="${Math.round(track.gain * 100)}"></label>
+    <label>Trim In<input data-track="${track.id}" data-field="trimStartPct" type="range" min="0" max="99" value="${Math.round(track.trimStartPct || 0)}"></label>
+    <label>Trim Out<input data-track="${track.id}" data-field="trimEndPct" type="range" min="1" max="100" value="${Math.round(track.trimEndPct ?? 100)}"></label>
+    <label>Effect<select data-track="${track.id}" data-field="effect">
+      <option value="none">None</option>
+      <option value="lowpass">Lowpass</option>
+      <option value="highpass">Highpass</option>
+      <option value="distortion">Drive</option>
+      <option value="tremolo">Tremolo</option>
+      <option value="reverb">Reverb</option>
+    </select></label>
+    <label>Amount<input data-track="${track.id}" data-field="effectAmount" type="range" min="0" max="100" value="${Math.round(track.effectAmount * 100)}"></label>
+  `;
+  const effectSelect = row.querySelector('select[data-field="effect"]');
+  effectSelect.value = track.effect;
+  row.querySelectorAll('input, select').forEach(control => {
+    control.addEventListener('input', () => updateMixerControl(control));
+    control.addEventListener('change', () => updateMixerControl(control));
+  });
+  mixer.appendChild(row);
 }
 
 function updateMixerControl(control) {
@@ -7154,7 +7361,44 @@ function resize() {
   drawRoll();
   updateReadouts();
 }
-function drawWave() { const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h/2; ctx.fillStyle = '#fff6df'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(w,mid); ctx.stroke(); if (!lastWave.length) return; ctx.strokeStyle = '#f26349'; ctx.lineWidth = 3; ctx.beginPath(); for (let x=0;x<w;x++) { const s = lastWave[Math.floor(x/w*lastWave.length)] || 0; const y = mid - s * mid * .86; x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke(); }
+function drawWave() {
+  const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h / 2;
+  ctx.fillStyle = '#fff6df';
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#171717';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(0, mid);
+  ctx.lineTo(w, mid);
+  ctx.stroke();
+  if (!lastWave.length) return;
+
+  let peak = .001;
+  for (const sample of lastWave) peak = Math.max(peak, Math.abs(sample));
+  const gain = Math.min(8, 1.35 / peak);
+  const columns = Math.min(w, 180);
+  const step = w / columns;
+
+  ctx.fillStyle = '#f26349';
+  ctx.strokeStyle = '#171717';
+  ctx.lineWidth = 2;
+  for (let i = 0; i < columns; i++) {
+    const sample = lastWave[Math.floor(i / columns * lastWave.length)] || 0;
+    const energy = Math.min(1, Math.pow(Math.abs(sample) * gain, .62));
+    const barH = Math.max(4, energy * h * .92);
+    const x = i * step;
+    const y = mid - barH / 2;
+    ctx.fillRect(x, y, Math.max(2, step - 1), barH);
+  }
+
+  ctx.beginPath();
+  for (let x = 0; x < w; x++) {
+    const sample = lastWave[Math.floor(x / w * lastWave.length)] || 0;
+    const y = mid - Math.max(-1, Math.min(1, sample * gain)) * mid * .94;
+    x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.stroke();
+}
 function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#fff6df'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.lineWidth = 3; ctx.strokeRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#f26349' : queuedSeconds < target ? '#f8b844' : '#a8d8a1'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#171717'; ctx.font = 'bold 20px Arial'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
 
 function drawRoll() {
