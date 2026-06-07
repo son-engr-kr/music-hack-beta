@@ -1490,8 +1490,7 @@
   .transport {
     display: none;
   }
-  .hidden-mode-field,
-  .drum-cfg-field.hidden {
+  .hidden-mode-field {
     display: none !important;
   }
   .generation-card {
@@ -1764,9 +1763,6 @@
     column-gap: 8px;
     row-gap: 7px;
   }
-  .generation-card:not(.nodes-layout):has(.drum-cfg-field.hidden) {
-    grid-template-columns: repeat(6, minmax(54px, 1fr));
-  }
   .generation-card .performance-mode-field {
     grid-column: 1 / -1;
     max-width: 130px;
@@ -1962,72 +1958,11 @@
     width: 30px;
     height: 30px;
   }
-  .generation-card.nodes-layout .field:has(#temp),
-  .generation-card.nodes-layout .field:has(#topk),
-  .generation-card.nodes-layout .field:has(#cfgs),
-  .generation-card.nodes-layout .field:has(#cfgn),
-  .generation-card.nodes-layout .field:has(#unmask),
-  .generation-card.nodes-layout .field:has(#seed),
-  .generation-card.nodes-layout .field:has(#cfgd) {
-    justify-self: center;
-    width: min(100%, 72px);
-  }
   .generation-card.nodes-layout > .split {
     display: contents;
   }
   .generation-card.nodes-layout > .split .field {
     min-width: 0;
-  }
-  .generation-card.nodes-layout .field:has(#temp),
-  .generation-card.nodes-layout .field:has(#topk),
-  .generation-card.nodes-layout .field:has(#cfgs) {
-    grid-row: 4;
-  }
-  .generation-card.nodes-layout .field:has(#temp) {
-    grid-column: 3;
-  }
-  .generation-card.nodes-layout .field:has(#topk) {
-    grid-column: 5;
-  }
-  .generation-card.nodes-layout .field:has(#cfgs) {
-    grid-column: 7;
-  }
-  .generation-card.nodes-layout .field:has(#cfgn),
-  .generation-card.nodes-layout .field:has(#unmask),
-  .generation-card.nodes-layout .field:has(#seed) {
-    grid-row: 5;
-  }
-  .generation-card.nodes-layout .field:has(#cfgn) {
-    grid-column: 2;
-  }
-  .generation-card.nodes-layout .field:has(#unmask) {
-    grid-column: 4;
-  }
-  .generation-card.nodes-layout .field:has(#seed) {
-    grid-column: 6;
-  }
-  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#cfgn) {
-    grid-column: 3;
-  }
-  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#unmask) {
-    grid-column: 5;
-  }
-  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#seed) {
-    grid-column: 7;
-  }
-  .generation-card.nodes-layout .field:has(#cfgd) {
-    grid-column: 8;
-    grid-row: 5;
-  }
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgn),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#unmask),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#seed),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgd) {
-    justify-self: center;
-    width: min(100%, 72px);
-  }
-  .generation-card.nodes-layout .drum-cfg-field.hidden {
-    display: none !important;
   }
   .generation-card.nodes-layout .advanced-mode-row {
     grid-column: 2 / 9;
@@ -2501,57 +2436,6 @@
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
     width: 32px !important;
     height: 32px !important;
-  }
-
-  .generation-card.nodes-layout .field:has(#temp),
-  .generation-card.nodes-layout .field:has(#topk),
-  .generation-card.nodes-layout .field:has(#cfgs) {
-    grid-row: 2 !important;
-    width: 33.333% !important;
-    justify-self: start !important;
-  }
-
-  .generation-card.nodes-layout .field:has(#cfgn),
-  .generation-card.nodes-layout .field:has(#unmask),
-  .generation-card.nodes-layout .field:has(#seed),
-  .generation-card.nodes-layout .field:has(#cfgd) {
-    grid-row: 3 !important;
-    width: 33.333% !important;
-    justify-self: start !important;
-  }
-
-  .generation-card.nodes-layout .field:has(#temp) { transform: translateX(0); }
-  .generation-card.nodes-layout .field:has(#topk) { transform: translateX(100%); }
-  .generation-card.nodes-layout .field:has(#cfgs) { transform: translateX(200%); }
-  .generation-card.nodes-layout .field:has(#cfgn) { transform: translateX(0); }
-  .generation-card.nodes-layout .field:has(#unmask) { transform: translateX(100%); }
-  .generation-card.nodes-layout .field:has(#seed) { transform: translateX(200%); }
-
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#temp),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgn) {
-    width: 25% !important;
-    transform: translateX(0);
-  }
-
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#topk),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#unmask) {
-    width: 25% !important;
-    transform: translateX(100%);
-  }
-
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgs),
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#seed) {
-    width: 25% !important;
-    transform: translateX(200%);
-  }
-
-  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgd) {
-    width: 25% !important;
-    transform: translateX(300%);
-  }
-
-  .generation-card.nodes-layout .drum-cfg-field.hidden {
-    display: none !important;
   }
 
   .generation-card.nodes-layout .advanced-mode-row {
@@ -3684,6 +3568,40 @@
     align-self: stretch !important;
   }
 
+  .generation-card > .clone-prompt-top-field {
+    display: none !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .clone-prompt-top-field {
+    display: none !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card.clone-layout:not(.nodes-layout) > .preset-select-field {
+    display: none !important;
+  }
+
+  .generation-card.clone-layout:not(.nodes-layout) > .clone-prompt-top-field {
+    display: grid !important;
+    grid-template-rows: 20px 42px !important;
+    gap: 6px !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    transform: translateY(5px) !important;
+  }
+
+  .generation-card.clone-layout:not(.nodes-layout) > .clone-prompt-top-field input {
+    height: 42px !important;
+    min-height: 42px !important;
+  }
+
   .generation-card:not(.nodes-layout) > .source-panel.on {
     grid-column: 1 / -1 !important;
     grid-row: 4 !important;
@@ -3943,6 +3861,13 @@
     color: #171717 !important;
   }
 
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 40px !important;
+    min-height: 40px !important;
+    grid-template-rows: 18px 18px !important;
+    overflow: visible !important;
+  }
+
   .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label b,
   .generation-card:not(.nodes-layout) .gain-inline-field label b {
     color: #171717 !important;
@@ -4069,6 +3994,161 @@
     display: none !important;
   }
 
+  /* Nodes mode: align knobs and mode buttons like Prompt/Clone controls. */
+  .generation-card.nodes-layout {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    grid-template-rows: 30px 66px minmax(210px, 1fr) 116px 94px !important;
+    gap: 12px !important;
+    align-content: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .generation-card.nodes-layout > h2 {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    margin: 0 !important;
+  }
+
+  .generation-card.nodes-layout > .source-tabs {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    align-self: end !important;
+  }
+
+  .generation-card.nodes-layout > .field:first-of-type,
+  .generation-card.nodes-layout .node-editor-dock {
+    display: none !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    align-self: stretch !important;
+    min-width: 0 !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field {
+    display: grid !important;
+    grid-template-rows: minmax(0, 1fr) 42px auto !important;
+    gap: 8px !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field > label,
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-preset-strip,
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .hint {
+    display: none !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap,
+  .generation-card.nodes-layout #prompt-surface {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 112px !important;
+    gap: 8px !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-list {
+    max-height: 76px !important;
+    overflow-y: auto !important;
+  }
+
+  .generation-card.nodes-layout > .split {
+    display: contents !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    grid-row: 4 !important;
+    width: calc(100% + 20px) !important;
+    min-height: 116px !important;
+    height: 116px !important;
+    padding: 8px 6px 10px !important;
+    display: grid !important;
+    grid-template-rows: 40px 1fr !important;
+    gap: 6px !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    transform: translateY(50px) !important;
+    overflow: visible !important;
+  }
+
+  .generation-card.nodes-layout .field:has(#temp) { grid-column: 1 !important; }
+  .generation-card.nodes-layout .field:has(#topk) { grid-column: 2 !important; }
+  .generation-card.nodes-layout .field:has(#cfgs) { grid-column: 3 !important; }
+  .generation-card.nodes-layout .field:has(#cfgn) { grid-column: 4 !important; }
+  .generation-card.nodes-layout .field:has(#unmask) { grid-column: 5 !important; }
+  .generation-card.nodes-layout .field:has(#seed) { grid-column: 6 !important; }
+  .generation-card.nodes-layout .field:has(#cfgd) { grid-column: 7 !important; display: grid !important; }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 40px !important;
+    min-height: 40px !important;
+    grid-template-rows: 18px 18px !important;
+    overflow: visible !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label b {
+    transform: translateY(5px) !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 40px !important;
+    height: 40px !important;
+    margin: 6px auto 0 !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-row {
+    grid-column: 1 / -1 !important;
+    grid-row: 5 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    height: 92px !important;
+    min-height: 92px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-row .numeric-field {
+    display: none !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-field {
+    height: 92px !important;
+    min-height: 92px !important;
+    padding: 8px 5px 10px !important;
+    grid-template-rows: 20px 46px !important;
+    gap: 5px !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-field:not(.numeric-field) .segrow {
+    display: grid !important;
+    grid-template-columns: repeat(2, 55px) !important;
+    gap: 6px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    justify-items: center !important;
+    height: 46px !important;
+    padding: 0 0 2px !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-field:not(.numeric-field) .seg {
+    width: 55px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 4px !important;
+  }
+
   @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
   @media (max-width: 1120px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field { grid-column: auto !important; } }
   @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow, .preset-topbar { grid-template-columns: 1fr 1fr; } .preset-current { grid-column: 1 / -1; order: -1; } .preset-current-meta { justify-content: flex-start; } .transport button { min-height: 52px; } }
@@ -4130,7 +4210,8 @@
         <button class="source-tab" data-source="nodes">Nodes</button>
         <button class="source-tab" data-source="clone">Clone</button>
       </div>
-      <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
+      <div class="field preset-select-field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
+      <div class="field clone-prompt-top-field"><label>Text Prompt</label><input id="clone-text-prompt" type="text" value="Dreamy Ambient Pads"><div class="hint">Text prompt blended with cloned audio style.</div></div>
       <div class="node-editor-dock" id="node-editor-dock"></div>
       <div class="source-panel on" data-panel="prompt">
         <div class="prompt-style-row">
@@ -4469,7 +4550,8 @@ function buildMessage() {
 }
 
 function effectivePrompt() {
-  const text = $('prompt').value.trim();
+  const promptInput = sourceMode === 'clone' && $('clone-text-prompt') ? $('clone-text-prompt') : $('prompt');
+  const text = promptInput.value.trim();
   const seed = parseInt($('seed').value);
   const variation = seed > 0 ? ` variation ${seed}` : '';
   if ((selected('jam-mode') === 'solo' || selected('voice-mode') === 'solo') && text) return `SOLO ${text}${variation}`;
@@ -4636,7 +4718,9 @@ function activeGenerationParams() {
 function setSourceMode(mode) {
   if (!['prompt', 'nodes', 'clone'].includes(mode)) throw new Error(`Invalid source mode: ${mode}`);
   sourceMode = mode;
-  document.querySelector('.generation-card')?.classList.toggle('nodes-layout', mode === 'nodes');
+  const generationCard = document.querySelector('.generation-card');
+  generationCard?.classList.toggle('nodes-layout', mode === 'nodes');
+  generationCard?.classList.toggle('clone-layout', mode === 'clone');
   document.querySelectorAll('.source-tab').forEach(button => button.classList.toggle('on', button.dataset.source === mode));
   document.querySelectorAll('.source-panel').forEach(panel => panel.classList.toggle('on', panel.dataset.panel === mode));
   resizePromptSurface();
@@ -4904,7 +4988,7 @@ function updatePerformanceModeButton() {
 function updateDrumControlVisibility() {
   const field = document.querySelector('.drum-cfg-field');
   if (!field) return;
-  field.classList.toggle('hidden', selected('drumless') === 'on');
+  field.classList.remove('hidden');
 }
 
 function setupMetroBpmStepper() {
@@ -5745,6 +5829,7 @@ function base64ToStereo(value, frames) {
 function serializableControlState() {
   return {
     prompt: $('prompt').value,
+    cloneTextPrompt: $('clone-text-prompt')?.value || $('prompt').value,
     sourceMode,
     audioStyleKey,
     audioWeight: $('audio-weight').value,
@@ -5789,6 +5874,7 @@ async function loadProjectStateFile(file) {
   const state = JSON.parse(await file.text());
   assertSavedState(state);
   $('prompt').value = state.prompt;
+  if ($('clone-text-prompt')) $('clone-text-prompt').value = state.cloneTextPrompt || state.prompt;
   $('audio-weight').value = state.audioWeight;
   $('text-weight').value = state.textWeight;
   audioStyleKey = state.audioStyleKey;
@@ -6701,6 +6787,12 @@ $('preset-drawer-toggle').onclick = () => togglePresetDrawer(true);
 $('preset-drawer-close').onclick = closePresetDrawer;
 $('preset-drawer-scrim').onclick = closePresetDrawer;
 $('system-toggle').onclick = () => $('system-panel').classList.toggle('open');
+if ($('clone-text-prompt')) {
+  $('clone-text-prompt').addEventListener('input', () => {
+    resetForPromptChange();
+    updateReadouts();
+  });
+}
 
 connect(); placeMidiInputTop(); placeMetronomeInRecordHead(); setupMetroBpmStepper(); setupKeyboardHardwareControls(); buildPiano(); buildKnobs(); setupNumericDragControls(); setupCloneBlendSlider(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
 setupButtonTooltips();
