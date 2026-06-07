@@ -3891,6 +3891,11 @@
     align-items: stretch !important;
   }
 
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field label {
+    transform: translateY(-7px) !important;
+  }
+
   .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
     min-height: 76px !important;
     grid-template-rows: 26px 50px !important;
@@ -3908,7 +3913,7 @@
     align-self: stretch !important;
     padding-top: 8px !important;
     padding-bottom: 10px !important;
-    grid-template-rows: 34px 1fr !important;
+    grid-template-rows: 40px 1fr !important;
   }
 
   .generation-card:not(.nodes-layout) > .advanced-mode-row {
@@ -3924,9 +3929,9 @@
   }
 
   .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) .knob {
-    width: 44px !important;
-    height: 44px !important;
-    margin: 4px auto 0 !important;
+    width: 40px !important;
+    height: 40px !important;
+    margin: 6px auto 0 !important;
   }
 
   .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label,
@@ -3943,9 +3948,13 @@
     color: #171717 !important;
   }
 
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label b {
+    transform: translateY(5px) !important;
+  }
+
   .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .segrow {
     display: grid !important;
-    grid-template-columns: repeat(2, 48px) !important;
+    grid-template-columns: repeat(2, 55px) !important;
     gap: 6px !important;
     align-items: center !important;
     justify-content: center !important;
@@ -3956,7 +3965,7 @@
   }
 
   .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .seg {
-    width: 48px !important;
+    width: 55px !important;
     height: 42px !important;
     min-height: 42px !important;
     max-height: 42px !important;
