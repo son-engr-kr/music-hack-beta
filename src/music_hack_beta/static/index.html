@@ -113,6 +113,7 @@
       <h2>Generation</h2>
       <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
       <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"></div>
+      <div class="field"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><div class="hint">Keeps the current prompt and applies a solo, no-drums, MIDI-gated setup with stronger note following.</div></div>
       <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Uses MusicCoCa audio embedding as the style prompt, matching the public demo's audio prompt idea. Full audio prefill still requires C++ core.</div></div>
       <div class="split">
         <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style. Only active after uploading audio.</div></div>
@@ -335,6 +336,41 @@ function bindSegments(id) {
     document.querySelectorAll(`#${id} .seg`).forEach(x => x.classList.remove('on'));
     el.classList.add('on'); updateReadouts();
   }));
+}
+
+function setSegment(id, value) {
+  document.querySelectorAll(`#${id} .seg`).forEach(el => {
+    el.classList.toggle('on', el.dataset.value === value);
+  });
+}
+
+function setRange(id, value) {
+  $(id).value = String(value);
+  $(id).dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function applyPlayableInstrumentSetup() {
+  $('continuous').value = 'true';
+  setSegment('jam-mode', 'solo');
+  setSegment('voice-mode', 'solo');
+  setSegment('style-mode', 'prompt');
+  setSegment('notes-mode', 'masked');
+  setSegment('drumless', 'on');
+  setSegment('drums-mode', '0');
+  setSegment('onset-mode', 'unmasked');
+  setSegment('midi-gate', 'on');
+  setRange('frames', 1);
+  setRange('target', 12);
+  setRange('temp', 100);
+  setRange('topk', 100);
+  setRange('cfgs', 30);
+  setRange('cfgn', 50);
+  setRange('cfgd', 10);
+  setRange('unmask', 127);
+  setRange('seed', 0);
+  resetForPromptChange();
+  updateReadouts();
+  log(`playable instrument setup applied: ${effectivePrompt()}`);
 }
 
 function buildPresets() {
@@ -647,6 +683,7 @@ $('once').onclick = async () => { await ensureAudio(); sendGenerate(); };
 $('panic').onclick = panic;
 $('reset').onclick = () => { if (ws && connected) ws.send(JSON.stringify({ action:'reset' })); log('model state reset'); };
 $('clear').onclick = () => { dropHeldNotes(); noteState.clear(); held.clear(); onset.clear(); noteEvents = []; document.querySelectorAll('.white,.blackp').forEach(el => paintPianoKey(el, -1)); document.querySelectorAll('.key').forEach(el => el.classList.remove('active')); updateReadouts(); };
+$('playable-instrument').onclick = applyPlayableInstrumentSetup;
 
 connect(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
 buildPresets(); bindSegments('jam-mode'); bindSegments('onset-mode'); bindSegments('midi-gate');
