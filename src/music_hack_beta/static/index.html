@@ -3782,9 +3782,10 @@
     height: 92px !important;
     min-height: 92px !important;
     margin: 0 !important;
-    padding: 8px 6px !important;
-    grid-template-rows: 22px 50px !important;
-    gap: 6px !important;
+    padding: 8px 8px 10px !important;
+    grid-template-rows: 20px 46px !important;
+    gap: 5px !important;
+    align-content: start !important;
   }
 
   .generation-card:not(.nodes-layout) .advanced-mode-field .segrow {
@@ -3911,6 +3912,32 @@
   .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label b,
   .generation-card:not(.nodes-layout) .gain-inline-field label b {
     color: #171717 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .segrow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    align-items: center !important;
+    justify-items: stretch !important;
+    height: 46px !important;
+    padding: 0 1px 2px !important;
+    box-sizing: border-box !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field:not(.numeric-field) .seg {
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 6px !important;
+    display: grid !important;
+    place-items: center !important;
+    line-height: .95 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: hidden !important;
+    font-size: .62rem !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"].on {
