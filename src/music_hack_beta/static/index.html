@@ -30,6 +30,10 @@
   .led { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--red); margin-right: 8px; }
   .led.on { background: var(--green); } .led.busy { background: var(--accent); }
   .system-toggle { position: fixed; right: 16px; bottom: 16px; z-index: 31; width: 48px; height: 48px; min-height: 48px; border-radius: 50%; display: grid; place-items: center; font-size: 1.15rem; box-shadow: 0 14px 34px rgba(0,0,0,.38); }
+  .system-toggle,
+  .system-panel {
+    display: none !important;
+  }
 
   .transport { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; flex: 0 0 auto; }
   button { border: 1px solid var(--line); border-radius: 11px; background: linear-gradient(180deg, #342817, #1c1711); color: var(--text); min-height: 38px; cursor: pointer; font-weight: 800; font-size: .86rem; }
@@ -38,8 +42,30 @@
   .primary { background: linear-gradient(180deg, #efb75d, #a46528); color: #120d07; border-color: #ffd28a; }
   .danger { background: linear-gradient(180deg, #ff735c, #8a2a21); }
 
-  .grid { display: grid; grid-template-columns: minmax(310px, .9fr) minmax(410px, 1.05fr) minmax(360px, 1fr); gap: 10px; flex: 1 1 auto; min-height: 0; }
+  .preset-topbar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 14px; background: rgba(29,26,20,.92); padding: 8px 10px; box-shadow: 0 12px 30px rgba(0,0,0,.22); }
+  .preset-drawer-toggle { min-height: 34px; border-radius: 10px; padding: 0 12px; }
+  .preset-current { min-width: 0; display: grid; gap: 2px; }
+  .preset-current span { color: var(--muted); font-size: .62rem; text-transform: uppercase; letter-spacing: .08em; }
+  .preset-current strong { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; }
+  .preset-current-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 5px; color: var(--muted); font-size: .62rem; }
+  .preset-drawer { position: fixed; top: 0; left: 0; bottom: 0; width: min(390px, calc(100vw - 28px)); z-index: 40; transform: translateX(calc(-100% - 12px)); transition: transform .18s ease; border-right: 1px solid var(--line); background: rgba(17,16,13,.98); box-shadow: 20px 0 60px rgba(0,0,0,.44); display: flex; flex-direction: column; }
+  .preset-drawer.open { transform: translateX(0); }
+  .drawer-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px; border-bottom: 1px solid var(--line); }
+  .drawer-head h2 { margin: 0; }
+  .drawer-body { padding: 10px; overflow-y: auto; display: grid; gap: 8px; }
+  .preset-folder { border: 1px solid var(--line); border-radius: 10px; background: #15130f; overflow: hidden; }
+  .preset-folder summary { cursor: pointer; padding: 9px 10px; color: var(--accent); font-weight: 800; font-size: .78rem; }
+  .preset-folder-items { display: grid; gap: 4px; padding: 0 8px 8px; }
+  .preset-item { min-height: 30px; border-radius: 8px; text-align: left; font-size: .68rem; font-weight: 700; padding: 0 8px; background: #0f0d09; color: var(--muted); }
+  .preset-item.active { color: #130d06; background: var(--accent); border-color: #ffd08c; }
+  .drawer-scrim { position: fixed; inset: 0; z-index: 39; display: none; background: rgba(0,0,0,.36); }
+  .drawer-scrim.open { display: block; }
+
+  .grid { display: grid; grid-template-columns: minmax(330px, .9fr) minmax(390px, 1.1fr); grid-template-rows: minmax(0, 1fr) auto; grid-template-areas: "generation loop" "keyboard keyboard"; gap: 10px; flex: 1 1 auto; min-height: 0; }
   .grid > * { min-width: 0; }
+  .generation-card { grid-area: generation; }
+  .keyboard-card { grid-area: keyboard; max-height: 260px; }
+  .loop-card { grid-area: loop; }
   .card { min-width: 0; min-height: 0; background: rgba(29,26,20,.9); border: 1px solid var(--line); border-radius: 16px; padding: 10px; box-shadow: 0 16px 46px rgba(0,0,0,.2); overflow-y: auto; overflow-x: hidden; }
   h2 { margin: 0 0 8px; letter-spacing: -.035em; font-size: 1rem; }
   label { display: flex; justify-content: space-between; color: var(--muted); font-size: .72rem; margin-bottom: 4px; }
@@ -126,12 +152,2250 @@
   #roll { height: 150px; } #wave { height: 58px; } #queue { height: 38px; }
   .log { height: 64px; overflow-y: auto; white-space: pre-wrap; color: #c9bea9; line-height: 1.32; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .62rem; background: #090806; border: 1px solid var(--line); border-radius: 11px; padding: 8px; }
 
-  @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; } .status { min-width: 0; } }
-  @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow { grid-template-columns: 1fr 1fr; } .transport button { min-height: 52px; } }
+  /* Hardware synth redesign */
+  :root {
+    --bg: #111214; --panel: #202225; --panel2: #2b2d30; --line: #050607;
+    --text: #eef2f4; --muted: #8b9298; --accent: #00d8e8; --green: #46e59a;
+    --red: #ff3f80; --blue: #5ab7ff; --black: #050607;
+  }
+  body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      linear-gradient(180deg, #303235 0 30%, #111214 30% 34%, #08090a 34% 100%);
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,.035) 0 1px, transparent 1px 14px),
+      radial-gradient(circle at 50% 10%, rgba(255,255,255,.08), transparent 42rem);
+    mix-blend-mode: screen;
+    opacity: .45;
+  }
+  .shell {
+    padding: 12px 16px 16px;
+    gap: 10px;
+    background:
+      linear-gradient(180deg, #343638 0, #25272a 34%, #0a0b0c 34.2%, #0b0c0e 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 -22px 60px rgba(0,0,0,.72);
+  }
+  .transport {
+    grid-template-columns: repeat(5, minmax(90px, 1fr));
+    max-width: 560px;
+    gap: 7px;
+  }
+  button {
+    border: 1px solid #08090a;
+    border-bottom-color: #000;
+    border-radius: 5px;
+    background: linear-gradient(180deg, #53565a, #24272a 58%, #111315);
+    color: #dfe6e9;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 3px 0 #050607, 0 8px 18px rgba(0,0,0,.28);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: .68rem;
+  }
+  button:hover:not(:disabled) {
+    border-color: #00d8e8;
+    transform: translateY(-1px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.24), 0 4px 0 #050607, 0 0 16px rgba(0,216,232,.18);
+  }
+  .primary {
+    background: linear-gradient(180deg, #d7f8ff, #64d9e8 45%, #168695);
+    color: #061012;
+    border-color: #bff7ff;
+  }
+  .danger {
+    background: linear-gradient(180deg, #ffb7cf, #ff3f80 48%, #8d173e);
+    color: #180309;
+    border-color: #ffc6d9;
+  }
+  .preset-topbar {
+    position: relative;
+    grid-template-columns: 112px minmax(280px, 1fr) auto;
+    width: min(720px, 100%);
+    margin: 0 auto;
+    min-height: 88px;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #090a0b;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.07), transparent 18%),
+      linear-gradient(90deg, #15181a, #262b2f 32%, #16191b);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 14px 32px rgba(0,0,0,.5);
+  }
+  .preset-topbar::before {
+    content: "";
+    position: absolute;
+    left: 130px;
+    right: 190px;
+    top: 10px;
+    bottom: 10px;
+    border-radius: 3px;
+    background:
+      linear-gradient(135deg, rgba(0,216,232,.2), transparent 34%),
+      linear-gradient(90deg, #101316, #1b252b);
+    box-shadow: inset 0 0 0 1px rgba(0,216,232,.24), inset 0 0 28px rgba(0,216,232,.12);
+    pointer-events: none;
+  }
+  .preset-current, .preset-current-meta, .preset-drawer-toggle {
+    position: relative;
+    z-index: 1;
+  }
+  .preset-current {
+    padding: 10px 14px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, rgba(186,49,136,.82), rgba(90,52,148,.88));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.12), inset 0 -18px 42px rgba(0,0,0,.16);
+  }
+  .preset-current span {
+    color: rgba(255,255,255,.72);
+    font-size: .58rem;
+  }
+  .preset-current strong {
+    color: #fff;
+    font-size: 1.12rem;
+    letter-spacing: .02em;
+  }
+  .preset-current-meta .chip {
+    border-radius: 3px;
+    background: #111315;
+    border-color: #34383d;
+    color: #00d8e8;
+  }
+  .preset-drawer,
+  .system-panel {
+    background: linear-gradient(180deg, #2d3033, #151719);
+    border-color: #050607;
+  }
+  .preset-folder {
+    border-radius: 4px;
+    background: #1a1d20;
+    border-color: #070809;
+  }
+  .preset-folder summary {
+    color: #e6ecef;
+    background: linear-gradient(180deg, #34383c, #1f2225);
+  }
+  .preset-item {
+    border-radius: 3px;
+    background: #0f1113;
+    border-color: #050607;
+  }
+  .preset-item.active {
+    color: #061012;
+    background: linear-gradient(180deg, #9ef5ff, #00d8e8);
+    border-color: #bff7ff;
+  }
+  .grid {
+    grid-template-columns: minmax(380px, .95fr) minmax(420px, 1.05fr);
+    grid-template-rows: minmax(0, 1fr) minmax(210px, 34vh);
+    gap: 12px;
+  }
+  .card {
+    border-radius: 4px;
+    border-color: #08090a;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,.055), transparent 14%),
+      linear-gradient(180deg, #303235, #1f2225);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 18px 38px rgba(0,0,0,.32);
+  }
+  .generation-card,
+  .loop-card {
+    border-top: 1px solid rgba(255,255,255,.12);
+  }
+  h2 {
+    color: #cdd5d9;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  label {
+    color: #90989e;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  input[type="text"], select {
+    border-radius: 3px;
+    border-color: #050607;
+    background: #0d1012;
+    color: #e9f8fb;
+    box-shadow: inset 0 1px 8px rgba(0,0,0,.58);
+  }
+  .source-tab,
+  .seg,
+  .smallbtn,
+  .key.func {
+    border-radius: 4px;
+  }
+  .source-tab.on,
+  .seg.on {
+    background: linear-gradient(180deg, #a7f6ff, #00d8e8);
+    color: #061012;
+    border-color: #c6fbff;
+  }
+  .knob {
+    width: 44px;
+    height: 44px;
+    margin: 2px auto 0;
+    border-color: #070809;
+    background:
+      radial-gradient(circle at 40% 32%, #7c858a, #22262a 46%, #090a0b 72%),
+      conic-gradient(from 215deg, #00d8e8 var(--fill, 45%), #30343a 0 78%, transparent 0);
+    box-shadow: inset 0 0 0 6px #171a1d, inset 0 2px 5px rgba(255,255,255,.18), 0 6px 10px rgba(0,0,0,.55);
+  }
+  .knob::after {
+    background: #d9faff;
+    top: 5px;
+    height: 11px;
+    transform-origin: 50% 15px;
+  }
+  .keyboard-card {
+    position: relative;
+    max-height: none;
+    padding: 8px 10px 12px;
+    background:
+      linear-gradient(180deg, #222528 0, #181a1d 18px, #090a0b 18px, #070809 100%);
+    overflow: hidden;
+  }
+  .keyboard-card h2,
+  .keyboard-card .field,
+  .keyboard-card .typing,
+  .keyboard-card .legend {
+    position: relative;
+    z-index: 2;
+  }
+  .keyboard-card h2,
+  .keyboard-card .field,
+  .keyboard-card .typing,
+  .keyboard-card .legend {
+    max-width: 860px;
+  }
+  .keyboard-card .field {
+    display: inline-block;
+    vertical-align: top;
+    width: min(360px, calc(50% - 8px));
+    margin-right: 8px;
+  }
+  .typing {
+    margin-bottom: 6px;
+    border-radius: 4px;
+    background: #121416;
+    border-color: #050607;
+    padding: 6px;
+  }
+  .key {
+    min-height: 28px;
+    min-width: 28px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #e6e8e8, #9ca1a4);
+    box-shadow: inset 0 1px 0 #fff, 0 2px 0 #050607;
+  }
+  .key.black {
+    background: linear-gradient(180deg, #303337, #050607);
+  }
+  .piano-wrap {
+    position: relative;
+    margin: 4px -10px -12px;
+    padding: 30px 0 0;
+    overflow: hidden;
+    background: linear-gradient(180deg, #0a0b0c 0 28px, #030404 28px 100%);
+    border-top: 1px solid #000;
+  }
+  .piano-wrap::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 7px;
+    height: 12px;
+    background: repeating-linear-gradient(90deg, #00d8e8 0 5px, transparent 5px 26px);
+    filter: drop-shadow(0 0 7px rgba(0,216,232,.82));
+    opacity: .9;
+  }
+  .piano {
+    height: 190px;
+    background: #030404;
+  }
+  .white, .blackp {
+    border-color: #030404;
+    font-size: .58rem;
+    padding-bottom: 8px;
+  }
+  .white {
+    height: 180px;
+    border-radius: 0 0 5px 5px;
+    background: linear-gradient(90deg, #e8e8e7, #ffffff 36%, #c8cbcc);
+    color: #6b6f73;
+    box-shadow: inset 0 1px 0 #fff, inset -2px 0 4px rgba(0,0,0,.2), 0 8px 18px rgba(0,0,0,.5);
+  }
+  .blackp {
+    height: 116px;
+    border-radius: 0 0 4px 4px;
+    background: linear-gradient(90deg, #141618, #050607 42%, #2f3337);
+    color: #b7bec3;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 8px 15px rgba(0,0,0,.72);
+  }
+  .white.on, .blackp.on {
+    background: linear-gradient(180deg, #a5fff1, #00d8e8);
+    box-shadow: 0 0 16px rgba(0,216,232,.64);
+  }
+  .white.sustain, .blackp.sustain {
+    background: linear-gradient(180deg, #e7b8ff, #ff3fff);
+    box-shadow: 0 0 16px rgba(255,63,255,.55);
+  }
+  .white.masked, .blackp.masked {
+    background: linear-gradient(180deg, #ffb0ca, #ff3f80);
+  }
+  .piano-focus {
+    border-color: #ff3fff;
+    background: rgba(255,63,255,.1);
+    box-shadow: 0 0 14px rgba(255,63,255,.55);
+  }
+  canvas,
+  .log,
+  .timeline,
+  .track-lane,
+  .node-row,
+  .surface-wrap {
+    border-radius: 4px;
+    background: #07090a;
+    border-color: #050607;
+  }
+  .loop-pad {
+    min-height: 50px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #464b50, #151719);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 3px 0 #050607;
+  }
+  .loop-pad.has-track {
+    background: linear-gradient(180deg, #84f1ff, #167c9c);
+    color: #061012;
+    border-color: #bff7ff;
+  }
+  .loop-pad.recording {
+    background: linear-gradient(180deg, #ffb7d0, #ff3f80);
+    box-shadow: 0 0 18px rgba(255,63,128,.55);
+  }
+  .transport {
+    grid-template-columns: minmax(160px, 220px);
+    max-width: 220px;
+    margin: 0 auto;
+  }
+  .transport {
+    grid-template-columns: minmax(160px, 220px) minmax(260px, 360px);
+    max-width: min(600px, 100%);
+    align-items: start;
+    justify-content: center;
+  }
+  .top-midi-field {
+    min-width: 0;
+  }
+  #once,
+  #reset,
+  #clear,
+  #panic {
+    display: none;
+  }
+  .shell {
+    gap: 6px;
+    padding-bottom: 10px;
+  }
+  .preset-topbar {
+    min-height: 72px;
+    padding: 8px;
+  }
+  .preset-topbar {
+    display: none;
+  }
+  .preset-current {
+    padding: 8px 12px;
+  }
+  .preset-current strong {
+    font-size: 1rem;
+  }
+  .grid {
+    grid-template-rows: minmax(0, 1fr) 206px;
+    gap: 7px;
+  }
+  .card {
+    overflow: hidden;
+    padding: 8px;
+  }
+  .generation-card {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-content: start;
+    gap: 5px;
+  }
+  .generation-card h2,
+  .generation-card > .field:first-of-type,
+  .generation-card .source-tabs,
+  .generation-card .source-panel {
+    grid-column: 1 / -1;
+  }
+  .generation-card .field,
+  .loop-card .field {
+    margin-bottom: 0;
+  }
+  .generation-card > .split {
+    display: contents;
+  }
+  .generation-card > .split.numeric-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 220px));
+    gap: 10px;
+    align-items: end;
+  }
+  .generation-card .field {
+    min-height: 74px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    place-items: center;
+    padding: 4px 3px;
+    border: 1px solid rgba(5,6,7,.55);
+    border-radius: 4px;
+    background: rgba(7,9,10,.26);
+  }
+  .generation-card .field > label {
+    width: 100%;
+    min-height: 18px;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+    font-size: .52rem;
+    line-height: 1.1;
+  }
+  .generation-card .field > label b {
+    display: block;
+    color: #00d8e8;
+    font-size: .6rem;
+  }
+  .generation-card .field:has(select),
+  .generation-card .field:has(input[type="text"]),
+  .generation-card .field:has(.minirow),
+  .generation-card .field:has(.segrow) {
+    min-height: 0;
+    align-items: stretch;
+  }
+  .generation-card > .field:first-of-type,
+  .generation-card .source-panel .field,
+  .generation-card .source-panel .split .field {
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+  .hint {
+    display: none;
+  }
+  .source-panel.on {
+    display: grid;
+    gap: 5px;
+    max-height: 124px;
+    overflow: hidden;
+  }
+  .source-panel[data-panel="nodes"].on {
+    min-height: 112px;
+    max-height: 136px;
+  }
+  .source-panel[data-panel="nodes"] .field {
+    display: grid;
+    gap: 4px;
+  }
+  .source-panel[data-panel="nodes"] .surface-wrap {
+    min-height: 82px;
+    max-height: 82px;
+    border-color: rgba(0,216,232,.32);
+    box-shadow: inset 0 0 20px rgba(0,216,232,.08);
+  }
+  #prompt-surface {
+    display: block;
+    width: 100%;
+    height: 82px;
+    min-height: 82px;
+  }
+  .source-panel[data-panel="clone"].on {
+    grid-template-columns: 1fr;
+    max-height: 118px;
+  }
+  .source-panel[data-panel="clone"] .minirow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 5px;
+  }
+  .source-panel[data-panel="clone"] .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+  .source-panel[data-panel="clone"] .field {
+    min-height: 0;
+  }
+  .source-panel[data-panel="prompt"] .field {
+    min-height: 0;
+  }
+  .node-list {
+    max-height: 30px;
+    overflow: hidden;
+    margin-top: 0;
+  }
+  .node-row {
+    min-height: 24px;
+    padding: 2px 5px;
+  }
+  .node-row input,
+  .node-row .smallbtn {
+    min-height: 22px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .source-panel[data-panel="nodes"].on {
+    grid-template-rows: 1fr;
+    min-height: 124px;
+    max-height: 124px;
+  }
+  .source-panel[data-panel="nodes"] .field {
+    grid-template-rows: 82px 30px;
+    align-items: stretch;
+  }
+  .source-panel[data-panel="nodes"] .field > label,
+  .source-panel[data-panel="nodes"] .node-list {
+    display: none;
+  }
+  .source-panel[data-panel="nodes"] .minirow {
+    grid-template-columns: minmax(0, 1fr) 82px;
+    gap: 5px;
+  }
+  .source-panel[data-panel="nodes"] .minirow input,
+  .source-panel[data-panel="nodes"] .minirow button {
+    min-height: 28px;
+    height: 28px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+  .source-panel[data-panel="clone"].on {
+    grid-template-rows: 32px 58px;
+    min-height: 98px;
+    max-height: 98px;
+    gap: 5px;
+  }
+  .source-panel[data-panel="clone"] > .field:first-child {
+    min-height: 32px;
+  }
+  .source-panel[data-panel="clone"] > .field:first-child > label {
+    display: none;
+  }
+  .source-panel[data-panel="clone"] .minirow button {
+    min-height: 28px;
+    height: 28px;
+    padding: 0 4px;
+    font-size: .58rem;
+  }
+  .source-panel[data-panel="clone"] .split .field {
+    min-height: 58px;
+    display: grid;
+    grid-template-rows: 16px 1fr;
+    place-items: center;
+    border: 1px solid rgba(5,6,7,.55);
+    border-radius: 4px;
+    background: rgba(7,9,10,.26);
+    padding: 3px;
+  }
+  .source-panel[data-panel="clone"] .split label {
+    min-height: 14px;
+    justify-content: center;
+    text-align: center;
+    font-size: .5rem;
+    line-height: 1;
+  }
+  .source-panel[data-panel="clone"] .split .knob {
+    width: 34px;
+    height: 34px;
+  }
+  .generation-card > .field:first-of-type {
+    grid-column: 1 / -1;
+    min-height: 38px;
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card > .field:first-of-type label {
+    margin: 0;
+    text-align: left;
+    justify-content: flex-start;
+  }
+  .generation-card .source-tabs {
+    grid-column: 1 / -1;
+    min-height: 34px;
+    margin: 0;
+    align-self: start;
+  }
+  .node-editor-dock {
+    display: none;
+  }
+  .generation-card.nodes-layout .node-editor-dock {
+    display: none;
+    grid-column: 2;
+    grid-row: 4;
+    gap: 5px;
+    min-height: 96px;
+    max-height: 128px;
+    overflow: hidden;
+    padding: 5px;
+    border: 1px solid rgba(0,216,232,.24);
+    border-radius: 4px;
+    background: rgba(7,9,10,.35);
+  }
+  .generation-card.nodes-layout .node-editor-dock .node-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    min-height: 0;
+    padding: 4px;
+  }
+  .generation-card.nodes-layout .node-editor-dock .node-row.influence {
+    display: none;
+  }
+  .generation-card.nodes-layout .node-editor-dock .node-row input {
+    width: 100%;
+    min-height: 28px;
+  }
+  .generation-card.nodes-layout .node-editor-dock .node-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .generation-card.nodes-layout .node-editor-dock .smallbtn {
+    min-height: 26px;
+    padding: 0 4px;
+    font-size: .55rem;
+  }
+  .generation-card .source-panel {
+    grid-column: 1 / -1;
+    clear: both;
+  }
+  .generation-card .source-tab {
+    min-height: 30px;
+  }
+  .generation-card.nodes-layout .source-tabs {
+    grid-column: 1 / -1;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-column: 1;
+    grid-row: 4 / span 8;
+    min-height: 360px;
+    max-height: none;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field {
+    grid-template-rows: minmax(240px, 1fr) 34px minmax(70px, auto);
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 86px;
+    min-height: 32px;
+    align-items: center;
+    gap: 6px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow input,
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow button {
+    display: block;
+    height: 30px;
+    min-height: 30px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap {
+    min-height: 240px;
+  }
+  .generation-card.nodes-layout #prompt-surface {
+    min-height: 240px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-list {
+    display: grid;
+    max-height: 120px;
+    overflow: hidden;
+    gap: 5px;
+    margin-top: 0;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    min-height: 0;
+    padding: 4px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row.influence {
+    display: none;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row input {
+    width: 100%;
+    min-height: 26px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-row .smallbtn {
+    min-height: 24px;
+    padding: 0 4px;
+    font-size: .54rem;
+  }
+  .generation-card.nodes-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(170px, 1fr);
+    grid-template-rows: auto auto repeat(5, minmax(62px, auto));
+    align-content: stretch;
+  }
+  .generation-card.nodes-layout h2,
+  .generation-card.nodes-layout > .field:first-of-type,
+  .generation-card.nodes-layout .source-tabs {
+    grid-column: 1 / -1;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-column: 1;
+    grid-row: 4 / span 5;
+    min-height: 330px;
+    max-height: none;
+    height: 100%;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field {
+    height: 100%;
+    grid-template-rows: minmax(260px, 1fr) 32px;
+    place-items: center stretch;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap {
+    min-height: 260px;
+    max-height: none;
+    height: min(100%, 360px);
+    width: min(100%, 720px);
+    justify-self: center;
+    align-self: center;
+  }
+  .generation-card.nodes-layout #prompt-surface {
+    height: 100%;
+    min-height: 260px;
+    margin: 0 auto;
+  }
+  .generation-card.nodes-layout > .field:not(:first-of-type),
+  .generation-card.nodes-layout > .split {
+    grid-column: 2;
+  }
+  .generation-card.nodes-layout > .field:not(:first-of-type) {
+    grid-row: auto;
+    min-height: 42px;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 3px 5px;
+  }
+  .generation-card.nodes-layout > .field:has(.segrow),
+  .generation-card.nodes-layout > .field:has(select),
+  .generation-card.nodes-layout > .field:has(.minirow) {
+    min-height: 42px;
+  }
+  .generation-card.nodes-layout > .split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .generation-card.nodes-layout > .split .field {
+    min-height: 48px;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    grid-template-rows: 1fr;
+    justify-items: stretch;
+    align-items: center;
+    padding: 3px 5px;
+  }
+  .generation-card.nodes-layout .knob {
+    width: 34px;
+    height: 34px;
+  }
+  #gain + .knob {
+    width: 30px;
+    height: 30px;
+  }
+  .generation-card.nodes-layout .field > label {
+    justify-content: flex-start;
+    text-align: left;
+    font-size: .48rem;
+  }
+  .generation-card.nodes-layout .field > label b {
+    display: inline;
+    margin-left: 4px;
+    font-size: .54rem;
+  }
+  .loop-panel {
+    gap: 5px;
+  }
+  .record-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(250px, 330px);
+    align-items: center;
+    gap: 8px;
+  }
+  .record-head h2 {
+    margin: 0;
+  }
+  .record-head .metro-row {
+    margin: 0;
+    display: grid;
+    grid-template-columns: auto 58px 32px 74px;
+    align-items: center;
+    gap: 7px;
+    justify-content: end;
+  }
+  .record-head .metro-row label {
+    font-size: .52rem;
+    margin: 0;
+    white-space: nowrap;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+  }
+  .record-head .metro-row label b {
+    display: inline;
+    color: #00d8e8;
+    font-size: .68rem;
+    letter-spacing: .1em;
+  }
+  .record-head .metro-row input[type="range"] {
+    display: none;
+  }
+  .record-head .metro-row button {
+    order: 4;
+    min-height: 28px;
+    font-size: .58rem;
+    padding: 0 6px;
+  }
+  .record-head .metro-row label {
+    order: 1;
+  }
+  .metro-volume-knob {
+    order: 3;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #050607;
+    cursor: ns-resize;
+    background:
+      radial-gradient(circle at 38% 28%, #9aa2a7, #22272b 46%, #08090a 72%),
+      conic-gradient(from 215deg, #00d8e8 var(--fill, 46%), #30343a 0 78%, transparent 0);
+    box-shadow: inset 0 0 0 5px #171a1d, inset 0 1px 3px rgba(255,255,255,.18), 0 5px 9px rgba(0,0,0,.55);
+    position: relative;
+    user-select: none;
+  }
+  .metro-volume-knob::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 4px;
+    width: 2px;
+    height: 8px;
+    border-radius: 99px;
+    background: #d9faff;
+    transform-origin: 50% 11px;
+    transform: translateX(-50%) rotate(var(--angle, 0deg));
+  }
+  .metro-bpm-stepper {
+    order: 2;
+    min-height: 28px;
+    min-width: 54px;
+    display: grid;
+    place-items: center;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    color: #00d8e8;
+    background: linear-gradient(180deg, #111719, #060708);
+    box-shadow: inset 0 1px 8px rgba(0,0,0,.65), 0 3px 0 #050607;
+    font: 800 .72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    cursor: ns-resize;
+    user-select: none;
+  }
+  .synth-visual {
+    min-height: 86px;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    background:
+      linear-gradient(135deg, rgba(255,63,128,.28), transparent 42%),
+      radial-gradient(circle at 70% 30%, rgba(0,216,232,.22), transparent 38%),
+      linear-gradient(180deg, #101316, #07090a);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 0 28px rgba(0,216,232,.1);
+    display: grid;
+    grid-template-columns: 1fr 92px;
+    gap: 8px;
+    padding: 8px;
+    overflow: hidden;
+  }
+  .visual-scope {
+    position: relative;
+    border-radius: 3px;
+    background:
+      linear-gradient(90deg, rgba(0,216,232,.12) 1px, transparent 1px) 0 0 / 18px 100%,
+      linear-gradient(0deg, rgba(0,216,232,.1) 1px, transparent 1px) 0 0 / 100% 14px,
+      #050708;
+  }
+  .visual-scope::before {
+    content: "";
+    position: absolute;
+    left: 4%;
+    right: 4%;
+    top: 50%;
+    height: 28px;
+    background: linear-gradient(90deg, transparent, #00d8e8 8%, #ff3f80 22%, #00d8e8 38%, #46e59a 62%, #00d8e8 82%, transparent);
+    clip-path: polygon(0 45%, 8% 20%, 16% 70%, 25% 35%, 34% 58%, 44% 18%, 55% 68%, 66% 36%, 78% 55%, 89% 25%, 100% 48%, 100% 56%, 89% 33%, 78% 64%, 66% 44%, 55% 76%, 44% 26%, 34% 66%, 25% 43%, 16% 78%, 8% 28%, 0 54%);
+    filter: drop-shadow(0 0 8px rgba(0,216,232,.72));
+    transform: translateY(-50%);
+  }
+  .visual-bars {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: end;
+    gap: 4px;
+  }
+  .visual-bars i {
+    display: block;
+    min-height: 14px;
+    border-radius: 2px 2px 0 0;
+    background: linear-gradient(180deg, #d9ffff, #00d8e8 60%, #075a63);
+    box-shadow: 0 0 8px rgba(0,216,232,.62);
+  }
+  .visual-bars i:nth-child(1) { height: 28%; }
+  .visual-bars i:nth-child(2) { height: 64%; }
+  .visual-bars i:nth-child(3) { height: 42%; }
+  .visual-bars i:nth-child(4) { height: 78%; }
+  .visual-bars i:nth-child(5) { height: 52%; }
+  .visual-bars i:nth-child(6) { height: 86%; }
+  .visual-bars i:nth-child(7) { height: 36%; }
+  .visual-bars i:nth-child(8) { height: 68%; }
+  .pad-grid {
+    gap: 5px;
+  }
+  .loop-pad {
+    min-height: 38px;
+  }
+  .timeline {
+    min-height: 74px;
+    max-height: 86px;
+  }
+  .track-lane {
+    height: 24px;
+    margin: 5px 7px;
+  }
+  .track-clip,
+  .track-ghost {
+    top: 2px;
+    height: 18px;
+  }
+  .track-mixer {
+    max-height: 64px;
+    overflow: hidden;
+  }
+  .mixer-row {
+    grid-template-columns: 1fr 54px 54px 58px 60px 54px;
+    gap: 4px;
+    padding: 4px;
+  }
+  .metro-row,
+  .loop-length-row {
+    grid-template-columns: 1fr 78px 68px;
+    gap: 4px;
+  }
+  .keyboard-card {
+    min-height: 206px;
+    max-height: 206px;
+    padding-top: 4px;
+  }
+  .keyboard-card h2 {
+    margin-bottom: 4px;
+  }
+  .keyboard-card .field {
+    width: min(300px, calc(50% - 6px));
+    margin-bottom: 4px;
+  }
+  .typing {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    width: min(530px, 45vw);
+    max-height: 78px;
+    overflow: hidden;
+  }
+  .typing {
+    display: none;
+  }
+  .midi-device-field {
+    position: static !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 6px;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #303337, #151719);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 4px 0 #050607, 0 10px 18px rgba(0,0,0,.28);
+    display: block !important;
+  }
+  .midi-device-field .hint {
+    display: none;
+    font-size: .56rem;
+    margin-top: 4px;
+  }
+  .midi-device-field label {
+    margin: 0;
+  }
+  .typing-row {
+    gap: 3px;
+  }
+  .key {
+    min-width: 23px;
+    min-height: 22px;
+    font-size: .62rem;
+  }
+  .key.black {
+    min-height: 20px;
+  }
+  .key.func {
+    min-width: 62px;
+  }
+  .legend {
+    display: none;
+  }
+  .piano-wrap {
+    margin-top: 2px;
+    padding-top: 22px;
+  }
+  .piano-wrap::before {
+    top: 5px;
+    height: 9px;
+    background: repeating-linear-gradient(90deg, #00d8e8 0 4px, transparent 4px 23px);
+  }
+  .piano {
+    height: 132px;
+  }
+  .white {
+    height: 126px;
+  }
+  .blackp {
+    top: 0;
+    height: 78px;
+    padding-bottom: 3px;
+    z-index: 3;
+  }
+  .piano-focus {
+    bottom: 0;
+  }
+  canvas#roll,
+  canvas#wave,
+  canvas#queue,
+  .log {
+    display: none;
+  }
+  .button-tooltip {
+    position: fixed;
+    z-index: 80;
+    max-width: min(300px, calc(100vw - 28px));
+    padding: 8px 10px;
+    border: 1px solid #31363a;
+    border-radius: 4px;
+    color: #e9f8fb;
+    background: rgba(7, 9, 10, .96);
+    box-shadow: 0 12px 28px rgba(0,0,0,.5), 0 0 18px rgba(0,216,232,.12);
+    font: 700 .72rem/1.35 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity .12s ease, transform .12s ease;
+  }
+  .button-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .keyboard-card {
+    min-height: 206px;
+    max-height: 206px;
+  }
+  .piano-wrap {
+    padding-top: 16px;
+    background: linear-gradient(180deg, #15110f 0 4px, #9a1114 4px 8px, #080808 8px 16px, #efefed 16px 100%);
+    border-top: 1px solid #020202;
+    display: grid;
+    grid-template-columns: 86px minmax(0, 1fr);
+    align-items: stretch;
+  }
+  .piano-wrap::before {
+    top: 4px;
+    height: 4px;
+    background: #b81417;
+    filter: none;
+    opacity: 1;
+    box-shadow: 0 1px 2px rgba(0,0,0,.65);
+  }
+  .piano {
+    height: 136px;
+    width: 100%;
+    justify-self: stretch;
+    background: #efefed;
+    border-top: 1px solid #111;
+  }
+  .piano-controls {
+    position: relative;
+    z-index: 6;
+    display: grid;
+    grid-template-columns: 26px 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 5px;
+    padding: 10px 6px 8px;
+    background: linear-gradient(180deg, #16181a, #090a0b);
+    border-right: 1px solid #050607;
+  }
+  .mod-wheel {
+    grid-row: 1 / 3;
+    width: 24px;
+    border: 1px solid #050607;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #0a0b0c, #2b3034 48%, #090a0b);
+    box-shadow: inset 0 2px 8px rgba(0,0,0,.72);
+    cursor: ns-resize;
+    position: relative;
+    overflow: hidden;
+  }
+  .mod-wheel span {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    bottom: 8px;
+    height: 34%;
+    border-radius: 7px;
+    background: linear-gradient(180deg, #d9ffff, #00d8e8);
+    box-shadow: 0 0 8px rgba(0,216,232,.55);
+  }
+  .piano-controls .smallbtn {
+    min-height: 30px;
+    font-size: .55rem;
+    padding: 0 4px;
+  }
+  .white,
+  .blackp {
+    align-items: stretch;
+    color: transparent;
+    text-shadow: none;
+    font-size: 0;
+    padding: 0;
+  }
+  .white {
+    bottom: 0;
+    height: 132px;
+    border-radius: 0;
+    border-color: #d5cec4;
+    border-top-color: #fbfaf7;
+    background: linear-gradient(90deg, #f4f1ea 0, #fffdf8 48%, #dedbd5 100%);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,.85), inset -1px 0 0 rgba(70,60,48,.22), 0 3px 0 #bcb8af;
+    z-index: 1;
+  }
+  .blackp {
+    top: 0;
+    height: 78px;
+    border-radius: 0 0 2px 2px;
+    border-color: #050505;
+    background: linear-gradient(90deg, #2b2b2b 0, #050505 42%, #171717 100%);
+    box-shadow: inset 1px 0 0 rgba(255,255,255,.12), inset -1px 0 0 rgba(255,255,255,.08), 0 4px 4px rgba(0,0,0,.55);
+    z-index: 4;
+  }
+  .white.on,
+  .blackp.on {
+    background: linear-gradient(180deg, #dffcff, #00d8e8);
+    box-shadow: 0 0 10px rgba(0,216,232,.62);
+  }
+  .white.sustain,
+  .blackp.sustain {
+    background: linear-gradient(180deg, #ffd8ff, #ff3fff);
+    box-shadow: 0 0 10px rgba(255,63,255,.52);
+  }
+  .white.masked,
+  .blackp.masked {
+    background: linear-gradient(180deg, #ffd6df, #ff3f80);
+  }
+  .piano-focus {
+    top: 0;
+    bottom: 0;
+    border-radius: 0;
+    border-color: rgba(0,216,232,.72);
+    background: rgba(0,216,232,.06);
+    box-shadow: inset 0 0 0 1px rgba(0,216,232,.34);
+  }
+
+  .grid {
+    grid-template-rows: minmax(0, 1fr) 258px;
+  }
+  .keyboard-card {
+    min-height: 258px;
+    max-height: 258px;
+  }
+  .piano-wrap {
+    grid-template-columns: 72px minmax(0, 1fr);
+    padding-top: 18px;
+    min-height: 212px;
+  }
+  .piano {
+    height: 194px;
+  }
+  .white {
+    height: 188px;
+  }
+  .blackp {
+    height: 108px;
+  }
+  .piano-controls {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    place-items: center;
+    padding: 12px 8px;
+    background:
+      linear-gradient(90deg, #b81417 0 4px, transparent 4px),
+      linear-gradient(180deg, #2b2d30, #111315);
+  }
+  .piano-controls .smallbtn {
+    display: none;
+  }
+  .keyboard-card .keyboard-notes-field {
+    width: min(500px, calc(100% - 12px));
+  }
+  #notes-mode {
+    grid-template-columns: minmax(118px, 1.2fr) minmax(82px, .8fr) 110px;
+    align-items: stretch;
+  }
+  .octave-control {
+    min-height: 38px;
+    display: grid;
+    grid-template-columns: 1fr 42px;
+    align-items: center;
+    gap: 6px;
+    padding: 0 7px;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    color: #dfe6e9;
+    background: linear-gradient(180deg, #383c40, #151719);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.16), 0 3px 0 #050607, 0 8px 14px rgba(0,0,0,.26);
+    cursor: ns-resize;
+    user-select: none;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-weight: 900;
+    font-size: .62rem;
+  }
+  .octave-value {
+    min-height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 3px;
+    color: #00d8e8;
+    background: #07090a;
+    box-shadow: inset 0 1px 9px rgba(0,0,0,.72);
+    font-size: .82rem;
+  }
+  .mod-wheel {
+    grid-row: auto;
+    width: 38px;
+    height: 154px;
+    border-radius: 20px;
+    background:
+      linear-gradient(90deg, #050607 0, #17191b 22%, #34383b 50%, #101214 78%, #050607 100%);
+    box-shadow:
+      inset 0 0 0 2px #050607,
+      inset 8px 0 13px rgba(0,0,0,.72),
+      inset -8px 0 11px rgba(255,255,255,.12),
+      0 3px 0 #050607,
+      0 10px 18px rgba(0,0,0,.42);
+  }
+  .mod-wheel::before {
+    content: "";
+    position: absolute;
+    left: 7px;
+    right: 7px;
+    top: 14px;
+    bottom: 14px;
+    border-radius: 16px;
+    background: repeating-linear-gradient(180deg, rgba(255,255,255,.34) 0 2px, transparent 2px 8px);
+    opacity: .45;
+  }
+  .mod-wheel span {
+    left: 5px;
+    right: 5px;
+    bottom: calc(14px + var(--mod-level, 0) * 1px);
+    height: 42px;
+    border-radius: 15px;
+    background: linear-gradient(90deg, #0f1113, #5a5f62 48%, #0b0c0d);
+    box-shadow: inset 0 1px 4px rgba(255,255,255,.28), inset 0 -2px 5px rgba(0,0,0,.85), 0 3px 6px rgba(0,0,0,.55);
+  }
+  .pad-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    align-items: start;
+    width: 75%;
+    justify-self: start;
+    margin: 0;
+  }
+  .loop-pad {
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+    border-radius: 7px;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    text-align: left;
+    color: #e9eef0;
+    background:
+      radial-gradient(circle at 35% 24%, rgba(255,255,255,.07), transparent 38%),
+      linear-gradient(180deg, #2b2d30, #0d0e10);
+    border: 2px solid #5de85c;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.12),
+      inset 0 -14px 22px rgba(0,0,0,.35),
+      0 0 0 1px #050607,
+      0 0 11px rgba(93,232,92,.52),
+      0 5px 0 #050607;
+    font-size: .58rem;
+    line-height: 1;
+  }
+  .loop-pad:nth-child(2) { border-color: #ff3f80; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(255,63,128,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(3) { border-color: #ff9a2d; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(255,154,45,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(4) { border-color: #00d8e8; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(0,216,232,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(5) { border-color: #a743ff; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(167,67,255,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(6) { border-color: #67ffbc; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(103,255,188,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(7) { border-color: #ffe05e; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(255,224,94,.52), 0 5px 0 #050607; }
+  .loop-pad:nth-child(8) { border-color: #78a8ff; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -14px 22px rgba(0,0,0,.35), 0 0 0 1px #050607, 0 0 11px rgba(120,168,255,.52), 0 5px 0 #050607; }
+  .loop-pad span {
+    margin-top: auto;
+    color: rgba(233,238,240,.62);
+    font-size: .5rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .loop-pad.has-track,
+  .loop-pad.recording {
+    background:
+      radial-gradient(circle at 35% 24%, rgba(255,255,255,.16), transparent 38%),
+      linear-gradient(180deg, #43484d, #151719);
+  }
+  .loop-pad.recording {
+    color: #fff;
+    animation: padPulse 1s ease-in-out infinite alternate;
+  }
+  @keyframes padPulse {
+    from { filter: brightness(1); }
+    to { filter: brightness(1.28); }
+  }
+  .transport {
+    display: none;
+  }
+  .hidden-mode-field,
+  .drum-cfg-field.hidden {
+    display: none !important;
+  }
+  .generation-card {
+    grid-template-columns: repeat(6, minmax(62px, 1fr));
+    align-content: start;
+  }
+  .generation-card h2,
+  .generation-card > .field:first-of-type,
+  .generation-card .source-tabs,
+  .generation-card .source-panel,
+  .generation-card .field:has(select),
+  .generation-card .field:has(input[type="text"]),
+  .generation-card .field:has(.segrow),
+  .generation-card .field.numeric-field {
+    grid-column: 1 / -1;
+  }
+  .generation-card > .split {
+    display: contents;
+  }
+  .generation-card .field:has(input[type="range"]) {
+    min-height: 72px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card .performance-mode-field {
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 118px 82px;
+    grid-template-rows: 1fr;
+    place-items: center start;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card .source-panel .field:has(input[type="range"]) {
+    min-height: 64px;
+  }
+  .generation-card .field:has(input[type="range"]) label {
+    width: 100%;
+    min-height: 16px;
+    justify-content: center;
+    text-align: center;
+    color: #b9c2c7;
+    font-size: .5rem;
+    line-height: 1.05;
+  }
+  .generation-card .field:has(input[type="range"]) label b {
+    display: block;
+    color: #00d8e8;
+    font-size: .54rem;
+    margin-top: 2px;
+  }
+  .generation-card .field:has(input[type="range"]) .knob {
+    width: 34px;
+    height: 34px;
+    margin: 0;
+  }
+  .generation-card .field.numeric-field {
+    grid-column: auto;
+    grid-template-columns: minmax(96px, 1fr) 78px;
+    align-items: end;
+    justify-content: start;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card .field.numeric-field label {
+    align-self: center;
+    margin: 0;
+  }
+  .generation-card .field.numeric-field input[type="number"] {
+    width: 100%;
+    min-height: 34px;
+    text-align: center;
+    font-weight: 900;
+    color: #00d8e8;
+    background: #07090a;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 9px rgba(0,0,0,.72);
+  }
+  .performance-mode-field {
+    grid-column: 1 / -1;
+    max-width: 260px;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 118px 82px;
+    gap: 10px;
+    align-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .performance-mode-field > .hint {
+    display: none;
+  }
+  #jam-solo-toggle {
+    width: 100%;
+    min-height: 36px;
+  }
+  .gain-inline-field {
+    min-height: 68px !important;
+    display: grid !important;
+    grid-template-rows: auto 1fr !important;
+    place-items: center !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+  }
+  .gain-inline-field label {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    font-size: .5rem;
+  }
+  .gain-inline-field .knob {
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .knob::after,
+  .gain-inline-field .knob::after,
+  .generation-card .field:has(input[type="range"]) .knob::after {
+    left: 50%;
+    top: 16%;
+    width: 3px;
+    height: 34%;
+    border-radius: 999px;
+    transform-origin: 50% 100%;
+    transform: translateX(-50%) rotate(var(--angle, 0deg));
+  }
+  .knob::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d9faff;
+    box-shadow: 0 0 5px rgba(0,216,232,.55);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .metro-volume-knob::after {
+    left: 50%;
+    top: 16%;
+    height: 34%;
+    transform-origin: 50% 100%;
+    transform: translateX(-50%) rotate(var(--angle, 0deg));
+  }
+  .metro-volume-knob::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #d9faff;
+    box-shadow: 0 0 5px rgba(0,216,232,.55);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .generation-card .source-panel[data-panel="prompt"].on {
+    display: block;
+    min-height: 48px;
+    max-height: none;
+    overflow: visible;
+  }
+  .prompt-style-row {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(170px, 1fr);
+    gap: 10px;
+    align-items: end;
+    width: 100%;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field {
+    grid-column: auto;
+    min-height: 44px;
+    display: grid;
+    grid-template-rows: auto 34px;
+    align-items: end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field label {
+    margin-bottom: 4px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] #prompt {
+    width: 100%;
+    min-height: 34px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] #style-mode {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    height: 34px;
+  }
+  .advanced-mode-row {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    align-items: end;
+  }
+  .advanced-mode-field {
+    min-height: 60px;
+    display: grid;
+    grid-template-rows: auto 34px;
+    align-items: end;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .advanced-mode-field label {
+    margin-bottom: 4px;
+    justify-content: center;
+    text-align: center;
+  }
+  .advanced-mode-field .segrow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 5px;
+    height: 34px;
+  }
+  .advanced-mode-field .seg {
+    min-height: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    padding: 0 6px;
+    font-size: .58rem;
+    line-height: 1;
+  }
+  .field > label,
+  .generation-card .field > label,
+  .keyboard-card .field > label,
+  .loop-card .field > label {
+    padding-top: 6px;
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-weight: 900;
+  }
+  .generation-card .field:has(input[type="range"]) label,
+  .gain-inline-field label,
+  .advanced-mode-field label,
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field label {
+    padding-top: 6px;
+    margin-bottom: 6px;
+    font-weight: 900;
+  }
+  .hint {
+    margin-top: 6px;
+    padding-top: 2px;
+    font-weight: 800;
+    line-height: 1.28;
+  }
+  .button-tooltip {
+    font-weight: 900;
+  }
+  .generation-card {
+    grid-template-columns: repeat(7, minmax(48px, 1fr));
+    column-gap: 8px;
+    row-gap: 7px;
+  }
+  .generation-card:not(.nodes-layout):has(.drum-cfg-field.hidden) {
+    grid-template-columns: repeat(6, minmax(54px, 1fr));
+  }
+  .generation-card .performance-mode-field {
+    grid-column: 1 / -1;
+    max-width: 130px;
+    min-height: 58px;
+    display: grid;
+    grid-template-columns: 58px 48px;
+    gap: 4px;
+    align-items: center;
+    justify-content: start;
+  }
+  .generation-card #jam-solo-toggle {
+    width: 58px;
+    min-height: 30px;
+    height: 30px;
+    padding: 0 6px;
+    font-size: .56rem;
+  }
+  .generation-card .gain-inline-field {
+    min-height: 58px !important;
+    width: 48px;
+    justify-items: center !important;
+  }
+  .generation-card .gain-inline-field label {
+    min-height: 18px;
+    height: 18px;
+    padding: 0;
+    margin: 0;
+    font-size: .46rem;
+    line-height: 1;
+  }
+  .generation-card .gain-inline-field label b {
+    display: block;
+    margin: 0;
+    line-height: 1;
+  }
+  .generation-card .gain-inline-field .knob {
+    width: 30px !important;
+    height: 30px !important;
+  }
+  .generation-card .field:has(input[type="range"]),
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field),
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field),
+  .gain-inline-field {
+    row-gap: 1.1px !important;
+  }
+  .generation-card .field:has(input[type="range"]) label,
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label,
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label,
+  .gain-inline-field label,
+  .metro-row label {
+    line-height: 1.1 !important;
+    margin-bottom: 1.1px !important;
+  }
+  .generation-card .field:has(#temp) { order: 30; }
+  .generation-card .field:has(#topk) { order: 31; }
+  .generation-card .field:has(#cfgs) { order: 32; }
+  .generation-card .field:has(#cfgn) { order: 33; }
+  .generation-card .field:has(#unmask) { order: 34; }
+  .generation-card .field:has(#seed) { order: 35; }
+  .generation-card .field:has(#cfgd) { order: 36; }
+  .advanced-mode-row { order: 40; }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 68px;
+    grid-template-rows: 28px 34px;
+    align-items: start;
+    justify-items: center;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 28px;
+    min-height: 28px;
+    display: grid;
+    grid-template-rows: 13px 13px;
+    place-items: center;
+    gap: 0;
+    padding-top: 0;
+    margin: 0;
+    overflow: hidden;
+    line-height: 1;
+    white-space: normal;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label b {
+    display: block;
+    margin: 0;
+    line-height: 1;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    align-self: start;
+    width: 32px;
+    height: 32px;
+  }
+  .advanced-mode-row {
+    grid-column: 1 / -1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    align-items: end;
+  }
+  .advanced-mode-field {
+    grid-column: auto !important;
+    min-height: 44px;
+    grid-template-rows: 14px 28px;
+    padding: 3px;
+    border: 1px solid rgba(5,6,7,.65);
+    border-radius: 4px;
+    background: rgba(7,9,10,.22);
+  }
+  .advanced-mode-field label {
+    padding: 0;
+    margin: 0;
+    min-height: 14px;
+    font-size: .48rem;
+    line-height: 1;
+  }
+  .advanced-mode-field .segrow {
+    height: 28px;
+    gap: 3px;
+  }
+  .advanced-mode-field .seg {
+    min-height: 28px;
+    height: 28px;
+    padding: 0 4px;
+    font-size: .5rem;
+  }
+  .advanced-mode-field.numeric-field {
+    grid-column: auto !important;
+    min-height: 44px;
+    display: grid;
+    grid-template-rows: 14px 28px;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid rgba(5,6,7,.65);
+    border-radius: 4px;
+    background: rgba(7,9,10,.22);
+  }
+  .advanced-mode-field.numeric-field label {
+    height: 14px;
+    min-height: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    font-size: .48rem;
+    line-height: 1;
+    text-align: center;
+  }
+  .advanced-mode-field.numeric-field label b {
+    display: inline;
+    margin-left: 4px;
+    color: #00d8e8;
+    line-height: 1;
+  }
+  .advanced-mode-field.numeric-field input[type="number"] {
+    width: 100%;
+    min-height: 28px;
+    height: 28px;
+    text-align: center;
+    font-size: .82rem;
+    font-weight: 900;
+    color: #00d8e8;
+    background: #07090a;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 9px rgba(0,0,0,.72);
+  }
+  .generation-card.nodes-layout {
+    grid-template-columns: minmax(0, 2fr) repeat(7, minmax(34px, 1fr));
+    grid-template-rows: auto auto auto 64px 64px auto;
+    column-gap: 10px;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-column: 1;
+    grid-row: 4 / span 3;
+    width: 100%;
+    min-width: 0;
+  }
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 62px;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 27px 31px;
+    padding: 0;
+  }
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 30px;
+    height: 30px;
+  }
+  .generation-card.nodes-layout .field:has(#temp),
+  .generation-card.nodes-layout .field:has(#topk),
+  .generation-card.nodes-layout .field:has(#cfgs),
+  .generation-card.nodes-layout .field:has(#cfgn),
+  .generation-card.nodes-layout .field:has(#unmask),
+  .generation-card.nodes-layout .field:has(#seed),
+  .generation-card.nodes-layout .field:has(#cfgd) {
+    justify-self: center;
+    width: min(100%, 72px);
+  }
+  .generation-card.nodes-layout > .split {
+    display: contents;
+  }
+  .generation-card.nodes-layout > .split .field {
+    min-width: 0;
+  }
+  .generation-card.nodes-layout .field:has(#temp),
+  .generation-card.nodes-layout .field:has(#topk),
+  .generation-card.nodes-layout .field:has(#cfgs) {
+    grid-row: 4;
+  }
+  .generation-card.nodes-layout .field:has(#temp) {
+    grid-column: 3;
+  }
+  .generation-card.nodes-layout .field:has(#topk) {
+    grid-column: 5;
+  }
+  .generation-card.nodes-layout .field:has(#cfgs) {
+    grid-column: 7;
+  }
+  .generation-card.nodes-layout .field:has(#cfgn),
+  .generation-card.nodes-layout .field:has(#unmask),
+  .generation-card.nodes-layout .field:has(#seed) {
+    grid-row: 5;
+  }
+  .generation-card.nodes-layout .field:has(#cfgn) {
+    grid-column: 2;
+  }
+  .generation-card.nodes-layout .field:has(#unmask) {
+    grid-column: 4;
+  }
+  .generation-card.nodes-layout .field:has(#seed) {
+    grid-column: 6;
+  }
+  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#cfgn) {
+    grid-column: 3;
+  }
+  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#unmask) {
+    grid-column: 5;
+  }
+  .generation-card.nodes-layout:has(.drum-cfg-field.hidden) .field:has(#seed) {
+    grid-column: 7;
+  }
+  .generation-card.nodes-layout .field:has(#cfgd) {
+    grid-column: 8;
+    grid-row: 5;
+  }
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgn),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#unmask),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#seed),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgd) {
+    justify-self: center;
+    width: min(100%, 72px);
+  }
+  .generation-card.nodes-layout .drum-cfg-field.hidden {
+    display: none !important;
+  }
+  .generation-card.nodes-layout .advanced-mode-row {
+    grid-column: 2 / 9;
+    grid-row: 6;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    order: 40;
+  }
+  .generation-card.nodes-layout .advanced-mode-row .numeric-field {
+    display: none !important;
+  }
+  .generation-card.nodes-layout .advanced-mode-field {
+    grid-column: auto !important;
+    min-width: 0;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap {
+    width: 100%;
+    max-width: none;
+    min-height: 340px;
+    height: 100%;
+  }
+  .generation-card.nodes-layout #prompt-surface {
+    min-height: 340px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-style-row {
+    grid-template-columns: minmax(0, 2fr) 142px 84px 76px;
+    gap: 1.5rem;
+    align-items: end;
+  }
+  .generation-card,
+  .generation-card.nodes-layout {
+    row-gap: 1.5rem;
+  }
+  .generation-card .field:has(input[type="range"]),
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field),
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field),
+  .gain-inline-field {
+    row-gap: 1.5px !important;
+  }
+  .advanced-mode-row {
+    gap: 1.5rem !important;
+  }
+  .advanced-mode-field,
+  .advanced-mode-field.numeric-field {
+    gap: 1.5px;
+  }
+  .advanced-mode-field .segrow {
+    gap: 1.5px !important;
+  }
+  .generation-card > h2 {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    line-height: 1.1;
+    color: #f4f7f8;
+    text-align: center;
+    letter-spacing: .04em;
+    margin: 0 0 8px;
+  }
+  .generation-card > .field:first-of-type {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    color: #f4f7f8;
+  }
+  .generation-card > .field:first-of-type label {
+    width: 100%;
+    justify-content: center;
+    color: #f4f7f8;
+    font-size: 18px;
+    font-weight: 900;
+    text-align: center;
+  }
+  .generation-card > .field:first-of-type select {
+    width: min(520px, 100%);
+    color: #f4f7f8;
+    text-align: center;
+  }
+  .generation-card label,
+  .generation-card .field:has(input[type="range"]) label,
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field label,
+  .gain-inline-field label,
+  .advanced-mode-field label {
+    color: #f4f7f8 !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+    line-height: 1.1 !important;
+    letter-spacing: .04em;
+  }
+  .generation-card label b {
+    color: #d9fbff !important;
+    font-size: 18px !important;
+    font-weight: 900 !important;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field),
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 92px;
+    grid-template-rows: 50px 34px;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label,
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 50px;
+    min-height: 50px;
+    grid-template-rows: 24px 22px;
+  }
+  .advanced-mode-field,
+  .advanced-mode-field.numeric-field {
+    min-height: 64px;
+    grid-template-rows: 28px 28px;
+  }
+  .advanced-mode-field label,
+  .advanced-mode-field.numeric-field label {
+    min-height: 28px;
+    height: 28px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field {
+    min-height: 66px;
+    grid-template-rows: 28px 34px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field {
+    min-height: 78px !important;
+    grid-template-rows: 48px 36px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field label {
+    height: 48px;
+    min-height: 48px;
+    grid-template-rows: 24px 22px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] #jam-solo-toggle {
+    width: 84px;
+    min-height: 40px;
+    height: 40px;
+    align-self: end;
+    padding: 0 10px;
+    font-size: .68rem;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-style-row > #jam-solo-toggle {
+    width: 84px;
+    min-height: 40px;
+    height: 40px;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field {
+    grid-column: auto;
+    width: 76px;
+    min-height: 64px !important;
+    display: grid !important;
+    grid-template-rows: 28px 36px !important;
+    justify-items: center !important;
+    align-items: start !important;
+    row-gap: 1.3px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field label {
+    height: 28px;
+    min-height: 28px;
+    display: grid;
+    grid-template-rows: 13px 13px;
+    place-items: center;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    font-size: .52rem;
+    line-height: 1.3 !important;
+    text-align: center;
+    overflow: hidden;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field label b {
+    display: block;
+    margin: 0;
+    line-height: 1.3 !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field .knob {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .numeric-field {
+    grid-column: auto !important;
+    min-height: 64px;
+    display: grid;
+    grid-template-rows: 22px 40px;
+    grid-template-columns: 1fr;
+    gap: 1.3px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .numeric-field label {
+    height: 22px;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    font-size: .58rem;
+    line-height: 1.3;
+    text-align: center;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .numeric-field input[type="number"] {
+    width: 100%;
+    min-height: 40px;
+    height: 40px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #00d8e8;
+    background: #07090a;
+    border: 1px solid #050607;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 9px rgba(0,0,0,.72);
+  }
+  .generation-card > h2 {
+    font-size: 24px !important;
+    font-weight: 900 !important;
+    text-align: left !important;
+    margin: 0 0 1.5px !important;
+    padding: 0 !important;
+  }
+  .generation-card {
+    column-gap: 1.5px !important;
+    row-gap: 1.5px !important;
+  }
+  .generation-card .source-tabs,
+  .generation-card .source-panel[data-panel="prompt"] .prompt-style-row,
+  .advanced-mode-row {
+    gap: 1.5px !important;
+  }
+  .generation-card label,
+  .generation-card label b,
+  .generation-card .field > label,
+  .generation-card .field:has(input[type="range"]) label,
+  .generation-card .field:has(input[type="range"]) label b,
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field label,
+  .gain-inline-field label,
+  .gain-inline-field label b,
+  .advanced-mode-field label,
+  .advanced-mode-field.numeric-field label,
+  .advanced-mode-field.numeric-field label b {
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    line-height: 1.1 !important;
+    letter-spacing: .02em !important;
+    padding: 0 !important;
+    margin: 0 0 1.5px !important;
+  }
+  .generation-card label,
+  .generation-card label b,
+  .generation-card .field > label,
+  .generation-card .field:has(input[type="range"]) label,
+  .generation-card .field:has(input[type="range"]) label b,
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field label,
+  .gain-inline-field label,
+  .gain-inline-field label b,
+  .advanced-mode-field label,
+  .advanced-mode-field.numeric-field label,
+  .advanced-mode-field.numeric-field label b {
+    font-size: 12px !important;
+  }
+  .generation-card .field,
+  .generation-card .source-panel .field,
+  .advanced-mode-field,
+  .advanced-mode-field.numeric-field {
+    padding: 1.5px !important;
+    margin: 0 !important;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field),
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 58px !important;
+    grid-template-rows: 25px 32px !important;
+    row-gap: 1.5px !important;
+  }
+  .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label,
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 25px !important;
+    min-height: 25px !important;
+    grid-template-rows: 12px 12px !important;
+  }
+  .generation-card.nodes-layout {
+    grid-template-rows: auto auto auto 58px 58px 50px !important;
+    row-gap: 1.5px !important;
+  }
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-row: 4 / span 3 !important;
+  }
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 56px !important;
+    grid-template-rows: 30px 26px !important;
+  }
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label {
+    height: 30px !important;
+    min-height: 30px !important;
+    grid-template-rows: 15px 14px !important;
+  }
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 28px !important;
+    height: 28px !important;
+  }
+  .generation-card.nodes-layout .advanced-mode-row {
+    grid-row: 6 !important;
+    align-self: start;
+    margin-top: 1.5px !important;
+    min-height: 50px;
+  }
+  .generation-card.nodes-layout .advanced-mode-field {
+    min-height: 48px !important;
+    grid-template-rows: 18px 28px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card .source-panel[data-panel="prompt"] .style-mode-field,
+  .advanced-mode-field,
+  .advanced-mode-field.numeric-field {
+    min-height: 42px !important;
+    grid-template-rows: 13px 28px !important;
+    gap: 1.5px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field {
+    min-height: 58px !important;
+    grid-template-rows: 25px 32px !important;
+    row-gap: 1.5px !important;
+  }
+  .generation-card .source-panel[data-panel="prompt"] .gain-inline-field label {
+    height: 25px !important;
+    min-height: 25px !important;
+    grid-template-rows: 12px 12px !important;
+  }
+  .advanced-mode-field .segrow {
+    gap: 1.5px !important;
+  }
+  .advanced-mode-field .seg,
+  .advanced-mode-field.numeric-field input[type="number"],
+  .generation-card .source-panel[data-panel="prompt"] input,
+  .generation-card .source-panel[data-panel="prompt"] .seg {
+    min-height: 28px !important;
+    height: 28px !important;
+    padding: 0 1.5px !important;
+  }
+  .keyboard-control-row {
+    display: grid;
+    grid-template-columns: minmax(360px, 500px) minmax(260px, 1fr);
+    gap: 10px;
+    align-items: end;
+  }
+  .keyboard-control-row .keyboard-notes-field,
+  .keyboard-control-row .midi-device-field {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .keyboard-midi-slot {
+    min-width: 0;
+    justify-self: end;
+    width: min(430px, 100%);
+  }
+  .keyboard-midi-slot .minirow {
+    grid-template-columns: minmax(0, 1fr) 112px;
+  }
+  .keyboard-card > .midi-device-field {
+    display: none !important;
+  }
+
+  @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
+  @media (max-width: 1120px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field { grid-column: auto !important; } }
+  @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow, .preset-topbar { grid-template-columns: 1fr 1fr; } .preset-current { grid-column: 1 / -1; order: -1; } .preset-current-meta { justify-content: flex-start; } .transport button { min-height: 52px; } }
+  @media (max-width: 720px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field .segrow { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; } }
 </style>
 </head>
 <body>
 <button class="system-toggle primary" id="system-toggle" title="Status">i</button>
+<div class="drawer-scrim" id="preset-drawer-scrim"></div>
+<div class="button-tooltip" id="button-tooltip"></div>
+<aside class="preset-drawer" id="preset-drawer" aria-label="Preset browser">
+  <div class="drawer-head">
+    <h2>Preset Folders</h2>
+    <button class="smallbtn" id="preset-drawer-close">Close</button>
+  </div>
+  <div class="drawer-body" id="preset-folder-list"></div>
+</aside>
 <div class="shell">
   <header class="system-panel" id="system-panel">
     <div>
@@ -146,8 +2410,22 @@
     </div>
   </header>
 
+  <section class="preset-topbar">
+    <button class="preset-drawer-toggle primary" id="preset-drawer-toggle">Presets</button>
+    <div class="preset-current">
+      <span>Current preset</span>
+      <strong id="current-preset-name">Dreamy Ambient Pads</strong>
+    </div>
+    <div class="preset-current-meta">
+      <span class="chip" id="current-preset-family">Official Jam</span>
+      <span class="chip" id="current-preset-mode">Accompany</span>
+      <span class="chip" id="current-source-mode">Prompt</span>
+    </div>
+  </section>
+
   <nav class="transport">
     <button class="primary" id="start">Start Live</button>
+    <div class="top-midi-field" id="top-midi-field"></div>
     <button id="once">Generate Once</button>
     <button id="reset">Reset State</button>
     <button id="clear">Clear Notes</button>
@@ -155,18 +2433,23 @@
   </nav>
 
   <main class="grid">
-    <section class="card">
+    <section class="card generation-card">
       <h2>Generation</h2>
-      <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
       <div class="source-tabs" id="source-tabs">
         <button class="source-tab on" data-source="prompt">Prompt</button>
         <button class="source-tab" data-source="nodes">Nodes</button>
         <button class="source-tab" data-source="clone">Clone</button>
       </div>
+      <div class="field"><label>Preset</label><select id="preset"></select><div class="hint">Official Magenta demo presets. Accompany presets are ensemble/groove prompts; Solo presets are instrument prompts.</div></div>
+      <div class="node-editor-dock" id="node-editor-dock"></div>
       <div class="source-panel on" data-panel="prompt">
-        <div class="field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"><div class="hint">Direct text prompt source. Nodes and audio clone are ignored while this tab is active.</div></div>
+        <div class="prompt-style-row">
+          <div class="field prompt-input-field"><label>Prompt</label><input id="prompt" type="text" value="Dreamy Ambient Pads"><div class="hint">Direct text prompt source. Nodes and audio clone are ignored while this tab is active.</div></div>
+          <div class="field style-mode-field"><label>Style mode</label><div class="segrow" id="style-mode"><div class="seg on" data-value="prompt">Prompt</div><div class="seg" data-value="unconditioned">None</div></div><div class="hint">Prompt uses MusicCoCa style tokens. None masks style conditioning.</div></div>
+          <button class="smallbtn primary" id="jam-solo-toggle">Jam</button>
+          <div class="field gain-inline-field"><label>Gain <b id="gain-v">0.85</b></label><input id="gain" type="range" min="0" max="120" value="85"><div class="hint">AudioWorklet output gain with smoothing.</div></div>
+        </div>
       </div>
-      <div class="field"><div class="minirow"><button class="smallbtn primary" id="playable-instrument">Playable Instrument Setup</button><button class="smallbtn" id="default-instrument">Default Setup</button></div><div class="hint">Playable applies solo, no-drums, MIDI-gated note following. Default restores the general jam-style generation settings.</div></div>
       <div class="source-panel" data-panel="nodes">
         <div class="field">
           <label>Prompt nodes</label>
@@ -179,61 +2462,64 @@
       <div class="source-panel" data-panel="clone">
         <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn primary" id="clone-loop-audio">Clone Current Loop</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Clone source mode. Upload audio or bounce the loop station, then play using that audio style.</div></div>
         <div class="split">
-          <div class="field"><label>Audio weight <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style.</div></div>
-          <div class="field"><label>Text weight <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+          <div class="field"><label>Audio Style <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style.</div></div>
+          <div class="field"><label>Text Style <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
         </div>
       </div>
-      <div class="field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
-      <div class="field"><label>Style mode</label><div class="segrow" id="style-mode"><div class="seg on" data-value="prompt">Prompt</div><div class="seg" data-value="unconditioned">None</div></div><div class="hint">Prompt uses MusicCoCa style tokens. None masks style conditioning.</div></div>
+      <div class="field hidden-mode-field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
       <div class="split">
-        <div class="field"><label>Frames/request <b id="frames-v">1</b></label><input id="frames" type="range" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
-        <div class="field"><label>Target queue <b id="target-v">0.24s</b></label><input id="target" type="range" min="4" max="80" value="24"><div class="hint">Producer fills only up to this queue. Lower is more responsive, higher avoids gaps.</div></div>
+        <div class="field"><label>Random <b id="temp-v">1.10</b></label><input id="temp" type="range" min="0" max="220" value="110"><div class="hint">Official default: 1.1. Higher means more surprise and more instability.</div></div>
+        <div class="field"><label>Variation <b id="topk-v">50</b></label><input id="topk" type="range" min="1" max="200" value="50"><div class="hint">Official default: 50. Higher allows broader token choices. Lower is safer and more repetitive.</div></div>
       </div>
       <div class="split">
-        <div class="field"><label>Temperature <b id="temp-v">1.10</b></label><input id="temp" type="range" min="0" max="220" value="110"><div class="hint">Official default: 1.1. Higher means more surprise and more instability.</div></div>
-        <div class="field"><label>Top-k <b id="topk-v">50</b></label><input id="topk" type="range" min="1" max="200" value="50"><div class="hint">Official default: 50. Higher allows broader token choices. Lower is safer and more repetitive.</div></div>
+        <div class="field"><label>Prompt Style <b id="cfgs-v">1.6</b></label><input id="cfgs" type="range" min="0" max="100" value="16"><div class="hint">Official default: 1.6. Higher follows prompt harder but can reduce musicality.</div></div>
+        <div class="field"><label>Note Variation <b id="cfgn-v">2.4</b></label><input id="cfgn" type="range" min="0" max="100" value="24"><div class="hint">Official default: 2.4. Higher follows your pitches more strictly.</div></div>
       </div>
       <div class="split">
-        <div class="field"><label>Style CFG <b id="cfgs-v">1.6</b></label><input id="cfgs" type="range" min="0" max="100" value="16"><div class="hint">Official default: 1.6. Higher follows prompt harder but can reduce musicality.</div></div>
-        <div class="field"><label>Notes CFG <b id="cfgn-v">2.4</b></label><input id="cfgn" type="range" min="0" max="100" value="24"><div class="hint">Official default: 2.4. Higher follows your pitches more strictly.</div></div>
+        <div class="field"><label>Note Range <b id="unmask-v">0</b></label><input id="unmask" type="range" min="0" max="127" value="0"><div class="hint">Official Jam uses 0 for accompaniment and 127 for Solo. Higher lets the model see more off-notes around what you play.</div></div>
+        <div class="field hidden-mode-field"><label>Voice response</label><div class="segrow" id="voice-mode"><div class="seg on" data-value="jam">Jam</div><div class="seg" data-value="solo">Solo</div></div><div class="hint">Jam follows chords. Solo adds the SOLO prompt prefix and unmasks all pitches for a more playable instrument.</div></div>
       </div>
       <div class="split">
-        <div class="field"><label>Unmask width <b id="unmask-v">0</b></label><input id="unmask" type="range" min="0" max="127" value="0"><div class="hint">Official Jam uses 0 for accompaniment and 127 for Solo. Higher lets the model see more off-notes around what you play.</div></div>
-        <div class="field"><label>Voice response</label><div class="segrow" id="voice-mode"><div class="seg on" data-value="jam">Jam</div><div class="seg" data-value="solo">Solo</div></div><div class="hint">Jam follows chords. Solo adds the SOLO prompt prefix and unmasks all pitches for a more playable instrument.</div></div>
+        <div class="field drum-cfg-field"><label>Drum Style <b id="cfgd-v">4.0</b></label><input id="cfgd" type="range" min="0" max="100" value="40"><div class="hint">Official default: 4.0. Higher enforces drum conditioning.</div></div>
       </div>
       <div class="split">
-        <div class="field"><label>Drums CFG <b id="cfgd-v">4.0</b></label><input id="cfgd" type="range" min="0" max="100" value="40"><div class="hint">Official default: 4.0. Higher enforces drum conditioning.</div></div>
-        <div class="field"><label>Gain <b id="gain-v">0.85</b></label><input id="gain" type="range" min="0" max="120" value="85"><div class="hint">AudioWorklet output gain with smoothing.</div></div>
+        <div class="field"><label>Feel <b id="seed-v">0</b></label><input id="seed" type="range" min="0" max="24" value="0"><div class="hint">Python API lacks C++ seed_rotation. This app approximates it by resetting state and adding a stable variation tag to the prompt.</div></div>
       </div>
-      <div class="split">
-        <div class="field"><label>No Drums</label><div class="segrow" id="drumless"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">Official demos expose drumless. In Python mode this maps drum conditioning to off.</div></div>
-        <div class="field"><label>Variation seed <b id="seed-v">0</b></label><input id="seed" type="range" min="0" max="24" value="0"><div class="hint">Python API lacks C++ seed_rotation. This app approximates it by resetting state and adding a stable variation tag to the prompt.</div></div>
+      <div class="advanced-mode-row">
+        <div class="field advanced-mode-field"><label>Drums</label><div class="segrow" id="drumless"><div class="seg on" data-value="off">On</div><div class="seg" data-value="on">Off</div></div><div class="hint">Turns drum conditioning on or off.</div></div>
+        <div class="field advanced-mode-field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset/Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
+        <div class="field advanced-mode-field"><label>MIDI gate</label><div class="segrow" id="midi-gate"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">When enabled, generated audio fades down while no notes are held. Useful for playable Solo mode.</div></div>
+        <div class="field advanced-mode-field"><label>Streaming state</label><div class="segrow" id="continuous"><div class="seg on" data-value="true">Keep</div><div class="seg" data-value="false">Fresh</div></div><div class="hint">Keep state gives continuity. Fresh is more reactive but less musical.</div></div>
+        <div class="field advanced-mode-field numeric-field"><label>Frames <b id="frames-v">1</b></label><input id="frames" type="number" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
+        <div class="field advanced-mode-field numeric-field"><label>Target Queue <b id="target-v">0.24s</b></label><input id="target" type="number" min="4" max="80" value="24"><div class="hint">Producer fills only up to this queue. Lower is more responsive, higher avoids gaps.</div></div>
       </div>
-      <div class="split">
-        <div class="field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset/Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
-        <div class="field"><label>MIDI gate</label><div class="segrow" id="midi-gate"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">When enabled, generated audio fades down while no notes are held. Useful for playable Solo mode.</div></div>
-      </div>
-      <div class="field"><label>Streaming state</label><select id="continuous"><option value="true">Keep state</option><option value="false">Fresh each request</option></select><div class="hint">Keep state gives continuity. Fresh is more reactive but less musical.</div></div>
     </section>
 
-    <section class="card">
+    <section class="card keyboard-card">
       <h2>Keyboard</h2>
-      <div class="field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
-      <div class="field"><label>Notes mode</label><div class="segrow" id="notes-mode"><div class="seg on" data-value="masked">Conditioned</div><div class="seg" data-value="unconditioned">Off</div></div><div class="hint">Physical keyboard notes are momentary. Clicked piano notes latch. Tap events become onset tokens for the next frame.</div></div>
+      <div class="field midi-device-field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
+      <div class="keyboard-control-row"><div class="field keyboard-notes-field"><label>Notes mode</label><div class="segrow" id="notes-mode"><div class="seg on" data-value="masked">Conditioned</div><div class="seg" data-value="unconditioned">Off</div><div class="octave-control" id="octave-control"><span>Oct</span><b class="octave-value" id="octave-offset">0</b></div></div><div class="hint">Physical keyboard notes are momentary. Clicked piano notes latch. Tap events become onset tokens for the next frame.</div></div><div class="keyboard-midi-slot" id="keyboard-midi-slot"></div></div>
       <div class="typing">
         <div class="typing-row"><div class="key black" data-code="KeyW">W</div><div class="key black" data-code="KeyE">E</div><div class="key black" data-code="KeyT">T</div><div class="key black" data-code="KeyY">Y</div><div class="key black" data-code="KeyU">U</div><div class="key black" data-code="KeyO">O</div><div class="key black" data-code="KeyP">P</div></div>
         <div class="typing-row"><div class="key" data-code="KeyA">A</div><div class="key" data-code="KeyS">S</div><div class="key" data-code="KeyD">D</div><div class="key" data-code="KeyF">F</div><div class="key" data-code="KeyG">G</div><div class="key" data-code="KeyH">H</div><div class="key" data-code="KeyJ">J</div><div class="key" data-code="KeyK">K</div><div class="key" data-code="KeyL">L</div><div class="key" data-code="Semicolon">;</div><div class="key" data-code="Quote">'</div></div>
         <div class="typing-row"><div class="key func" data-code="KeyZ">Z octave -</div><div class="key func" data-code="KeyX">X octave +</div><span class="chip">Octave <b id="octave">C4</b></span><span class="chip">Held <b id="held">0</b></span><span class="chip">Latched <b id="latched">0</b></span></div>
       </div>
-      <div class="piano-wrap"><div class="piano" id="piano"></div></div>
+      <div class="piano-wrap">
+        <div class="piano-controls">
+          <div class="mod-wheel" id="mod-wheel"><span></span></div>
+        </div>
+        <div class="piano" id="piano"></div>
+      </div>
       <div class="legend"><span class="chip">M masked</span><span class="chip">0 off</span><span class="chip">S sustain</span><span class="chip">On onset</span><span class="chip">A auto</span></div>
       <h2 style="margin-top:18px;">Drums</h2>
       <div class="segrow" id="drums-mode"><div class="seg on" data-value="-1">Masked</div><div class="seg" data-value="0">Off</div><div class="seg" data-value="1">On</div></div>
     </section>
 
-    <aside class="card">
+    <aside class="card loop-card">
       <div class="loop-panel">
-        <h2>Loop Station</h2>
+        <div class="record-head">
+          <h2>Record</h2>
+        </div>
         <div class="pad-grid" id="pad-grid"></div>
         <div class="loop-head">
           <button class="smallbtn" id="loop-play">Play Loops</button>
@@ -247,9 +2533,9 @@
           <input id="load-state-file" type="file" accept="application/json" hidden>
         </div>
         <div class="metro-row">
-          <label>Metronome <b id="metro-bpm-v">120 BPM</b></label>
+          <label><b id="metro-bpm-v">BPM</b></label>
           <input id="metro-bpm" type="range" min="40" max="220" value="120">
-          <button class="smallbtn" id="metro-toggle">Metro Off</button>
+          <button class="smallbtn" id="metro-toggle">BPM Off</button>
         </div>
         <div class="loop-length-row">
           <label>Loop length <b id="loop-length-v">-</b></label>
@@ -277,7 +2563,8 @@
 <script>
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TYPING = {KeyA:0,KeyW:1,KeyS:2,KeyE:3,KeyD:4,KeyF:5,KeyT:6,KeyG:7,KeyY:8,KeyH:9,KeyU:10,KeyJ:11,KeyK:12,KeyO:13,KeyL:14,KeyP:15,Semicolon:16,Quote:17};
-const MPK_PAD_NOTES = [36, 37, 38, 39, 40, 41, 42, 43];
+const MAX_LOOP_SLOTS = 4;
+const MPK_PAD_NOTES = [36, 37, 38, 39];
 const MPK_PAD_CHANNEL = 9;
 const AKAI_OCTAVE_DOWN = 5;
 const AKAI_OCTAVE_UP = 6;
@@ -305,13 +2592,74 @@ const INSTRUMENT_PRESETS = [
   "Latin Mallet Marimba", "Fingerpicked Acoustic Guitar", "Chinese Guzheng", "Euphoric Washed-Out Noise Pop Fuzz",
   "Cavernous Endless Reverb Electric Guitar Swells", "Orchestral Sustained Oboe", "Nylon String Classical Guitar",
 ];
+const PRESET_FOLDERS = [
+  {
+    label: 'Accompaniment / Groove',
+    mode: 'accompany',
+    presets: [
+      "Dreamy Ambient Pads", "Jazz Piano Trio", "Electro Synthpop", "Chiptune", "Synthwave", "Jazz Guitar",
+      "Synthpop Groove Club Mix", "Fast Swing Jazz Clarinet and Guitar", "Afrobeat Band with Horns and Complex Drums",
+      "French House Disco Loops Filter Sweeps", "R&B Smooth Keys", "Soft Rock", "Trap Beat with Sampled Funk",
+      "Lo-fi Hip Hop Beat", "Smooth Bossa Nova", "Danceable Latin Jazz Salsa with Trombone", "Gritty Garage Rock",
+      "Ambient IDM Glitch Beats",
+    ],
+  },
+  {
+    label: 'World / Traditional',
+    mode: 'accompany',
+    presets: [
+      "Saturated Gamelan Choir", "Flamenco Nylon Guitar Rasgueado", "Reggae Rhythm Guitar", "Country Banjo Picking",
+      "African Kalimba", "West African Kora Polyrhythms", "Celtic Fiddle Jig", "Japanese Koto",
+      "Indian Classical Sitar and Tabla Raga", "Middle Eastern Oud and Darbuka Groove",
+      "Andean Pan Flute Mountain Melody", "Balinese Gamelan Metallic Percussion", "Brazilian Samba Batucada Percussion Ensemble",
+    ],
+  },
+  {
+    label: 'Cinematic / Texture',
+    mode: 'accompany',
+    presets: [
+      "UK Post-Dubstep String Quartet", "Acoustic Folk Guitar", "Church Organ", "Surf Rock Guitar",
+      "Cavernous Endless Reverb Electric Guitar Swells", "Euphoric Washed-Out Noise Pop Fuzz",
+      "Dark Cinematic Soundtrack", "Cyberpunk Synthwave Mariachi Horns",
+    ],
+  },
+  {
+    label: 'Solo Synth / Keys',
+    mode: 'solo',
+    presets: [
+      "Warm Vinyl Crackle Dusty Organ Chords", "Supersaw Complextro Chords", "Trance Arpeggiated Synth",
+      "Dubstep Wobble Bass Synth", "Retro Synthwave Analog Lead", "Ambient Pad Synthesizer",
+      "Granular Synthesis Frozen Vocal Textures", "Slow Pad Sweeps Up",
+    ],
+  },
+  {
+    label: 'Solo Strings / Guitar',
+    mode: 'solo',
+    presets: [
+      "Heavily Digitally Distorted Harp Shimmer", "Melodramatic Tremolo Mandolin", "Baroque Cello Meets 90s Trance Euphoria",
+      "Violin Chamber Ensemble", "Classical Cello", "Bluegrass Picked Banjo", "Fingerpicked Acoustic Guitar",
+      "Cavernous Endless Reverb Electric Guitar Swells", "Nylon String Classical Guitar",
+    ],
+  },
+  {
+    label: 'Solo Orchestral / World',
+    mode: 'solo',
+    presets: [
+      "Polka Accordion", "Medieval Rain", "Cinematic Orchestral Hits", "Fanfare French Horn",
+      "Bowed Vibraphone Sustained Metallic Ringing", "Delicate Vintage Music Box", "Gentle Microtonal Flutes",
+      "Latin Mallet Marimba", "Chinese Guzheng", "Orchestral Sustained Oboe", "Euphoric Washed-Out Noise Pop Fuzz",
+    ],
+  },
+];
 let ws, audioCtx, worklet, pendingMeta;
 let live = false, waiting = false, connected = false;
 let queuedSeconds = 0, underruns = 0, generated = 0;
 let noteState = new Map(), held = new Map(), onset = new Map();
 let midiAccess = null, midiInput = null, midiHeld = new Set();
+let midiInitialized = false;
 let noteEvents = [];
 let octaveBase = 48;
+const OCTAVE_ZERO_BASE = 48;
 let lastWave = new Float32Array(0);
 let audioStyleKey = null;
 let sourceMode = 'prompt';
@@ -339,6 +2687,9 @@ let recordingPad = null;
 let metronomeEnabled = false;
 let metronomeTimer = null;
 let metronomeBeat = 0;
+let metronomeVolume = .75;
+let modulationValue = .34;
+let currentPreset = { name: PROMPT_PRESETS[0], mode: 'accompany', family: 'Accompaniment / Groove' };
 
 function $(id) { return document.getElementById(id); }
 function selected(id) { return document.querySelector(`#${id} .seg.on`).dataset.value; }
@@ -472,7 +2823,7 @@ function currentGenerationParams() {
     drumsMode: selected('drums-mode'),
     onsetMode: selected('onset-mode'),
     midiGate: selected('midi-gate'),
-    continuous: $('continuous').value === 'true',
+    continuous: selected('continuous') === 'true',
     frames: parseInt($('frames').value),
     target: parseInt($('target').value) / 100,
     temperature: parseInt($('temp').value) / 100,
@@ -595,12 +2946,328 @@ function activeGenerationParams() {
 function setSourceMode(mode) {
   if (!['prompt', 'nodes', 'clone'].includes(mode)) throw new Error(`Invalid source mode: ${mode}`);
   sourceMode = mode;
+  document.querySelector('.generation-card')?.classList.toggle('nodes-layout', mode === 'nodes');
   document.querySelectorAll('.source-tab').forEach(button => button.classList.toggle('on', button.dataset.source === mode));
   document.querySelectorAll('.source-panel').forEach(panel => panel.classList.toggle('on', panel.dataset.panel === mode));
-  drawPromptSurface();
+  resizePromptSurface();
+  requestAnimationFrame(() => {
+    resizePromptSurface();
+    drawPromptSurface();
+  });
   resetForPromptChange();
+  updatePresetReadout();
   updateReadouts();
   log(`source mode: ${mode}`);
+}
+
+function presetFamilyFor(mode, prompt) {
+  const folder = PRESET_FOLDERS.find(item => item.mode === mode && item.presets.includes(prompt));
+  if (folder) return folder.label;
+  return mode === 'solo' ? 'Official Solo instrument presets' : 'Official Jam presets';
+}
+
+function presetValue(mode, prompt) {
+  return `${mode}:${prompt}`;
+}
+
+function updatePresetReadout() {
+  if (!$('current-preset-name')) return;
+  $('current-preset-name').textContent = currentPreset.name;
+  $('current-preset-family').textContent = currentPreset.family;
+  $('current-preset-mode').textContent = currentPreset.mode === 'solo' ? 'Solo' : 'Accompany';
+  $('current-source-mode').textContent = sourceMode[0].toUpperCase() + sourceMode.slice(1);
+  document.querySelectorAll('.preset-item').forEach(button => {
+    button.classList.toggle('active', button.dataset.value === presetValue(currentPreset.mode, currentPreset.name));
+  });
+}
+
+function closePresetDrawer() {
+  $('preset-drawer').classList.remove('open');
+  $('preset-drawer-scrim').classList.remove('open');
+}
+
+function togglePresetDrawer(open = !$('preset-drawer').classList.contains('open')) {
+  $('preset-drawer').classList.toggle('open', open);
+  $('preset-drawer-scrim').classList.toggle('open', open);
+}
+
+function applyPresetValue(value) {
+  const [mode, ...parts] = value.split(':');
+  const prompt = parts.join(':');
+  currentPreset = { name: prompt, mode, family: presetFamilyFor(mode, prompt) };
+  $('preset').value = value;
+  $('prompt').value = prompt;
+  document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === mode));
+  document.querySelectorAll('#voice-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === (mode === 'solo' ? 'solo' : 'jam')));
+  applyOfficialDefaults();
+  applyVoiceMode(mode === 'solo' ? 'solo' : 'jam');
+  setSourceMode('prompt');
+  resetForPromptChange();
+  updatePresetReadout();
+  log(`preset: ${mode === 'solo' ? 'SOLO ' : ''}${prompt}`);
+}
+
+function buttonTooltipText(button) {
+  if (!button) return '';
+  if (button.dataset.tooltip) return button.dataset.tooltip;
+  const idDescriptions = {
+    start: 'Start Live turns realtime generation on. Once running, this same button becomes Stop.',
+    'jam-solo-toggle': 'Toggles between Jam response and playable Solo response.',
+    'playable-instrument': 'Applies a solo, no-drums setup tuned for playing notes from the keyboard or MIDI.',
+    'default-instrument': 'Restores the general accompaniment-style generation defaults.',
+    'add-node': 'Adds a prompt node to the blend surface.',
+    'upload-audio': 'Uploads an audio file and uses its embedding as the style prompt.',
+    'clone-loop-audio': 'Bounces the current loop and uses it as the audio style prompt.',
+    'clear-audio': 'Clears the active audio style and returns to text prompting.',
+    'loop-play': 'Starts loop playback from the current loop position.',
+    'loop-stop': 'Stops loop playback without deleting recorded slots.',
+    'loop-clear': 'Deletes all recorded slots and clears the loop timeline.',
+    'save-project-state': 'Downloads the current loop, prompt, and control state as a JSON file.',
+    'load-project-state': 'Loads a previously saved project state JSON file.',
+    'add-main-node': 'Adds another main influence point to the prompt node surface.',
+    'metro-toggle': 'Turns the metronome click on or off.',
+    'loop-length-reset': 'Resets loop length to the first recorded slot.',
+    'preset-drawer-toggle': 'Opens the preset folder drawer.',
+    'preset-drawer-close': 'Closes the preset folder drawer.',
+  };
+  if (idDescriptions[button.id]) return idDescriptions[button.id];
+  if (button.classList.contains('source-tab')) return `Switches the generation source to ${button.textContent.trim()}.`;
+  if (button.classList.contains('loop-pad')) return `${button.textContent.trim().split(/\s+/).slice(0, 2).join(' ')} records or replaces audio in this slot.`;
+  if (button.classList.contains('preset-item')) return `Applies the ${button.textContent.trim()} preset.`;
+  return button.textContent.trim() ? `${button.textContent.trim()} control.` : '';
+}
+
+function setupButtonTooltips() {
+  const tooltip = $('button-tooltip');
+  let timer = null;
+  let activeButton = null;
+
+  const hide = () => {
+    clearTimeout(timer);
+    timer = null;
+    activeButton = null;
+    tooltip.classList.remove('show');
+  };
+
+  const showFor = (button, text) => {
+    const rect = button.getBoundingClientRect();
+    tooltip.textContent = text;
+    tooltip.style.left = `${Math.min(window.innerWidth - 314, Math.max(14, rect.left + rect.width / 2 - 150))}px`;
+    const above = rect.top > 62;
+    tooltip.style.top = `${above ? rect.top - 48 : rect.bottom + 10}px`;
+    tooltip.classList.add('show');
+  };
+
+  const arm = button => {
+    if (!button || button.disabled) return;
+    const text = buttonTooltipText(button);
+    if (!text) return;
+    clearTimeout(timer);
+    tooltip.classList.remove('show');
+    activeButton = button;
+    timer = setTimeout(() => {
+      if (activeButton !== button || !button.isConnected) return;
+      showFor(button, text);
+    }, 3000);
+  };
+
+  document.addEventListener('pointerover', event => {
+    const button = event.target.closest('button');
+    if (!button || button.contains(event.relatedTarget)) return;
+    arm(button);
+  });
+
+  document.addEventListener('pointerout', event => {
+    const button = event.target.closest('button');
+    if (!button || button !== activeButton) return;
+    if (button.contains(event.relatedTarget)) return;
+    hide();
+  });
+
+  document.addEventListener('focusin', event => {
+    const button = event.target.closest('button');
+    arm(button);
+  });
+  document.addEventListener('focusout', hide);
+  window.addEventListener('scroll', hide, true);
+  window.addEventListener('resize', hide);
+}
+
+function placeMidiInputTop() {
+  const target = $('keyboard-midi-slot') || $('top-midi-field');
+  const field = document.querySelector('.midi-device-field');
+  if (target && field && field.parentElement !== target) target.appendChild(field);
+}
+
+function placeMetronomeInRecordHead() {
+  const target = document.querySelector('.record-head');
+  const metro = document.querySelector('.metro-row');
+  if (target && metro && metro.parentElement !== target) target.appendChild(metro);
+}
+
+function setupKeyboardHardwareControls() {
+  const octaveControl = $('octave-control');
+  if (octaveControl && !octaveControl.dataset.ready) {
+    octaveControl.dataset.ready = 'true';
+    let y0 = 0;
+    let v0 = 0;
+    const setOffset = value => setOctaveOffset(value, 'Keyboard');
+    octaveControl.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      octaveControl.setPointerCapture(event.pointerId);
+      y0 = event.clientY;
+      v0 = octaveOffset();
+    });
+    octaveControl.addEventListener('pointermove', event => {
+      if (!octaveControl.hasPointerCapture(event.pointerId)) return;
+      setOffset(v0 + Math.round((y0 - event.clientY) / 24));
+    });
+    octaveControl.addEventListener('wheel', event => {
+      event.preventDefault();
+      setOffset(octaveOffset() + Math.sign(-event.deltaY));
+    }, { passive: false });
+  }
+
+  const wheel = $('mod-wheel');
+  if (!wheel || wheel.dataset.ready) return;
+  wheel.dataset.ready = 'true';
+  const paint = () => {
+    wheel.style.setProperty('--mod-level', `${modulationValue * 86}`);
+  };
+  let y0 = 0;
+  let v0 = 0;
+  const set = value => {
+    modulationValue = Math.max(0, Math.min(1, value));
+    paint();
+  };
+  wheel.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    wheel.setPointerCapture(event.pointerId);
+    y0 = event.clientY;
+    v0 = modulationValue;
+  });
+  wheel.addEventListener('pointermove', event => {
+    if (!wheel.hasPointerCapture(event.pointerId)) return;
+    set(v0 + (y0 - event.clientY) / 120);
+  });
+  wheel.addEventListener('wheel', event => {
+    event.preventDefault();
+    set(modulationValue + Math.sign(-event.deltaY) * .04);
+  }, { passive: false });
+  paint();
+}
+
+function stopLiveInput(source = 'keyboard') {
+  if (!live) return;
+  live = false;
+  dropHeldNotes();
+  if ($('start')) $('start').textContent = 'Start Live';
+  log(`${source} stopped live producer`);
+  updateReadouts();
+}
+
+function setPerformanceMode(mode) {
+  const solo = mode === 'solo';
+  if (solo) {
+    applyParamsToControls(playableGenerationParams(currentGenerationParams()));
+    applyVoiceMode('solo');
+  } else {
+    applyParamsToControls(defaultGenerationParams(currentGenerationParams()));
+    applyVoiceMode('jam');
+  }
+  updatePerformanceModeButton();
+  updateDrumControlVisibility();
+  resetForPromptChange();
+}
+
+function togglePerformanceMode() {
+  setPerformanceMode(selected('voice-mode') === 'solo' ? 'jam' : 'solo');
+}
+
+function updatePerformanceModeButton() {
+  const button = $('jam-solo-toggle');
+  if (!button) return;
+  const solo = selected('voice-mode') === 'solo';
+  button.textContent = solo ? 'Solo' : 'Jam';
+  button.classList.toggle('primary', solo);
+}
+
+function updateDrumControlVisibility() {
+  const field = document.querySelector('.drum-cfg-field');
+  if (!field) return;
+  field.classList.toggle('hidden', selected('drumless') === 'on');
+}
+
+function setupMetroBpmStepper() {
+  const input = $('metro-bpm');
+  if (!input || $('metro-bpm-stepper')) return;
+  if (input.nextElementSibling?.classList.contains('knob')) input.nextElementSibling.remove();
+  const label = input.previousElementSibling;
+  const volumeKnob = document.createElement('div');
+  volumeKnob.id = 'metro-volume-knob';
+  volumeKnob.className = 'metro-volume-knob';
+  if (label) label.after(volumeKnob);
+
+  const stepper = document.createElement('div');
+  stepper.id = 'metro-bpm-stepper';
+  stepper.className = 'metro-bpm-stepper';
+  stepper.textContent = input.value;
+  input.after(stepper);
+
+  let y0 = 0;
+  let v0 = 0;
+  const setBpm = value => {
+    const min = Number(input.min);
+    const max = Number(input.max);
+    input.value = String(Math.max(min, Math.min(max, Math.round(value))));
+    stepper.textContent = input.value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  stepper.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    stepper.setPointerCapture(event.pointerId);
+    y0 = event.clientY;
+    v0 = Number(input.value);
+  });
+  stepper.addEventListener('pointermove', event => {
+    if (!stepper.hasPointerCapture(event.pointerId)) return;
+    setBpm(v0 + (y0 - event.clientY));
+  });
+  stepper.addEventListener('wheel', event => {
+    event.preventDefault();
+    setBpm(Number(input.value) + Math.sign(-event.deltaY));
+  }, { passive: false });
+  input.addEventListener('input', () => {
+    stepper.textContent = input.value;
+  });
+
+  let vy0 = 0;
+  let vv0 = 0;
+  const paintVolume = () => {
+    const n = metronomeVolume;
+    volumeKnob.style.setProperty('--angle', `${-135 + n * 270}deg`);
+    volumeKnob.style.setProperty('--fill', `${n * 75}%`);
+  };
+  const setVolume = value => {
+    metronomeVolume = Math.max(0, Math.min(1, value));
+    paintVolume();
+  };
+  volumeKnob.addEventListener('pointerdown', event => {
+    event.preventDefault();
+    volumeKnob.setPointerCapture(event.pointerId);
+    vy0 = event.clientY;
+    vv0 = metronomeVolume;
+  });
+  volumeKnob.addEventListener('pointermove', event => {
+    if (!volumeKnob.hasPointerCapture(event.pointerId)) return;
+    setVolume(vv0 + (vy0 - event.clientY) / 120);
+  });
+  volumeKnob.addEventListener('wheel', event => {
+    event.preventDefault();
+    setVolume(metronomeVolume + Math.sign(-event.deltaY) * .04);
+  }, { passive: false });
+  paintVolume();
 }
 
 function influencedPromptNodes() {
@@ -629,6 +3296,8 @@ function bindSegments(id) {
   document.querySelectorAll(`#${id} .seg`).forEach(el => el.addEventListener('click', () => {
     document.querySelectorAll(`#${id} .seg`).forEach(x => x.classList.remove('on'));
     el.classList.add('on');
+    if (id === 'drumless') updateDrumControlVisibility();
+    if (id === 'voice-mode' || id === 'jam-mode') updatePerformanceModeButton();
     syncSelectedNodeParamsFromControls();
     updateReadouts();
   }));
@@ -654,7 +3323,7 @@ function applyParamsToControls(params) {
   setSegment('drums-mode', params.drumsMode);
   setSegment('onset-mode', params.onsetMode);
   setSegment('midi-gate', params.midiGate);
-  $('continuous').value = params.continuous ? 'true' : 'false';
+  setSegment('continuous', params.continuous ? 'true' : 'false');
   setRange('frames', params.frames);
   setRange('target', Math.round(params.target * 100));
   setRange('temp', Math.round(params.temperature * 100));
@@ -817,11 +3486,26 @@ function promptWeightsForDisplay() {
   return blend.map(item => ({ id: item.node.id, text: promptTextWithNode(item.node), weight: total > 0 ? item.weight / total : 0 }));
 }
 
+function resizePromptSurface() {
+  const canvas = $('prompt-surface');
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.max(260, Math.round(rect.width || canvas.parentElement?.clientWidth || 320));
+  const cssMinHeight = document.querySelector('.generation-card')?.classList.contains('nodes-layout') ? 260 : 82;
+  const height = Math.max(cssMinHeight, Math.round(rect.height || canvas.parentElement?.clientHeight || cssMinHeight));
+  const scale = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * scale);
+  canvas.height = Math.round(height * scale);
+  canvas.getContext('2d').setTransform(scale, 0, 0, scale, 0, 0);
+}
+
 function drawPromptSurface() {
   const canvas = $('prompt-surface');
   if (!canvas) return;
+  if (!canvas.width || !canvas.height) resizePromptSurface();
   const ctx = canvas.getContext('2d');
-  const w = canvas.width, h = canvas.height;
+  const scale = window.devicePixelRatio || 1;
+  const w = canvas.width / scale, h = canvas.height / scale;
   ctx.fillStyle = '#090806';
   ctx.fillRect(0, 0, w, h);
   ctx.strokeStyle = '#1f1a12';
@@ -875,7 +3559,9 @@ function drawNode(ctx, x, y, r, color, title, sub) {
 
 function drawPromptNodeList() {
   const list = $('node-list');
+  const dock = $('node-editor-dock');
   list.innerHTML = '';
+  if (dock) dock.innerHTML = '';
   for (const item of promptWeightsForDisplay()) {
     const row = document.createElement('div');
     row.className = 'node-row influence';
@@ -883,14 +3569,24 @@ function drawPromptNodeList() {
     list.appendChild(row);
   }
   for (const node of promptNodes) {
+    const row = makePromptNodeEditorRow(node, false);
+    list.appendChild(row);
+    if (dock) dock.appendChild(makePromptNodeEditorRow(node, true));
+  }
+}
+
+function makePromptNodeEditorRow(node, compact) {
     const row = document.createElement('div');
     row.className = 'node-row';
     row.innerHTML = `
       <input data-node-id="${node.id}" value="${escapeHtml(node.text)}">
-      <button class="smallbtn" data-action="capture">Capture</button>
-      <button class="smallbtn primary" data-action="playable">Playable</button>
-      <button class="smallbtn" data-action="remove">Remove</button>
+      <div class="node-actions">
+        <button class="smallbtn" data-action="capture">Capture</button>
+        <button class="smallbtn primary" data-action="playable">Playable</button>
+        <button class="smallbtn" data-action="remove">Remove</button>
+      </div>
     `;
+    if (compact && selectedPromptNodeId === node.id) row.classList.add('selected');
     row.querySelector('input').addEventListener('change', event => updatePromptNodeText(node.id, event.target.value));
     row.addEventListener('click', event => {
       if (event.target.matches('button, input')) return;
@@ -899,8 +3595,7 @@ function drawPromptNodeList() {
     row.querySelector('[data-action="capture"]').onclick = () => capturePromptNodeParams(node.id);
     row.querySelector('[data-action="playable"]').onclick = () => setPromptNodePlayable(node.id);
     row.querySelector('[data-action="remove"]').onclick = () => removePromptNode(node.id);
-    list.appendChild(row);
-  }
+    return row;
 }
 
 function escapeHtml(text) {
@@ -1457,7 +4152,8 @@ async function cloneCurrentLoopToAudioPrompt() {
 }
 
 async function togglePadRecord(padIndex) {
-  if (padIndex < 1 || padIndex > 8) throw new Error(`Invalid pad index: ${padIndex}`);
+  padIndex = Number(padIndex);
+  if (padIndex < 1 || padIndex > MAX_LOOP_SLOTS) throw new Error(`Invalid pad index: ${padIndex}`);
   await ensureAudio();
   if (!loopRecording) {
     loopRecordStartPhase = loopTracks.length ? loopPhasePct() : 0;
@@ -1465,14 +4161,21 @@ async function togglePadRecord(padIndex) {
     loopRecording = true;
     resetLoopRecordingBuffer();
     renderPads();
-    log(`pad ${padIndex} recording started at ${Math.round(loopRecordStartPhase)}%`);
+    log(`slot ${padIndex} recording started at ${Math.round(loopRecordStartPhase)}%`);
     return;
   }
   if (recordingPad !== padIndex) {
-    log(`pad ${recordingPad} is recording. Press it again to stop.`);
+    log(`slot ${recordingPad} is recording. Press it again to stop.`);
     return;
   }
   loopRecording = false;
+  recordingPad = null;
+  if (loopRecordLength <= 0) {
+    resetLoopRecordingBuffer();
+    renderPads();
+    log(`slot ${padIndex} recording stopped: no audio captured`);
+    return;
+  }
   finishMainLoopRecording(padIndex, loopTracks.length ? loopRecordStartPhase : 0);
 }
 
@@ -1481,7 +4184,7 @@ function finishPadRecording(data) {
   recordingPad = null;
   const track = makeLoopTrackFromStereo(data.left, data.right, loopTracks.length ? Number(data.offsetPct) : 0);
   track.padIndex = padIndex;
-  track.name = `Pad ${padIndex}`;
+  track.name = `Slot ${padIndex}`;
   loopTracks = loopTracks.filter(item => item.padIndex !== padIndex);
   loopTracks.push(track);
   syncLoopTracks();
@@ -1531,7 +4234,7 @@ function clearLoops() {
 async function toggleMetronome() {
   await ensureAudio();
   metronomeEnabled = !metronomeEnabled;
-  $('metro-toggle').textContent = metronomeEnabled ? 'Metro On' : 'Metro Off';
+  $('metro-toggle').textContent = metronomeEnabled ? 'BPM On' : 'BPM Off';
   if (metronomeEnabled) {
     metronomeBeat = 0;
     scheduleMetronome();
@@ -1555,7 +4258,7 @@ function playMetronomeClick(accent) {
   const gain = audioCtx.createGain();
   osc.type = 'square';
   osc.frequency.value = accent ? 1320 : 880;
-  gain.gain.setValueAtTime(accent ? .16 : .1, audioCtx.currentTime);
+  gain.gain.setValueAtTime((accent ? .16 : .1) * metronomeVolume, audioCtx.currentTime);
   gain.gain.exponentialRampToValueAtTime(.001, audioCtx.currentTime + .045);
   osc.connect(gain);
   gain.connect(audioCtx.destination);
@@ -1567,12 +4270,13 @@ function renderPads() {
   const root = $('pad-grid');
   if (!root) return;
   root.innerHTML = '';
-  for (let pad = 1; pad <= 8; pad++) {
+  for (let pad = 1; pad <= MAX_LOOP_SLOTS; pad++) {
     const hasTrack = loopTracks.some(track => track.padIndex === pad);
     const button = document.createElement('button');
     button.className = `loop-pad ${hasTrack ? 'has-track' : ''} ${recordingPad === pad ? 'recording' : ''}`;
-    button.innerHTML = `Pad ${pad}<span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span>`;
-    button.onclick = () => togglePadRecord(pad);
+    button.dataset.tooltip = `Record into Slot ${pad}. Press the same slot again to stop recording.`;
+    button.innerHTML = `Slot ${pad}<span>${recordingPad === pad ? 'Recording' : hasTrack ? 'Track ready' : 'Empty'}</span>`;
+    button.onclick = () => togglePadRecord(pad).catch(error => log(`slot ${pad} error: ${error.message}`));
     root.appendChild(button);
   }
 }
@@ -1721,18 +4425,39 @@ function buildPresets() {
   };
   addGroup('Official Jam presets', PROMPT_PRESETS, 'accompany');
   addGroup('Official Solo instrument presets', INSTRUMENT_PRESETS, 'solo');
-  select.value = `accompany:${PROMPT_PRESETS[0]}`;
-  select.addEventListener('change', () => {
-    const [mode, ...parts] = select.value.split(':');
-    const prompt = parts.join(':');
-    $('prompt').value = prompt;
-    document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === mode));
-    document.querySelectorAll('#voice-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === (mode === 'solo' ? 'solo' : 'jam')));
-    applyOfficialDefaults();
-    applyVoiceMode(mode === 'solo' ? 'solo' : 'jam');
-    resetForPromptChange();
-    log(`preset: ${mode === 'solo' ? 'SOLO ' : ''}${prompt}`);
-  });
+  buildPresetDrawer();
+  select.value = presetValue(currentPreset.mode, currentPreset.name);
+  select.addEventListener('change', () => applyPresetValue(select.value));
+  updatePresetReadout();
+}
+
+function buildPresetDrawer() {
+  const root = $('preset-folder-list');
+  if (!root) return;
+  root.innerHTML = '';
+  for (const folder of PRESET_FOLDERS) {
+    const details = document.createElement('details');
+    details.className = 'preset-folder';
+    details.open = folder.label === currentPreset.family;
+    const summary = document.createElement('summary');
+    summary.textContent = folder.label;
+    const items = document.createElement('div');
+    items.className = 'preset-folder-items';
+    for (const preset of folder.presets) {
+      const button = document.createElement('button');
+      button.className = 'preset-item';
+      button.dataset.value = presetValue(folder.mode, preset);
+      button.textContent = preset;
+      button.onclick = () => {
+        applyPresetValue(button.dataset.value);
+        closePresetDrawer();
+      };
+      items.appendChild(button);
+    }
+    details.appendChild(summary);
+    details.appendChild(items);
+    root.appendChild(details);
+  }
 }
 
 function applyOfficialDefaults() {
@@ -1765,8 +4490,28 @@ function resetForPromptChange() {
   waiting = false;
 }
 
+async function startLiveInput() {
+  await ensureAudio();
+  if (!midiInitialized) {
+    try {
+      await initMidi();
+      midiInitialized = true;
+    } catch (error) {
+      $('midi-status').textContent = `MIDI unavailable: ${error.message}`;
+    }
+  }
+  if (!live) {
+    live = true;
+    $('start').textContent = 'Stop';
+    log('live producer started');
+  }
+  updateReadouts();
+  pump();
+}
+
 function buildKnobs() {
   document.querySelectorAll('input[type="range"]').forEach(input => {
+    if (input.id === 'metro-bpm') return;
     const knob = document.createElement('div'); knob.className = 'knob'; input.after(knob);
     const min = Number(input.min), max = Number(input.max), step = Number(input.step || 1);
     let y0 = 0, v0 = 0;
@@ -1781,35 +4526,91 @@ function buildKnobs() {
 function paintKnob(knob, input) { const n = (Number(input.value) - Number(input.min)) / (Number(input.max) - Number(input.min)); knob.style.setProperty('--angle', `${-135 + n * 270}deg`); knob.style.setProperty('--fill', `${n * 75}%`); }
 
 function buildPiano() {
-  const root = $('piano'); const whitePcs = [0,2,4,5,7,9,11], black = {1:.7,3:1.7,6:3.2,8:4.2,10:5.2}; let wi = 0;
+  const root = $('piano');
+  const whitePcs = [0,2,4,5,7,9,11];
+  const isWhite = pitch => whitePcs.includes(pitch % 12);
+  let wi = 0;
   root.innerHTML = '';
-  const whiteCount = countWhites(24, 97);
+  const startPitch = octaveBase - (octaveBase % 12);
+  const endPitch = Math.min(127, startPitch + 24);
+  const whiteCount = countWhites(startPitch, endPitch + 1);
   const whiteW = root.clientWidth / whiteCount;
-  const blackW = whiteW * .66;
+  const blackW = whiteW * .54;
+  const whiteIndex = new Map();
   const focus = document.createElement('div'); focus.className = 'piano-focus'; focus.id = 'piano-focus'; root.appendChild(focus);
-  for (let p = 24; p <= 96; p++) if (whitePcs.includes(p % 12)) { const el = keyEl(p, 'white'); el.style.left = `${wi++ * whiteW}px`; el.style.width = `${whiteW}px`; root.appendChild(el); }
-  for (let p = 24; p <= 96; p++) if (black[p % 12] !== undefined) { const el = keyEl(p, 'blackp'); el.style.left = `${(countWhites(24, Math.floor(p / 12) * 12) + black[p % 12]) * whiteW - blackW / 2}px`; el.style.width = `${blackW}px`; root.appendChild(el); }
+  for (let p = startPitch; p <= endPitch; p++) {
+    if (!isWhite(p)) continue;
+    whiteIndex.set(p, wi);
+    const el = keyEl(p, 'white');
+    el.style.left = `${wi++ * whiteW}px`;
+    el.style.width = `${whiteW}px`;
+    root.appendChild(el);
+  }
+  for (let p = startPitch; p <= endPitch; p++) {
+    if (isWhite(p)) continue;
+    let previousWhite = p - 1;
+    let nextWhite = p + 1;
+    while (previousWhite >= startPitch && !isWhite(previousWhite)) previousWhite--;
+    while (nextWhite <= endPitch && !isWhite(nextWhite)) nextWhite++;
+    if (!whiteIndex.has(previousWhite) || !whiteIndex.has(nextWhite)) continue;
+    const center = (whiteIndex.get(previousWhite) + 1) * whiteW;
+    const el = keyEl(p, 'blackp');
+    el.style.left = `${center - blackW / 2}px`;
+    el.style.width = `${blackW}px`;
+    root.appendChild(el);
+  }
 }
 function countWhites(start, limit) { let c = 0; for (let p = start; p < limit; p++) if ([0,2,4,5,7,9,11].includes(p % 12)) c++; return c; }
 function keyEl(p, cls) { const el = document.createElement('div'); el.className = cls; el.dataset.pitch = p; el.innerHTML = `<b>M</b><span>${NOTE_NAMES[p%12]}${Math.floor(p/12)}</span>`; el.onclick = () => cycleLatch(p, el); return el; }
 function cycleLatch(p, el) { const order = [-1,0,1,2,3]; const cur = noteState.has(p) ? noteState.get(p) : -1; const next = order[(order.indexOf(cur) + 1) % order.length]; if (next === -1) noteState.delete(p); else noteState.set(p, next); paintPianoKey(el, next); updateReadouts(); }
 function paintPianoKey(el, v) { el.classList.remove('masked','sustain','on'); const cls = CLASS[String(v)]; if (cls) el.classList.add(cls); el.querySelector('b').textContent = STATE[String(v)]; }
 
-function shiftOctave(delta, source) {
-  dropHeldNotes();
-  octaveBase = clamp(octaveBase + delta * 12, 24, 84);
-  updateReadouts();
-  log(`${source} octave ${delta > 0 ? 'up' : 'down'}: ${NOTE_NAMES[octaveBase % 12]}${Math.floor(octaveBase / 12)}`);
+function octaveOffset() {
+  return Math.round((octaveBase - OCTAVE_ZERO_BASE) / 12);
 }
 
-function down(e) {
+function setOctaveOffset(offset, source) {
+  const min = Math.ceil((24 - OCTAVE_ZERO_BASE) / 12);
+  const max = Math.floor((84 - OCTAVE_ZERO_BASE) / 12);
+  const next = clamp(Math.round(offset), min, max);
+  const previous = octaveOffset();
+  if (next === previous) {
+    updateReadouts();
+    return;
+  }
+  dropHeldNotes();
+  octaveBase = OCTAVE_ZERO_BASE + next * 12;
+  buildPiano();
+  updateReadouts();
+  log(`${source} octave ${next > previous ? 'up' : 'down'}: ${next > 0 ? '+' : ''}${next}`);
+}
+
+function shiftOctave(delta, source) {
+  setOctaveOffset(octaveOffset() + delta, source);
+}
+
+async function down(e) {
+  if ((e.metaKey || e.ctrlKey) && e.code === 'Space') {
+    e.preventDefault();
+    stopLiveInput('shortcut');
+    return;
+  }
   if (e.repeat || e.target.matches('input, textarea, select')) return;
   if (e.code === 'KeyZ') { shiftOctave(-1, 'keyboard'); mark(e.code, true); return; }
   if (e.code === 'KeyX') { shiftOctave(1, 'keyboard'); mark(e.code, true); return; }
   if (!(e.code in TYPING)) return;
-  e.preventDefault(); const p = octaveBase + TYPING[e.code]; onset.set(p, 2); held.set(p, 3); beginNoteEvent(p); mark(e.code, true); updateReadouts(); pump();
+  e.preventDefault();
+  await startLiveInput();
+  const p = octaveBase + TYPING[e.code];
+  onset.set(p, 2);
+  held.set(p, 3);
+  beginNoteEvent(p);
+  mark(e.code, true);
+  highlightPianoPitch(p, true);
+  updateReadouts();
+  pump();
 }
-function up(e) { if (e.code === 'KeyZ' || e.code === 'KeyX') { mark(e.code, false); return; } if (!(e.code in TYPING)) return; const p = octaveBase + TYPING[e.code]; held.delete(p); endNoteEvent(p); mark(e.code, false); updateReadouts(); }
+function up(e) { if (e.code === 'KeyZ' || e.code === 'KeyX') { mark(e.code, false); return; } if (!(e.code in TYPING)) return; const p = octaveBase + TYPING[e.code]; held.delete(p); endNoteEvent(p); mark(e.code, false); highlightPianoPitch(p, false); updateReadouts(); }
 function mark(code, active) { const el = document.querySelector(`.key[data-code="${code}"]`); if (el) el.classList.toggle('active', active); }
 
 function dropHeldNotes() {
@@ -1905,6 +4706,10 @@ function isAkaiOctaveMessage(command, data1, data2) {
 
 function midiNoteOn(pitch) {
   if (pitch < 0 || pitch > 127) return;
+  if (audioCtx && !live) {
+    live = true;
+    $('start').textContent = 'Stop';
+  }
   midiHeld.add(pitch);
   held.set(pitch, 3);
   onset.set(pitch, 2);
@@ -1955,6 +4760,9 @@ function endNoteEvent(pitch) {
 
 function updateReadouts() {
   const params = activeGenerationParams();
+  updatePresetReadout();
+  updatePerformanceModeButton();
+  updateDrumControlVisibility();
   $('frames-v').textContent = $('frames').value;
   $('target-v').textContent = `${(parseInt($('target').value) / 100).toFixed(2)}s`;
   $('temp-v').textContent = (parseInt($('temp').value) / 100).toFixed(2);
@@ -1971,12 +4779,16 @@ function updateReadouts() {
   $('underruns').textContent = underruns;
   $('mode').textContent = live ? (waiting ? 'live generating' : 'live') : 'idle';
   $('octave').textContent = `${NOTE_NAMES[octaveBase % 12]}${Math.floor(octaveBase / 12)}`;
+  if ($('octave-offset')) {
+    const offset = octaveOffset();
+    $('octave-offset').textContent = offset > 0 ? `+${offset}` : String(offset);
+  }
   $('held').textContent = held.size;
   $('latched').textContent = noteState.size;
   $('loop-tracks').textContent = loopTracks.length;
   $('loop-length').textContent = loopLengthSamples ? `${(loopLengthSamples / 48000).toFixed(2)}s` : '-';
   $('loop-phase').textContent = `${Math.round(loopPhasePct())}%`;
-  $('metro-bpm-v').textContent = `${$('metro-bpm').value} BPM`;
+  $('metro-bpm-v').textContent = 'BPM';
   syncLoopLengthControl();
   updatePianoFocus();
   if (worklet) {
@@ -1991,6 +4803,7 @@ function resize() {
     c.width = c.clientWidth * 2;
     c.height = c.clientHeight * 2;
   });
+  resizePromptSurface();
   drawPromptSurface();
   drawTimeline();
   drawTrackMixer();
@@ -2043,27 +4856,39 @@ function updatePianoFocus() {
   const focus = $('piano-focus');
   if (!focus) return;
   const root = $('piano');
-  const whiteW = root.clientWidth / countWhites(24, 97);
+  const startPitch = octaveBase - (octaveBase % 12);
+  const endPitch = Math.min(127, startPitch + 24);
+  const whiteW = root.clientWidth / countWhites(startPitch, endPitch + 1);
   const left = noteToKeyboardX(octaveBase);
-  const right = noteToKeyboardX(Math.min(96, octaveBase + 17)) + whiteW;
+  const right = noteToKeyboardX(Math.min(endPitch, octaveBase + 17)) + whiteW;
   focus.style.left = `${left}px`;
   focus.style.width = `${Math.max(30, right - left)}px`;
 }
 
 function noteToKeyboardX(pitch) {
   const whitePcs = [0,2,4,5,7,9,11];
+  const startPitch = octaveBase - (octaveBase % 12);
+  const endPitch = Math.min(127, startPitch + 24);
   let count = 0;
-  for (let p = 24; p < pitch; p++) if (whitePcs.includes(p % 12)) count++;
-  return count * ($('piano').clientWidth / countWhites(24, 97));
+  for (let p = startPitch; p < pitch; p++) if (whitePcs.includes(p % 12)) count++;
+  return count * ($('piano').clientWidth / countWhites(startPitch, endPitch + 1));
 }
 
-$('start').onclick = async () => { await ensureAudio(); live = !live; $('start').textContent = live ? 'Stop Live' : 'Start Live'; log(live ? 'live producer started' : 'live producer stopped'); updateReadouts(); pump(); };
+$('start').onclick = async () => {
+  if (live) {
+    live = false;
+    $('start').textContent = 'Start Live';
+    log('live producer stopped');
+    updateReadouts();
+    return;
+  }
+  await startLiveInput();
+};
 $('once').onclick = async () => { await ensureAudio(); sendGenerate(); };
 $('panic').onclick = panic;
 $('reset').onclick = () => { if (ws && connected) ws.send(JSON.stringify({ action:'reset' })); log('model state reset'); };
 $('clear').onclick = () => { dropHeldNotes(); noteState.clear(); held.clear(); onset.clear(); noteEvents = []; document.querySelectorAll('.white,.blackp').forEach(el => paintPianoKey(el, -1)); document.querySelectorAll('.key').forEach(el => el.classList.remove('active')); updateReadouts(); };
-$('playable-instrument').onclick = applyPlayableInstrumentSetup;
-$('default-instrument').onclick = applyDefaultInstrumentSetup;
+$('jam-solo-toggle').onclick = togglePerformanceMode;
 $('add-node').onclick = () => addPromptNode($('node-prompt').value);
 $('loop-play').onclick = playLoops;
 $('loop-stop').onclick = stopLoops;
@@ -2090,10 +4915,14 @@ $('loop-length-reset').onclick = () => {
   if (!loopTracks.length) return;
   setLoopLengthSamples(loopTracks[0].left.length);
 };
+$('preset-drawer-toggle').onclick = () => togglePresetDrawer(true);
+$('preset-drawer-close').onclick = closePresetDrawer;
+$('preset-drawer-scrim').onclick = closePresetDrawer;
 $('system-toggle').onclick = () => $('system-panel').classList.toggle('open');
 
-connect(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
-buildPresets(); bindSegments('jam-mode'); bindSegments('onset-mode'); bindSegments('midi-gate');
+connect(); placeMidiInputTop(); placeMetronomeInRecordHead(); setupMetroBpmStepper(); setupKeyboardHardwareControls(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
+setupButtonTooltips();
+buildPresets(); bindSegments('jam-mode'); bindSegments('onset-mode'); bindSegments('midi-gate'); bindSegments('continuous');
 bindSegments('voice-mode');
 initPromptSurface();
 initTimelineDrag();
@@ -2109,10 +4938,11 @@ $('prompt').addEventListener('change', () => {
     if (!clean) throw new Error('Prompt node text is empty');
     node.text = clean;
   }
+  currentPreset = { name: $('prompt').value.trim() || 'Custom Prompt', mode: selected('jam-mode'), family: 'Custom Prompt' };
+  updatePresetReadout();
   drawPromptSurface();
   resetForPromptChange();
 });
-$('continuous').addEventListener('change', () => { syncSelectedNodeParamsFromControls(); resetForPromptChange(); });
 $('seed').addEventListener('change', () => { syncSelectedNodeParamsFromControls(); resetForPromptChange(); });
 $('upload-audio').addEventListener('click', () => $('audio-file').click());
 $('clear-audio').addEventListener('click', () => {
@@ -2136,7 +4966,22 @@ $('audio-file').addEventListener('change', async () => {
   document.querySelectorAll('#style-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === 'prompt'));
   resetForPromptChange();
 });
-$('midi-refresh').addEventListener('click', initMidi);
+$('midi-refresh').addEventListener('click', async () => {
+  try {
+    await ensureAudio();
+    await initMidi();
+    midiInitialized = true;
+    if (!live) {
+      live = true;
+      log('live producer started');
+    }
+    updateReadouts();
+    pump();
+  } catch (error) {
+    midiInitialized = false;
+    $('midi-status').textContent = `MIDI unavailable: ${error.message}`;
+  }
+});
 $('midi-input').addEventListener('change', connectMidiInput);
 window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('resize', resize);
 setInterval(() => { updateReadouts(); if (!loopRecording) drawRoll(); updateTimelinePlayhead(); pump(); }, 120);
