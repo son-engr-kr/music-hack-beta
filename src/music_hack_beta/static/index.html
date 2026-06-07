@@ -3516,10 +3516,304 @@
     pointer-events: none;
   }
 
+  /* Record panel PPT-style layout pass */
+  .loop-card {
+    padding: 12px !important;
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, .85fr) minmax(0, .7fr) minmax(0, 1.2fr) !important;
+    grid-template-rows: minmax(0, 2fr) 22px minmax(0, 1fr) !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .loop-panel {
+    height: 100% !important;
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 2fr) minmax(260px, .85fr) !important;
+    grid-template-rows: 28px 94px 34px 34px 58px 18px !important;
+    gap: 7px !important;
+    overflow: hidden !important;
+  }
+
+  .loop-card > div[style] {
+    display: none !important;
+  }
+
+  .loop-card > h2 {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    margin: 0 !important;
+    align-self: end !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-card > canvas,
+  .loop-card > .log {
+    grid-row: 3 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+    border-width: 3px !important;
+    border-radius: 12px !important;
+    transform: translateY(10px) !important;
+  }
+
+  #roll {
+    grid-column: 1 !important;
+  }
+
+  #wave {
+    grid-column: 2 !important;
+  }
+
+  #queue {
+    grid-column: 3 !important;
+  }
+
+  #log {
+    grid-column: 4 !important;
+    overflow: hidden !important;
+    font-size: .58rem !important;
+  }
+
+  .record-head {
+    display: grid !important;
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: start !important;
+    gap: 10px !important;
+    min-height: 28px !important;
+  }
+
+  .record-head h2 {
+    margin: 0 !important;
+    align-self: start !important;
+  }
+
+  .record-head .metro-row {
+    justify-self: end !important;
+    align-self: start !important;
+    display: grid !important;
+    grid-template-columns: auto 50px 38px 76px !important;
+    gap: 6px !important;
+    align-items: center !important;
+    margin: 0 !important;
+  }
+
+  .record-head .metro-row label {
+    height: 36px !important;
+    display: grid !important;
+    place-items: center !important;
+    margin: 0 !important;
+    font-size: .72rem !important;
+    color: var(--text) !important;
+  }
+
+  .record-head .metro-row label b {
+    color: var(--text) !important;
+    font-size: .72rem !important;
+    letter-spacing: 0 !important;
+  }
+
+  .record-head .metro-bpm-stepper {
+    width: 50px !important;
+    min-width: 50px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    border-width: 3px !important;
+    border-radius: 12px !important;
+    font-size: .72rem !important;
+    transform: translateY(2px) !important;
+  }
+
+  .record-head .metro-volume-knob {
+    width: 38px !important;
+    height: 38px !important;
+    align-self: center !important;
+  }
+
+  .record-head #metro-toggle {
+    width: 76px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding: 0 8px !important;
+    font-size: .64rem !important;
+    border-width: 3px !important;
+    border-radius: 12px !important;
+  }
+
+  .pad-grid {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+    justify-self: start !important;
+    margin: 0 !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-pad {
+    aspect-ratio: auto !important;
+    height: 88px !important;
+    min-height: 88px !important;
+    padding: 8px !important;
+    border-width: 4px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 0 var(--line) !important;
+    font-size: .76rem !important;
+    line-height: 1 !important;
+  }
+
+  .loop-pad span {
+    font-size: .66rem !important;
+    font-weight: 900 !important;
+    margin-top: auto !important;
+    text-transform: uppercase !important;
+  }
+
+  .loop-head {
+    display: grid !important;
+    grid-column: 1 !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    height: 34px !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-head:nth-of-type(3) {
+    grid-row: 3 !important;
+  }
+
+  .loop-head:nth-of-type(4) {
+    grid-row: 4 !important;
+  }
+
+  .loop-head .smallbtn {
+    min-height: 30px !important;
+    height: 30px !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+    font-size: .76rem !important;
+    padding: 0 10px !important;
+  }
+
+  .loop-length-row {
+    display: grid !important;
+    grid-column: 2 !important;
+    grid-row: 3 / 5 !important;
+    grid-template-columns: 92px minmax(0, 1fr) !important;
+    grid-template-rows: 20px 34px !important;
+    gap: 5px 10px !important;
+    align-items: center !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-length-row label {
+    grid-column: 1 / -1 !important;
+    color: var(--text) !important;
+    font-size: .76rem !important;
+    margin: 0 !important;
+  }
+
+  .loop-length-row input[type="range"] {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .loop-length-row #loop-length-reset {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: 92px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+    font-size: .72rem !important;
+  }
+
+  .loop-length-row .knob {
+    display: none !important;
+  }
+
+  .timeline {
+    min-height: 58px !important;
+    max-height: 58px !important;
+    border-width: 4px !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-stats {
+    display: flex !important;
+    gap: 6px !important;
+    align-items: center !important;
+    margin: 0 !important;
+    transform: translateY(10px) !important;
+  }
+
+  .loop-stats .chip {
+    color: #ffffff !important;
+    background: var(--line) !important;
+    border: 0 !important;
+    font-size: .6rem !important;
+    font-weight: 900 !important;
+    padding: 3px 8px !important;
+  }
+
+  .track-mixer,
+  .loop-panel > .hint {
+    display: none !important;
+  }
+
+  @property --record-fill {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 0%;
+  }
+
+  .loop-pad.recording {
+    --record-fill: 0%;
+    color: var(--text) !important;
+    border-color: var(--line) !important;
+    background:
+      conic-gradient(from 0deg, var(--red) 0 var(--record-fill), #ffffff var(--record-fill) 100%) !important;
+    animation: recordFillClockwise 1.35s linear infinite !important;
+  }
+
+  .loop-pad.recording span {
+    color: var(--text) !important;
+  }
+
+  @keyframes recordFillClockwise {
+    from { --record-fill: 0%; }
+    to { --record-fill: 100%; }
+  }
+
   .piano {
     position: relative !important;
     overflow: hidden !important;
     padding-top: 7px !important;
+  }
+
+  .piano::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 7px;
+    background: var(--accent);
+    z-index: 3;
+    pointer-events: none;
   }
 
   .white {
@@ -3990,8 +4284,8 @@
     gap: 6px !important;
     align-items: center !important;
     min-width: 0 !important;
-    width: calc(100% + 150px) !important;
-    transform: translateX(-75px) !important;
+    width: calc(100% - 25px) !important;
+    transform: translateX(0) !important;
     color: #171717 !important;
     font-size: .72rem !important;
     font-weight: 800 !important;
@@ -4454,8 +4748,8 @@
 <script>
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TYPING = {KeyA:0,KeyW:1,KeyS:2,KeyE:3,KeyD:4,KeyF:5,KeyT:6,KeyG:7,KeyY:8,KeyH:9,KeyU:10,KeyJ:11,KeyK:12,KeyO:13,KeyL:14,KeyP:15,Semicolon:16,Quote:17};
-const MAX_LOOP_SLOTS = 4;
-const MPK_PAD_NOTES = [36, 37, 38, 39];
+const MAX_LOOP_SLOTS = 6;
+const MPK_PAD_NOTES = [36, 37, 38, 39, 40, 41];
 const MPK_PAD_CHANNEL = 9;
 const AKAI_OCTAVE_DOWN = 5;
 const AKAI_OCTAVE_UP = 6;
