@@ -1932,6 +1932,15 @@
     border-radius: 4px;
     box-shadow: inset 0 1px 9px rgba(0,0,0,.72);
   }
+  .advanced-mode-field.numeric-field label {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+  .advanced-mode-field.numeric-field input[type="number"] {
+    display: block;
+    padding: 0 !important;
+    line-height: 28px;
+  }
   .generation-card.nodes-layout {
     grid-template-columns: minmax(0, 2fr) repeat(7, minmax(34px, 1fr));
     grid-template-rows: auto auto auto 64px 64px auto;
@@ -2237,13 +2246,13 @@
     padding: 0 !important;
   }
   .generation-card {
-    column-gap: 1.5px !important;
-    row-gap: 1.5px !important;
+    column-gap: 8px !important;
+    row-gap: 8px !important;
   }
   .generation-card .source-tabs,
   .generation-card .source-panel[data-panel="prompt"] .prompt-style-row,
   .advanced-mode-row {
-    gap: 1.5px !important;
+    gap: 8px !important;
   }
   .generation-card label,
   .generation-card label b,
@@ -2262,7 +2271,7 @@
     line-height: 1.1 !important;
     letter-spacing: .02em !important;
     padding: 0 !important;
-    margin: 0 0 1.5px !important;
+    margin: 0 0 4px !important;
   }
   .generation-card label,
   .generation-card label b,
@@ -2282,14 +2291,14 @@
   .generation-card .source-panel .field,
   .advanced-mode-field,
   .advanced-mode-field.numeric-field {
-    padding: 1.5px !important;
+    padding: 4px !important;
     margin: 0 !important;
   }
   .generation-card .field:has(input[type="range"]):not(.gain-inline-field),
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
     min-height: 58px !important;
     grid-template-rows: 25px 32px !important;
-    row-gap: 1.5px !important;
+    row-gap: 4px !important;
   }
   .generation-card .field:has(input[type="range"]):not(.gain-inline-field) label,
   .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) label {
@@ -2333,12 +2342,12 @@
   .advanced-mode-field.numeric-field {
     min-height: 42px !important;
     grid-template-rows: 13px 28px !important;
-    gap: 1.5px !important;
+    gap: 4px !important;
   }
   .generation-card .source-panel[data-panel="prompt"] .gain-inline-field {
     min-height: 58px !important;
     grid-template-rows: 25px 32px !important;
-    row-gap: 1.5px !important;
+    row-gap: 4px !important;
   }
   .generation-card .source-panel[data-panel="prompt"] .gain-inline-field label {
     height: 25px !important;
@@ -2346,7 +2355,7 @@
     grid-template-rows: 12px 12px !important;
   }
   .advanced-mode-field .segrow {
-    gap: 1.5px !important;
+    gap: 4px !important;
   }
   .advanced-mode-field .seg,
   .advanced-mode-field.numeric-field input[type="number"],
@@ -2354,7 +2363,7 @@
   .generation-card .source-panel[data-panel="prompt"] .seg {
     min-height: 28px !important;
     height: 28px !important;
-    padding: 0 1.5px !important;
+    padding: 0 6px !important;
   }
   .keyboard-control-row {
     display: grid;
@@ -2377,6 +2386,1267 @@
   }
   .keyboard-card > .midi-device-field {
     display: none !important;
+  }
+
+  .generation-card.nodes-layout {
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr) !important;
+    grid-template-rows: auto auto auto auto auto !important;
+    column-gap: 12px !important;
+    row-gap: 8px !important;
+    align-items: start !important;
+  }
+
+  .generation-card.nodes-layout > h2 {
+    grid-column: 1 / 3 !important;
+    grid-row: 1 !important;
+  }
+
+  .generation-card.nodes-layout .source-tabs {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    align-self: start !important;
+  }
+
+  .generation-card.nodes-layout > .field:first-of-type {
+    grid-column: 1 !important;
+    grid-row: 3 !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"].on {
+    grid-column: 1 !important;
+    grid-row: 4 / span 3 !important;
+    align-self: stretch !important;
+    min-width: 0 !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .field {
+    display: grid !important;
+    grid-template-rows: auto 42px minmax(230px, 1fr) 38px auto auto !important;
+    gap: 8px !important;
+    height: 100% !important;
+    min-height: 430px !important;
+    padding: 6px !important;
+  }
+
+  .node-preset-strip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 0 6px;
+    scrollbar-width: thin;
+  }
+
+  .node-preset-chip {
+    appearance: none;
+    border: 1px solid #313740;
+    border-radius: 6px;
+    background: linear-gradient(#23272d, #121519);
+    color: #e8edf2;
+    cursor: pointer;
+    flex: 0 0 auto;
+    font: 500 12px/1 var(--font);
+    height: 32px;
+    max-width: 160px;
+    overflow: hidden;
+    padding: 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .node-preset-chip.on {
+    border-color: rgba(30, 225, 239, 0.9);
+    box-shadow: 0 0 0 1px rgba(30, 225, 239, 0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+    color: #b9fbff;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .surface-wrap {
+    align-self: stretch !important;
+    height: 100% !important;
+    min-height: 230px !important;
+    max-height: none !important;
+  }
+
+  .generation-card.nodes-layout #prompt-surface {
+    height: 100% !important;
+    min-height: 230px !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .minirow {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 112px !important;
+    gap: 8px !important;
+  }
+
+  .generation-card.nodes-layout .source-panel[data-panel="nodes"] .node-list {
+    max-height: 88px !important;
+    overflow-y: auto !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field),
+  .generation-card.nodes-layout .advanced-mode-row {
+    grid-column: 2 !important;
+    align-self: start !important;
+    justify-self: stretch !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 66px !important;
+    grid-template-rows: 32px 32px !important;
+    row-gap: 4px !important;
+  }
+
+  .generation-card.nodes-layout .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .generation-card.nodes-layout .field:has(#temp),
+  .generation-card.nodes-layout .field:has(#topk),
+  .generation-card.nodes-layout .field:has(#cfgs) {
+    grid-row: 2 !important;
+    width: 33.333% !important;
+    justify-self: start !important;
+  }
+
+  .generation-card.nodes-layout .field:has(#cfgn),
+  .generation-card.nodes-layout .field:has(#unmask),
+  .generation-card.nodes-layout .field:has(#seed),
+  .generation-card.nodes-layout .field:has(#cfgd) {
+    grid-row: 3 !important;
+    width: 33.333% !important;
+    justify-self: start !important;
+  }
+
+  .generation-card.nodes-layout .field:has(#temp) { transform: translateX(0); }
+  .generation-card.nodes-layout .field:has(#topk) { transform: translateX(100%); }
+  .generation-card.nodes-layout .field:has(#cfgs) { transform: translateX(200%); }
+  .generation-card.nodes-layout .field:has(#cfgn) { transform: translateX(0); }
+  .generation-card.nodes-layout .field:has(#unmask) { transform: translateX(100%); }
+  .generation-card.nodes-layout .field:has(#seed) { transform: translateX(200%); }
+
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#temp),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgn) {
+    width: 25% !important;
+    transform: translateX(0);
+  }
+
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#topk),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#unmask) {
+    width: 25% !important;
+    transform: translateX(100%);
+  }
+
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgs),
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#seed) {
+    width: 25% !important;
+    transform: translateX(200%);
+  }
+
+  .generation-card.nodes-layout:not(:has(.drum-cfg-field.hidden)) .field:has(#cfgd) {
+    width: 25% !important;
+    transform: translateX(300%);
+  }
+
+  .generation-card.nodes-layout .drum-cfg-field.hidden {
+    display: none !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-row {
+    grid-row: 4 !important;
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    margin-top: 0 !important;
+    min-height: 64px !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-field {
+    min-height: 62px !important;
+    grid-template-rows: 18px 36px !important;
+    padding: 5px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-style-row {
+    grid-template-columns: minmax(0, 2fr) minmax(170px, 220px) 128px 82px !important;
+    align-items: end !important;
+    gap: 12px !important;
+    overflow: visible !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field {
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .segrow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .seg {
+    min-width: 0 !important;
+    width: 100% !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle {
+    width: 128px !important;
+    height: 48px !important;
+    min-height: 48px !important;
+    align-self: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
+    width: 82px !important;
+    min-height: 78px !important;
+    grid-template-rows: 36px 40px !important;
+    row-gap: 6px !important;
+    align-self: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field label {
+    height: 36px !important;
+    min-height: 36px !important;
+    grid-template-rows: 16px 18px !important;
+    gap: 2px !important;
+    line-height: 1.05 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-row {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    align-items: end !important;
+    gap: 10px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 22px 42px !important;
+    gap: 6px !important;
+    min-height: 70px !important;
+    padding: 0 4px !important;
+    align-items: start !important;
+    justify-items: stretch !important;
+    overflow: visible !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field label {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 22px !important;
+    min-height: 22px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field input[type="number"] {
+    display: block !important;
+    width: 100% !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    line-height: 42px !important;
+  }
+
+  /* PPT storyboard visual system */
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel2: #fff6df;
+    --line: #171717;
+    --text: #171717;
+    --muted: #3b3b3b;
+    --accent: #f8b844;
+    --green: #a8d8a1;
+    --red: #f26349;
+    --blue: #a8c9f6;
+    --black: #171717;
+  }
+
+  body {
+    color: var(--text) !important;
+    font-family: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif !important;
+    background: #ffffff !important;
+  }
+
+  body::before {
+    display: none !important;
+  }
+
+  .shell {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    padding: 14px !important;
+    gap: 12px !important;
+  }
+
+  .grid {
+    gap: 16px !important;
+  }
+
+  .card,
+  .preset-drawer,
+  .system-panel {
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 18px !important;
+    box-shadow: 8px 8px 0 #f3b32e !important;
+  }
+
+  .card {
+    padding: 14px !important;
+  }
+
+  h2,
+  .record-head h2,
+  .keyboard-card h2,
+  .generation-card > h2 {
+    color: var(--text) !important;
+    font-size: 1.18rem !important;
+    font-weight: 900 !important;
+    letter-spacing: .01em !important;
+    line-height: 1 !important;
+    text-transform: uppercase !important;
+  }
+
+  label,
+  label b,
+  .generation-card label,
+  .generation-card label b,
+  .advanced-mode-field label,
+  .advanced-mode-field.numeric-field label {
+    color: var(--text) !important;
+    font-weight: 800 !important;
+    letter-spacing: .01em !important;
+    text-transform: uppercase !important;
+  }
+
+  label b,
+  .generation-card label b {
+    color: var(--text) !important;
+  }
+
+  .hint {
+    color: var(--muted) !important;
+  }
+
+  button,
+  .smallbtn,
+  .source-tab,
+  .seg,
+  .preset-item,
+  .node-preset-chip {
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 0 var(--line) !important;
+    font-weight: 900 !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+  }
+
+  button:hover:not(:disabled),
+  .seg:hover,
+  .source-tab:hover {
+    transform: translateY(-1px);
+    border-color: var(--line) !important;
+    box-shadow: 0 6px 0 var(--line) !important;
+  }
+
+  button:active:not(:disabled),
+  .seg:active,
+  .source-tab:active {
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 var(--line) !important;
+  }
+
+  .primary,
+  .source-tab.on,
+  .seg.on,
+  .preset-item.active,
+  .node-preset-chip.on,
+  #jam-solo-toggle.primary {
+    color: var(--text) !important;
+    background: var(--accent) !important;
+    border-color: var(--line) !important;
+  }
+
+  .danger,
+  .loop-pad.recording {
+    color: var(--text) !important;
+    background: var(--red) !important;
+    border-color: var(--line) !important;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select,
+  .metro-bpm-stepper {
+    color: var(--text) !important;
+    background: #fff6df !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    font-weight: 900 !important;
+  }
+
+  .generation-card .field,
+  .advanced-mode-field,
+  .advanced-mode-field.numeric-field,
+  .source-panel[data-panel="clone"] .split .field,
+  .mixer-row,
+  .track-lane,
+  .typing,
+  .surface-wrap,
+  .timeline,
+  .log {
+    color: var(--text) !important;
+    background: #fff6df !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+  }
+
+  .generation-card > .field:first-of-type,
+  .generation-card .source-panel .field,
+  .generation-card .source-panel .split .field {
+    border: 0 !important;
+    background: transparent !important;
+  }
+
+  .generation-card .source-tabs {
+    gap: 10px !important;
+  }
+
+  .source-tab {
+    min-height: 44px !important;
+    font-size: .92rem !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .segrow,
+  .segrow {
+    gap: 10px !important;
+  }
+
+  .seg {
+    min-height: 42px !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: .86rem !important;
+  }
+
+  .knob,
+  .metro-volume-knob {
+    width: 46px !important;
+    height: 46px !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 50% !important;
+    background: var(--accent) !important;
+    box-shadow: 0 4px 0 var(--line) !important;
+  }
+
+  .knob::before,
+  .metro-volume-knob::before {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.28);
+  }
+
+  .knob::after,
+  .metro-volume-knob::after {
+    top: 50% !important;
+    left: 50% !important;
+    width: 5px !important;
+    height: 18px !important;
+    border-radius: 99px !important;
+    background: var(--line) !important;
+    transform-origin: 50% 100% !important;
+    transform: translate(-50%, -100%) rotate(var(--angle, 0deg)) !important;
+  }
+
+  .loop-pad {
+    aspect-ratio: 1 / 1 !important;
+    min-height: 0 !important;
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 0 var(--line) !important;
+  }
+
+  .loop-pad.has-track {
+    color: var(--text) !important;
+    background: var(--blue) !important;
+    border-color: var(--line) !important;
+  }
+
+  .loop-pad span,
+  .loop-pad.recording span {
+    color: var(--text) !important;
+  }
+
+  .timeline-grid {
+    background: repeating-linear-gradient(90deg, transparent 0 calc(25% - 2px), rgba(23,23,23,.18) calc(25% - 2px) 25%) !important;
+  }
+
+  .track-lane {
+    background: #ffffff !important;
+  }
+
+  .track-clip {
+    color: var(--text) !important;
+    background: var(--red) !important;
+    border: 3px solid var(--line) !important;
+    box-shadow: none !important;
+  }
+
+  .track-clip.base {
+    background: var(--accent) !important;
+  }
+
+  .playhead {
+    background: var(--line) !important;
+    box-shadow: none !important;
+    width: 4px !important;
+  }
+
+  .keyboard-card {
+    background: #ffffff !important;
+  }
+
+  .keyboard-card .typing {
+    background: #ffffff !important;
+  }
+
+  .key {
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 0 var(--line) !important;
+  }
+
+  .key.black,
+  .key.active,
+  .key.func {
+    color: var(--text) !important;
+    background: var(--accent) !important;
+  }
+
+  .piano-wrap {
+    background: #ffffff !important;
+    border-top: 4px solid var(--line) !important;
+  }
+
+  .piano-wrap::before {
+    background: none !important;
+    filter: none !important;
+  }
+
+  .piano {
+    background: #ffffff !important;
+  }
+
+  .white,
+  .blackp {
+    border: 3px solid var(--line) !important;
+    box-shadow: none !important;
+  }
+
+  .white {
+    color: var(--text) !important;
+    background: #ffffff !important;
+  }
+
+  .blackp {
+    color: #ffffff !important;
+    background: var(--line) !important;
+  }
+
+  .white.on,
+  .blackp.on,
+  .white.sustain,
+  .blackp.sustain {
+    color: var(--text) !important;
+    background: var(--green) !important;
+    box-shadow: none !important;
+  }
+
+  .white.masked,
+  .blackp.masked {
+    color: var(--text) !important;
+    background: var(--red) !important;
+  }
+
+  .piano-focus {
+    border-color: var(--line) !important;
+    background: rgba(248, 184, 68, .22) !important;
+    box-shadow: none !important;
+  }
+
+  canvas,
+  #prompt-surface,
+  #roll,
+  #wave,
+  #queue {
+    background: #fff6df !important;
+    border-color: var(--line) !important;
+  }
+
+  .node-row {
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 12px !important;
+  }
+
+  .node-row strong {
+    color: var(--text) !important;
+  }
+
+  .record-head .metro-row,
+  .metro-row,
+  .loop-length-row {
+    color: var(--text) !important;
+  }
+
+  .metro-bpm-stepper {
+    color: var(--text) !important;
+    background: #ffffff !important;
+  }
+
+  .preset-folder {
+    background: #ffffff !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 14px !important;
+  }
+
+  .preset-folder summary {
+    color: var(--text) !important;
+    background: #fff6df !important;
+  }
+
+  .preset-item {
+    background: #ffffff !important;
+  }
+
+  .node-preset-strip {
+    gap: 8px !important;
+  }
+
+  .node-preset-chip {
+    min-height: 34px !important;
+  }
+
+  /* Generation panel text and spacing pass */
+  .generation-card,
+  .generation-card * {
+    color: var(--text) !important;
+  }
+
+  .generation-card h2 {
+    margin-bottom: 14px !important;
+  }
+
+  .generation-card label,
+  .generation-card label b,
+  .generation-card .field > label,
+  .generation-card .field:has(input[type="range"]) label,
+  .generation-card .field:has(input[type="range"]) label b,
+  .advanced-mode-field label,
+  .advanced-mode-field.numeric-field label {
+    color: var(--text) !important;
+    font-size: .76rem !important;
+    line-height: 1.05 !important;
+    min-height: 16px !important;
+    height: auto !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    text-align: center !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .generation-card .field:has(input[type="range"]) label b,
+  .generation-card .gain-inline-field label b {
+    display: block !important;
+    font-size: .78rem !important;
+    line-height: 1.05 !important;
+    margin-top: 2px !important;
+  }
+
+  .generation-card:not(.nodes-layout) {
+    gap: 10px !important;
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  }
+
+  .generation-card:not(.nodes-layout) > h2,
+  .generation-card:not(.nodes-layout) > .source-tabs,
+  .generation-card:not(.nodes-layout) > .field:first-of-type,
+  .generation-card:not(.nodes-layout) > .source-panel,
+  .generation-card:not(.nodes-layout) > .advanced-mode-row {
+    grid-column: 1 / -1 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"].on {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-style-row {
+    grid-template-columns: minmax(260px, 1.8fr) minmax(190px, .75fr) 122px 74px !important;
+    gap: 14px !important;
+    align-items: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field {
+    min-height: 70px !important;
+    grid-template-rows: 20px 48px !important;
+    gap: 6px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #prompt {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: .88rem !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .segrow {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .seg {
+    height: 48px !important;
+    min-height: 48px !important;
+    font-size: .88rem !important;
+    white-space: nowrap !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle {
+    width: 122px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    font-size: .84rem !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
+    width: 74px !important;
+    min-height: 92px !important;
+    grid-template-rows: 34px 52px !important;
+    gap: 6px !important;
+    padding: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field .knob {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) {
+    min-height: 118px !important;
+    grid-template-rows: 36px 62px !important;
+    gap: 8px !important;
+    padding: 8px 6px !important;
+    overflow: visible !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 48px !important;
+    height: 48px !important;
+    margin: 0 auto !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(#cfgs) label,
+  .generation-card:not(.nodes-layout) .field:has(#cfgn) label,
+  .generation-card:not(.nodes-layout) .field:has(#unmask) label,
+  .generation-card:not(.nodes-layout) .field:has(#cfgd) label,
+  .generation-card:not(.nodes-layout) .advanced-mode-field label {
+    font-size: .68rem !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-row {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field {
+    min-height: 90px !important;
+    grid-template-rows: 20px 50px !important;
+    gap: 8px !important;
+    padding: 8px 6px !important;
+    overflow: hidden !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field .segrow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    min-width: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field .seg {
+    height: 42px !important;
+    min-height: 42px !important;
+    min-width: 0 !important;
+    padding: 0 4px !important;
+    font-size: .68rem !important;
+    line-height: 1 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field {
+    grid-template-rows: 20px 50px !important;
+    gap: 8px !important;
+    min-height: 90px !important;
+    padding: 8px 6px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field input[type="number"] {
+    height: 50px !important;
+    min-height: 50px !important;
+    line-height: 50px !important;
+    font-size: 1rem !important;
+  }
+
+  /* Keyboard PPT styling pass */
+  .keyboard-card,
+  .keyboard-card * {
+    color: var(--text) !important;
+  }
+
+  .keyboard-card {
+    background: #ffffff !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 18px !important;
+    box-shadow: 8px 8px 0 #f3b32e !important;
+    overflow: hidden !important;
+  }
+
+  .keyboard-card h2 {
+    margin-bottom: 10px !important;
+  }
+
+  .keyboard-control-row {
+    display: grid !important;
+    grid-template-columns: minmax(380px, 620px) minmax(320px, 520px) !important;
+    gap: 14px !important;
+    align-items: end !important;
+    border-bottom: 4px solid var(--line) !important;
+    padding-bottom: 10px !important;
+  }
+
+  .keyboard-card .keyboard-notes-field,
+  .keyboard-card .midi-device-field,
+  .keyboard-midi-slot .midi-device-field {
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+
+  .keyboard-card label,
+  .keyboard-card .keyboard-notes-field label,
+  .keyboard-card .midi-device-field label {
+    color: var(--text) !important;
+    font-size: .72rem !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    margin: 0 0 8px !important;
+    text-transform: uppercase !important;
+  }
+
+  .keyboard-notes-field .segrow {
+    display: grid !important;
+    grid-template-columns: minmax(160px, 1fr) minmax(110px, .65fr) 118px !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  #notes-mode .seg,
+  .octave-control,
+  .keyboard-midi-slot .smallbtn,
+  #midi-refresh {
+    color: var(--text) !important;
+    background: #ffffff !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 0 var(--line) !important;
+    min-height: 48px !important;
+    font-size: .88rem !important;
+    font-weight: 900 !important;
+  }
+
+  #notes-mode .seg.on {
+    background: var(--accent) !important;
+  }
+
+  .octave-control {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 42px !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 0 10px !important;
+    cursor: ns-resize;
+  }
+
+  .octave-control span {
+    color: var(--text) !important;
+    font-size: .72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: .02em !important;
+    text-transform: uppercase !important;
+  }
+
+  .octave-value {
+    display: grid !important;
+    place-items: center !important;
+    height: 32px !important;
+    min-width: 42px !important;
+    color: var(--text) !important;
+    background: #fff6df !important;
+    border: 3px solid var(--line) !important;
+    border-radius: 8px !important;
+    font-size: .9rem !important;
+    line-height: 1 !important;
+  }
+
+  .keyboard-midi-slot {
+    justify-self: end !important;
+    width: min(520px, 100%) !important;
+  }
+
+  .keyboard-midi-slot .minirow {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) 128px !important;
+    gap: 10px !important;
+  }
+
+  #midi-input {
+    height: 48px !important;
+    min-height: 48px !important;
+    color: var(--text) !important;
+    background: #fff6df !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 12px !important;
+    font-size: .78rem !important;
+    font-weight: 900 !important;
+  }
+
+  #midi-refresh {
+    padding: 0 8px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .piano-wrap {
+    display: grid !important;
+    grid-template-columns: 70px minmax(0, 1fr) !important;
+    min-height: 188px !important;
+    margin: 10px -14px -14px !important;
+    padding: 10px 0 0 !important;
+    background: #ffffff !important;
+    border-top: 4px solid var(--line) !important;
+  }
+
+  .piano-wrap::before {
+    display: none !important;
+  }
+
+  .piano-controls {
+    display: grid !important;
+    place-items: center !important;
+    padding: 10px 8px !important;
+    background: #ffffff !important;
+    border-right: 4px solid var(--line) !important;
+  }
+
+  .mod-wheel {
+    width: 34px !important;
+    height: 138px !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 18px !important;
+    background: #ffffff !important;
+    box-shadow: inset 0 0 0 4px #fff6df, 0 4px 0 var(--line) !important;
+    overflow: hidden !important;
+  }
+
+  .mod-wheel::before {
+    content: "";
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: 14px;
+    bottom: 14px;
+    background: repeating-linear-gradient(180deg, var(--line) 0 2px, transparent 2px 9px);
+    opacity: .35;
+  }
+
+  .mod-wheel span {
+    left: 4px !important;
+    right: 4px !important;
+    bottom: 4px !important;
+    height: calc(var(--mod-level, 0) * 1%) !important;
+    min-height: 18px !important;
+    border-radius: 12px !important;
+    background: var(--accent) !important;
+    border: 3px solid var(--line) !important;
+    box-shadow: none !important;
+  }
+
+  .piano {
+    height: 178px !important;
+    background: #ffffff !important;
+    border-top: 0 !important;
+  }
+
+  .white,
+  .blackp {
+    color: transparent !important;
+    border: 4px solid var(--line) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .white {
+    height: 170px !important;
+    background: #ffffff !important;
+    border-top-width: 4px !important;
+    border-left-width: 2px !important;
+    border-right-width: 2px !important;
+    border-bottom-width: 4px !important;
+  }
+
+  .blackp {
+    height: 86px !important;
+    background: var(--line) !important;
+    border-color: var(--line) !important;
+    border-radius: 0 0 4px 4px !important;
+    z-index: 5 !important;
+  }
+
+  .white.on,
+  .blackp.on,
+  .white.sustain,
+  .blackp.sustain {
+    background: var(--green) !important;
+    box-shadow: none !important;
+  }
+
+  .white.masked,
+  .blackp.masked {
+    background: var(--red) !important;
+    box-shadow: none !important;
+  }
+
+  .piano-focus {
+    border: 4px solid var(--accent) !important;
+    background: rgba(248, 184, 68, .2) !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent keyboard clipping while keeping controls compact */
+  .grid {
+    grid-template-rows: minmax(0, 1fr) 320px !important;
+  }
+
+  .keyboard-card {
+    min-height: 320px !important;
+    max-height: 320px !important;
+    padding: 10px 14px 14px !important;
+  }
+
+  .keyboard-card h2 {
+    font-size: 1rem !important;
+    margin-bottom: 6px !important;
+  }
+
+  .keyboard-control-row {
+    grid-template-columns: minmax(320px, 520px) minmax(300px, 500px) !important;
+    gap: 12px !important;
+    padding-bottom: 6px !important;
+    align-items: end !important;
+  }
+
+  .keyboard-card label,
+  .keyboard-card .keyboard-notes-field label,
+  .keyboard-card .midi-device-field label {
+    font-size: .62rem !important;
+    margin-bottom: 5px !important;
+  }
+
+  .keyboard-notes-field .segrow {
+    grid-template-columns: minmax(130px, 1fr) minmax(82px, .55fr) 94px !important;
+    gap: 7px !important;
+  }
+
+  #notes-mode .seg,
+  .octave-control,
+  .keyboard-midi-slot .smallbtn,
+  #midi-refresh {
+    min-height: 36px !important;
+    height: 36px !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 3px 0 var(--line) !important;
+    font-size: .72rem !important;
+  }
+
+  .octave-control {
+    grid-template-columns: minmax(0, 1fr) 34px !important;
+    gap: 5px !important;
+    padding: 0 7px !important;
+  }
+
+  .octave-control span {
+    font-size: .62rem !important;
+  }
+
+  .octave-value {
+    height: 24px !important;
+    min-width: 34px !important;
+    border-width: 2px !important;
+    border-radius: 6px !important;
+    font-size: .72rem !important;
+  }
+
+  .keyboard-midi-slot {
+    width: min(500px, 100%) !important;
+  }
+
+  .keyboard-midi-slot .minirow {
+    grid-template-columns: minmax(0, 1fr) 112px !important;
+    gap: 8px !important;
+  }
+
+  #midi-input {
+    height: 36px !important;
+    min-height: 36px !important;
+    border-width: 3px !important;
+    border-radius: 10px !important;
+    font-size: .66rem !important;
+  }
+
+  #midi-refresh {
+    font-size: .62rem !important;
+  }
+
+  .piano-wrap {
+    grid-template-columns: 64px minmax(0, 1fr) !important;
+    min-height: 228px !important;
+    margin: 8px -14px -14px !important;
+    padding-top: 8px !important;
+  }
+
+  .piano-controls {
+    padding: 8px 7px !important;
+  }
+
+  .mod-wheel {
+    width: 32px !important;
+    height: 176px !important;
+  }
+
+  .piano {
+    height: 218px !important;
+  }
+
+  .white {
+    height: 210px !important;
+  }
+
+  .blackp {
+    height: 92px !important;
+  }
+
+  .keyboard-card h2 {
+    display: none !important;
+  }
+
+  .keyboard-card {
+    padding-top: 12px !important;
+    padding-bottom: 18px !important;
+  }
+
+  .piano-wrap {
+    min-height: 238px !important;
+    margin: 10px -10px 8px !important;
+    padding-top: 10px !important;
+    border-bottom: 4px solid var(--line) !important;
+    border-radius: 0 0 12px 12px !important;
+    overflow: hidden !important;
+  }
+
+  .piano {
+    height: 218px !important;
+  }
+
+  .white {
+    height: 200px !important;
+  }
+
+  .blackp {
+    height: 118px !important;
+  }
+
+  .mod-wheel {
+    height: 188px !important;
+  }
+
+  .piano-wrap {
+    position: relative !important;
+  }
+
+  .piano-wrap::after {
+    content: "";
+    position: absolute;
+    left: 64px;
+    right: 0;
+    top: 10px;
+    height: 7px;
+    background: var(--accent);
+    border-bottom: 4px solid var(--line);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .piano {
+    position: relative !important;
+    overflow: hidden !important;
+    padding-top: 7px !important;
+  }
+
+  .white {
+    top: 7px !important;
+    bottom: auto !important;
+    height: 193px !important;
+    border-top-width: 4px !important;
+  }
+
+  .blackp {
+    top: 7px !important;
+    height: 108px !important;
+    z-index: 4 !important;
   }
 
   @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
@@ -2453,6 +3723,7 @@
       <div class="source-panel" data-panel="nodes">
         <div class="field">
           <label>Prompt nodes</label>
+          <div class="node-preset-strip" id="node-preset-strip"></div>
           <div class="surface-wrap"><canvas id="prompt-surface"></canvas></div>
           <div class="minirow"><input id="node-prompt" type="text" value="warm electric piano"><button class="smallbtn" id="add-node">Add Node</button></div>
           <div class="hint">Node source mode. Drag Main and prompt nodes; influence falls linearly with distance.</div>
@@ -2490,8 +3761,8 @@
         <div class="field advanced-mode-field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset/Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
         <div class="field advanced-mode-field"><label>MIDI gate</label><div class="segrow" id="midi-gate"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">When enabled, generated audio fades down while no notes are held. Useful for playable Solo mode.</div></div>
         <div class="field advanced-mode-field"><label>Streaming state</label><div class="segrow" id="continuous"><div class="seg on" data-value="true">Keep</div><div class="seg" data-value="false">Fresh</div></div><div class="hint">Keep state gives continuity. Fresh is more reactive but less musical.</div></div>
-        <div class="field advanced-mode-field numeric-field"><label>Frames <b id="frames-v">1</b></label><input id="frames" type="number" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
-        <div class="field advanced-mode-field numeric-field"><label>Target Queue <b id="target-v">0.24s</b></label><input id="target" type="number" min="4" max="80" value="24"><div class="hint">Producer fills only up to this queue. Lower is more responsive, higher avoids gaps.</div></div>
+        <div class="field advanced-mode-field numeric-field"><label>Frames</label><input id="frames" type="number" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
+        <div class="field advanced-mode-field numeric-field"><label>Target Queue</label><input id="target" type="number" min="4" max="80" value="24"><div class="hint">Producer fills only up to this queue. Lower is more responsive, higher avoids gaps.</div></div>
       </div>
     </section>
 
@@ -3004,7 +4275,26 @@ function applyPresetValue(value) {
   setSourceMode('prompt');
   resetForPromptChange();
   updatePresetReadout();
+  buildNodePresetStrip();
   log(`preset: ${mode === 'solo' ? 'SOLO ' : ''}${prompt}`);
+}
+
+function applyNodePresetValue(value) {
+  const [mode, ...parts] = value.split(':');
+  const prompt = parts.join(':');
+  currentPreset = { name: prompt, mode, family: presetFamilyFor(mode, prompt) };
+  $('preset').value = value;
+  $('prompt').value = prompt;
+  $('node-prompt').value = prompt;
+  document.querySelectorAll('#jam-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === mode));
+  document.querySelectorAll('#voice-mode .seg').forEach(el => el.classList.toggle('on', el.dataset.value === (mode === 'solo' ? 'solo' : 'jam')));
+  applyOfficialDefaults();
+  applyVoiceMode(mode === 'solo' ? 'solo' : 'jam');
+  setSourceMode('nodes');
+  resetForPromptChange();
+  updatePresetReadout();
+  buildNodePresetStrip();
+  log(`node preset: ${mode === 'solo' ? 'SOLO ' : ''}${prompt}`);
 }
 
 function buttonTooltipText(button) {
@@ -3506,10 +4796,10 @@ function drawPromptSurface() {
   const ctx = canvas.getContext('2d');
   const scale = window.devicePixelRatio || 1;
   const w = canvas.width / scale, h = canvas.height / scale;
-  ctx.fillStyle = '#090806';
+  ctx.fillStyle = '#fff6df';
   ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = '#1f1a12';
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#d9cfb7';
+  ctx.lineWidth = 1.5;
   for (let i = 1; i < 4; i++) {
     ctx.beginPath(); ctx.moveTo(i * w / 4, 0); ctx.lineTo(i * w / 4, h); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(0, i * h / 4); ctx.lineTo(w, i * h / 4); ctx.stroke();
@@ -3521,7 +4811,7 @@ function drawPromptSurface() {
       const distance = Math.hypot(main.x - node.x, main.y - node.y);
       const weight = Math.max(0, 1 - distance / .72);
       if (weight <= 0) continue;
-      ctx.strokeStyle = `rgba(240,179,90,${.1 + weight * .45})`;
+      ctx.strokeStyle = `rgba(242,99,73,${.2 + weight * .55})`;
       ctx.lineWidth = 1 + weight * 3;
       ctx.beginPath();
       ctx.moveTo(main.x * w, main.y * h);
@@ -3532,11 +4822,11 @@ function drawPromptSurface() {
 
   for (const node of promptNodes) {
     const weight = weights.get(node.id) || 0;
-    drawNode(ctx, node.x * w, node.y * h, 15, selectedPromptNodeId === node.id ? '#8fd18f' : '#80b7ff', node.text, `${Math.round(weight * 100)}%`);
+    drawNode(ctx, node.x * w, node.y * h, 15, selectedPromptNodeId === node.id ? '#a8d8a1' : '#a8c9f6', node.text, `${Math.round(weight * 100)}%`);
   }
   for (const main of mainNodes) {
     const selected = selectedPromptNodeId === null && selectedMainNodeId === main.id;
-    drawNode(ctx, main.x * w, main.y * h, 18, selected ? '#ffd28a' : '#f0b35a', `Main ${main.id}`, selected ? 'editing' : 'mix');
+    drawNode(ctx, main.x * w, main.y * h, 18, selected ? '#f8b844' : '#f8b844', `Main ${main.id}`, selected ? 'editing' : 'mix');
   }
   drawPromptNodeList();
 }
@@ -3546,14 +4836,14 @@ function drawNode(ctx, x, y, r, color, title, sub) {
   ctx.beginPath();
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#090806';
-  ctx.lineWidth = 3;
+  ctx.strokeStyle = '#171717';
+  ctx.lineWidth = 4;
   ctx.stroke();
-  ctx.fillStyle = '#f7ead5';
-  ctx.font = '12px Georgia';
+  ctx.fillStyle = '#171717';
+  ctx.font = 'bold 12px Arial';
   ctx.fillText(title.slice(0, 22), clamp(x + r + 5, 4, ctx.canvas.width - 120), clamp(y - 2, 14, ctx.canvas.height - 8));
-  ctx.fillStyle = '#aa9d88';
-  ctx.font = '11px Georgia';
+  ctx.fillStyle = '#3b3b3b';
+  ctx.font = '11px Arial';
   ctx.fillText(sub, clamp(x + r + 5, 4, ctx.canvas.width - 120), clamp(y + 12, 26, ctx.canvas.height - 4));
 }
 
@@ -4426,9 +5716,32 @@ function buildPresets() {
   addGroup('Official Jam presets', PROMPT_PRESETS, 'accompany');
   addGroup('Official Solo instrument presets', INSTRUMENT_PRESETS, 'solo');
   buildPresetDrawer();
+  buildNodePresetStrip();
   select.value = presetValue(currentPreset.mode, currentPreset.name);
   select.addEventListener('change', () => applyPresetValue(select.value));
   updatePresetReadout();
+}
+
+function buildNodePresetStrip() {
+  const root = $('node-preset-strip');
+  if (!root) return;
+  root.innerHTML = '';
+  const presets = [
+    ...INSTRUMENT_PRESETS.map(text => ({ text, mode: 'solo' })),
+    ...PROMPT_PRESETS.map(text => ({ text, mode: 'accompany' })),
+  ];
+  const activeValue = presetValue(currentPreset.mode, currentPreset.name);
+  for (const preset of presets) {
+    const value = presetValue(preset.mode, preset.text);
+    const button = document.createElement('button');
+    button.className = `node-preset-chip${value === activeValue ? ' on' : ''}`;
+    button.type = 'button';
+    button.dataset.value = value;
+    button.textContent = preset.text;
+    button.title = `${preset.mode === 'solo' ? 'Solo' : 'Jam'} preset: ${preset.text}`;
+    button.onclick = () => applyNodePresetValue(button.dataset.value);
+    root.appendChild(button);
+  }
 }
 
 function buildPresetDrawer() {
@@ -4763,8 +6076,8 @@ function updateReadouts() {
   updatePresetReadout();
   updatePerformanceModeButton();
   updateDrumControlVisibility();
-  $('frames-v').textContent = $('frames').value;
-  $('target-v').textContent = `${(parseInt($('target').value) / 100).toFixed(2)}s`;
+  if ($('frames-v')) $('frames-v').textContent = $('frames').value;
+  if ($('target-v')) $('target-v').textContent = `${(parseInt($('target').value) / 100).toFixed(2)}s`;
   $('temp-v').textContent = (parseInt($('temp').value) / 100).toFixed(2);
   $('topk-v').textContent = $('topk').value;
   $('cfgs-v').textContent = (parseInt($('cfgs').value) / 10).toFixed(1);
@@ -4812,8 +6125,8 @@ function resize() {
   drawRoll();
   updateReadouts();
 }
-function drawWave() { const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h/2; ctx.fillStyle = '#090806'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#3c3424'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(w,mid); ctx.stroke(); if (!lastWave.length) return; ctx.strokeStyle = '#f0b35a'; ctx.lineWidth = 2; ctx.beginPath(); for (let x=0;x<w;x++) { const s = lastWave[Math.floor(x/w*lastWave.length)] || 0; const y = mid - s * mid * .86; x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke(); }
-function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#090806'; ctx.fillRect(0,0,w,h); ctx.fillStyle = '#272116'; ctx.fillRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#ff735c' : queuedSeconds < target ? '#f0b35a' : '#8fd18f'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#f7ead5'; ctx.font = '20px Georgia'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
+function drawWave() { const c = $('wave'), ctx = c.getContext('2d'), w = c.width, h = c.height, mid = h/2; ctx.fillStyle = '#fff6df'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.beginPath(); ctx.moveTo(0,mid); ctx.lineTo(w,mid); ctx.stroke(); if (!lastWave.length) return; ctx.strokeStyle = '#f26349'; ctx.lineWidth = 3; ctx.beginPath(); for (let x=0;x<w;x++) { const s = lastWave[Math.floor(x/w*lastWave.length)] || 0; const y = mid - s * mid * .86; x ? ctx.lineTo(x,y) : ctx.moveTo(x,y); } ctx.stroke(); }
+function drawQueue() { const c = $('queue'), ctx = c.getContext('2d'), w = c.width, h = c.height; const target = parseInt($('target').value)/100; ctx.fillStyle = '#fff6df'; ctx.fillRect(0,0,w,h); ctx.strokeStyle = '#171717'; ctx.lineWidth = 3; ctx.strokeRect(12,h/2-12,w-24,24); ctx.fillStyle = queuedSeconds < .04 ? '#f26349' : queuedSeconds < target ? '#f8b844' : '#a8d8a1'; ctx.fillRect(12,h/2-12,Math.min(1, queuedSeconds/Math.max(target,.01))*(w-24),24); ctx.fillStyle = '#171717'; ctx.font = 'bold 20px Arial'; ctx.fillText(`${queuedSeconds.toFixed(2)}s / ${target.toFixed(2)}s`, 18, 25); }
 
 function drawRoll() {
   const c = $('roll');
@@ -4825,30 +6138,30 @@ function drawRoll() {
   const pitchMin = 24, pitchMax = 96, pitchSpan = pitchMax - pitchMin + 1;
   const toY = t => h - ((t - (current - windowSec)) / windowSec) * h;
   const toX = pitch => ((pitch - pitchMin + .5) / pitchSpan) * w;
-  ctx.fillStyle = '#090806'; ctx.fillRect(0, 0, w, h);
-  ctx.strokeStyle = '#1f1a12'; ctx.lineWidth = 1;
+  ctx.fillStyle = '#fff6df'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#d9cfb7'; ctx.lineWidth = 1;
   for (let p = pitchMin; p <= pitchMax; p += 12) {
     const x = toX(p);
     ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-    ctx.fillStyle = '#6f6250'; ctx.font = '18px Georgia'; ctx.fillText(`${NOTE_NAMES[p % 12]}${Math.floor(p / 12)}`, x + 4, h - 10);
+    ctx.fillStyle = '#3b3b3b'; ctx.font = 'bold 18px Arial'; ctx.fillText(`${NOTE_NAMES[p % 12]}${Math.floor(p / 12)}`, x + 4, h - 10);
   }
   for (const event of noteEvents) {
     const end = event.end ?? current;
     if (end < current - windowSec || event.start > current) continue;
     const x = toX(event.pitch) - Math.max(5, w / pitchSpan * .42);
     const y1 = toY(event.start), y2 = toY(end);
-    ctx.fillStyle = event.end === null ? 'rgba(143,209,143,.95)' : 'rgba(128,183,255,.78)';
+    ctx.fillStyle = event.end === null ? 'rgba(168,216,161,.95)' : 'rgba(168,201,246,.82)';
     ctx.fillRect(x, Math.min(y1, y2), Math.max(8, w / pitchSpan * .84), Math.max(4, Math.abs(y2 - y1)));
   }
-  drawRollMarker(ctx, w, h, toY(heard), '#80b7ff', `heard now (${queuedSeconds.toFixed(2)}s behind)`);
-  drawRollMarker(ctx, w, h, toY(current), '#f0b35a', 'input now');
+  drawRollMarker(ctx, w, h, toY(heard), '#a8c9f6', `heard now (${queuedSeconds.toFixed(2)}s behind)`);
+  drawRollMarker(ctx, w, h, toY(current), '#f8b844', 'input now');
 }
 
 function drawRollMarker(ctx, w, h, y, color, label) {
   if (y < 0 || y > h) return;
   ctx.strokeStyle = color; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
-  ctx.fillStyle = color; ctx.font = '20px Georgia';
+  ctx.fillStyle = '#171717'; ctx.font = 'bold 20px Arial';
   ctx.fillText(label, 10, Math.max(22, y - 6));
 }
 
