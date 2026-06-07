@@ -296,6 +296,9 @@ let loopTracks = [];
 let nextLoopTrackId = 1;
 let loopRecording = false;
 let loopRecordStartPhase = 0;
+let loopRecordLeftChunks = [];
+let loopRecordRightChunks = [];
+let loopRecordLength = 0;
 let loopLengthSamples = 0;
 let loopPlaying = false;
 let loopPositionSamples = 0;
@@ -318,10 +321,6 @@ async function ensureAudio() {
     worklet = new AudioWorkletNode(audioCtx, 'mrt2-stream-processor', { outputChannelCount: [2] });
     worklet.connect(audioCtx.destination);
     worklet.port.onmessage = (event) => {
-      if (event.data.type === 'loopRecorded') {
-        finishPadRecording(event.data);
-        return;
-      }
       if (event.data.type !== 'metrics') return;
       queuedSeconds = event.data.queuedSamples / event.data.sampleRate;
       underruns = event.data.underruns;
@@ -353,9 +352,12 @@ function connect() {
     waiting = false;
     generated += 1;
     const buffer = event.data;
-    worklet.port.postMessage({ type: 'audio', buffer }, [buffer]);
+    const interleaved = new Float32Array(buffer);
+    const audio = splitInterleavedAudio(interleaved);
+    if (loopRecording) appendLoopRecordingChunk(audio.left, audio.right);
+    lastWave = downsampleChannel(audio.left, 1024);
+    worklet.port.postMessage({ type: 'audio', left: audio.left.buffer, right: audio.right.buffer }, [audio.left.buffer, audio.right.buffer]);
     $('speed').textContent = `${pendingMeta.ms_per_frame.toFixed(1)}ms/f`;
-    lastWave = new Float32Array(buffer).filter((_, i) => i % 2 === 0);
     drawWave();
     log(`frame ${generated}: ${pendingMeta.audio_seconds.toFixed(3)}s audio, ${pendingMeta.ms_per_frame.toFixed(1)}ms/frame, ${pendingMeta.payload_bytes} bytes`);
     pendingMeta = null;
@@ -880,6 +882,52 @@ function makeTrackWaveform(left, right, bins) {
   return peaks;
 }
 
+function splitInterleavedAudio(interleaved) {
+  const frames = interleaved.length / 2;
+  const left = new Float32Array(frames);
+  const right = new Float32Array(frames);
+  for (let i = 0; i < frames; i++) {
+    left[i] = interleaved[i * 2];
+    right[i] = interleaved[i * 2 + 1];
+  }
+  return { left, right };
+}
+
+function downsampleChannel(channel, maxSamples) {
+  const frames = channel.length;
+  const samples = Math.min(frames, maxSamples);
+  const out = new Float32Array(samples);
+  const stride = Math.max(1, Math.floor(frames / samples));
+  for (let i = 0; i < samples; i++) out[i] = channel[i * stride] || 0;
+  return out;
+}
+
+function appendLoopRecordingChunk(left, right) {
+  loopRecordLeftChunks.push(left.slice());
+  loopRecordRightChunks.push(right.slice());
+  loopRecordLength += left.length;
+}
+
+function resetLoopRecordingBuffer() {
+  loopRecordLeftChunks = [];
+  loopRecordRightChunks = [];
+  loopRecordLength = 0;
+}
+
+function finishMainLoopRecording(padIndex, offsetPct) {
+  if (loopRecordLength <= 0) throw new Error('Recorded track has no frames');
+  const left = new Float32Array(loopRecordLength);
+  const right = new Float32Array(loopRecordLength);
+  let offset = 0;
+  for (let i = 0; i < loopRecordLeftChunks.length; i++) {
+    left.set(loopRecordLeftChunks[i], offset);
+    right.set(loopRecordRightChunks[i], offset);
+    offset += loopRecordLeftChunks[i].length;
+  }
+  resetLoopRecordingBuffer();
+  finishPadRecording({ padIndex, offsetPct, left, right });
+}
+
 function waveformBackground(track) {
   const w = 192, h = 44, mid = h / 2;
   const bars = track.waveform.map((peak, i) => {
@@ -908,12 +956,14 @@ function trimmedLengthPct(track) {
 function sendLoopTrack(track) {
   if (!worklet) return;
   const { sourceStartSamples, sourceEndSamples } = trackSourceRange(track);
+  const left = track.left.slice();
+  const right = track.right.slice();
   worklet.port.postMessage({
     type: 'addLoopTrack',
     track: {
       id: track.id,
-      left: track.left.buffer,
-      right: track.right.buffer,
+      left: left.buffer,
+      right: right.buffer,
       offsetSamples: Math.round(loopLengthSamples * track.offsetPct / 100),
       playSamples: Math.round(loopLengthSamples * track.lengthPct / 100),
       sourceStartSamples,
@@ -923,7 +973,7 @@ function sendLoopTrack(track) {
       effect: track.effect,
       effectAmount: track.effectAmount,
     },
-  });
+  }, [left.buffer, right.buffer]);
 }
 
 function updateLoopTrack(track) {
@@ -951,7 +1001,7 @@ async function togglePadRecord(padIndex) {
     loopRecordStartPhase = loopTracks.length ? loopPhasePct() : 0;
     recordingPad = padIndex;
     loopRecording = true;
-    worklet.port.postMessage({ type: 'startLoopRecording' });
+    resetLoopRecordingBuffer();
     renderPads();
     log(`pad ${padIndex} recording started at ${Math.round(loopRecordStartPhase)}%`);
     return;
@@ -961,13 +1011,13 @@ async function togglePadRecord(padIndex) {
     return;
   }
   loopRecording = false;
-  worklet.port.postMessage({ type: 'stopLoopRecording', padIndex, offsetPct: loopTracks.length ? loopRecordStartPhase : 0 });
+  finishMainLoopRecording(padIndex, loopTracks.length ? loopRecordStartPhase : 0);
 }
 
 function finishPadRecording(data) {
   const padIndex = Number(data.padIndex);
   recordingPad = null;
-  const track = makeLoopTrackFromStereo(new Float32Array(data.left), new Float32Array(data.right), loopTracks.length ? Number(data.offsetPct) : 0);
+  const track = makeLoopTrackFromStereo(data.left, data.right, loopTracks.length ? Number(data.offsetPct) : 0);
   track.padIndex = padIndex;
   track.name = `Pad ${padIndex}`;
   loopTracks = loopTracks.filter(item => item.padIndex !== padIndex);
@@ -1006,6 +1056,7 @@ function clearLoops() {
   loopPositionSamples = 0;
   loopRecording = false;
   recordingPad = null;
+  resetLoopRecordingBuffer();
   if (worklet) worklet.port.postMessage({ type: 'clearLoopTracks' });
   renderPads();
   drawTimeline();

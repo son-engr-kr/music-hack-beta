@@ -15,11 +15,6 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
     this.loopPlaying = false;
     this.loopSampleIndex = 0;
     this.loopLengthSamples = 0;
-    this.recording = false;
-    this.recordLength = 0;
-    this.maxRecordSamples = sampleRate * 180;
-    this.recordLeft = new Float32Array(this.maxRecordSamples);
-    this.recordRight = new Float32Array(this.maxRecordSamples);
     this.metricSamples = 0;
     this.mixLeft = 0;
     this.mixRight = 0;
@@ -27,14 +22,9 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
     this.port.onmessage = (event) => {
       const msg = event.data;
       if (msg.type === 'audio') {
-        const interleaved = new Float32Array(msg.buffer);
-        const frames = interleaved.length / 2;
-        const l = new Float32Array(frames);
-        const r = new Float32Array(frames);
-        for (let i = 0; i < frames; i++) {
-          l[i] = interleaved[i * 2];
-          r[i] = interleaved[i * 2 + 1];
-        }
+        const l = new Float32Array(msg.left);
+        const r = new Float32Array(msg.right);
+        const frames = l.length;
         this.left.push(l);
         this.right.push(r);
         this.queuedSamples += frames;
@@ -57,51 +47,13 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
         this.loopPlaying = false;
         this.loopSampleIndex = 0;
         this.loopLengthSamples = 0;
-        this.resetRecording();
       } else if (msg.type === 'playLoops') {
         this.loopPlaying = true;
         this.loopSampleIndex = Math.max(0, msg.startSample || 0);
       } else if (msg.type === 'stopLoops') {
         this.loopPlaying = false;
-      } else if (msg.type === 'startLoopRecording') {
-        this.startLoopRecording();
-      } else if (msg.type === 'stopLoopRecording') {
-        this.stopLoopRecording(msg);
       }
     };
-  }
-
-  startLoopRecording() {
-    this.resetRecording();
-    this.recording = true;
-  }
-
-  resetRecording() {
-    this.recording = false;
-    this.recordLength = 0;
-  }
-
-  writeRecordingSample(left, right) {
-    if (this.recordLength >= this.maxRecordSamples) return;
-    this.recordLeft[this.recordLength] = left;
-    this.recordRight[this.recordLength] = right;
-    this.recordLength += 1;
-  }
-
-  stopLoopRecording(msg) {
-    this.recording = false;
-    const left = new Float32Array(this.recordLength);
-    const right = new Float32Array(this.recordLength);
-    left.set(this.recordLeft.subarray(0, this.recordLength));
-    right.set(this.recordRight.subarray(0, this.recordLength));
-    this.recordLength = 0;
-    this.port.postMessage({
-      type: 'loopRecorded',
-      padIndex: msg.padIndex,
-      offsetPct: msg.offsetPct,
-      left: left.buffer,
-      right: right.buffer,
-    }, [left.buffer, right.buffer]);
   }
 
   addLoopTrack(track) {
@@ -232,10 +184,6 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
           this.right.shift();
           this.readIndex = 0;
         }
-      }
-
-      if (this.recording) {
-        this.writeRecordingSample(liveLeft, liveRight);
       }
 
       if (this.loopPlaying && this.loopLengthSamples > 0) {
