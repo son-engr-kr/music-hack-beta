@@ -42,6 +42,8 @@ class MRT2StreamProcessor extends AudioWorkletProcessor {
         this.addLoopTrack(msg.track);
       } else if (msg.type === 'updateLoopTrack') {
         this.updateLoopTrack(msg.track);
+      } else if (msg.type === 'updateLoopLength') {
+        this.loopLengthSamples = Math.max(1, msg.loopLengthSamples | 0);
       } else if (msg.type === 'clearLoopTracks') {
         this.loopTracks = [];
         this.loopPlaying = false;

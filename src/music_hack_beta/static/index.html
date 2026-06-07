@@ -114,6 +114,8 @@
   .mixer-row select { font-size: .66rem; padding: .28rem .36rem; }
   .metro-row { display: grid; grid-template-columns: 1fr 92px 80px; gap: 6px; align-items: center; }
   .metro-row input[type="range"] { display: block; width: 100%; accent-color: var(--accent); }
+  .loop-length-row { display: grid; grid-template-columns: 1fr 92px 80px; gap: 6px; align-items: center; }
+  .loop-length-row input[type="range"] { display: block; width: 100%; accent-color: var(--accent); }
 
   canvas { width: 100%; border: 1px solid var(--line); border-radius: 14px; background: #090806; display: block; }
   #roll { height: 150px; } #wave { height: 58px; } #queue { height: 38px; }
@@ -227,10 +229,15 @@
           <input id="metro-bpm" type="range" min="40" max="220" value="120">
           <button class="smallbtn" id="metro-toggle">Metro Off</button>
         </div>
+        <div class="loop-length-row">
+          <label>Loop length <b id="loop-length-v">-</b></label>
+          <input id="loop-length-control" type="range" min="25" max="3200" value="400" disabled>
+          <button class="smallbtn" id="loop-length-reset">Base</button>
+        </div>
         <div class="timeline" id="timeline"><div class="timeline-grid"></div><div class="playhead" id="playhead"></div></div>
         <div class="loop-stats"><span class="chip">Tracks <b id="loop-tracks">0</b></span><span class="chip">Length <b id="loop-length">-</b></span><span class="chip">Phase <b id="loop-phase">0%</b></span></div>
         <div class="track-mixer" id="track-mixer"></div>
-        <div class="hint">The first recorded track defines loop length. Later tracks are placed by their start phase against that first loop. Drag clips horizontally to adjust placement; wheel over a clip adjusts its repeated length.</div>
+        <div class="hint">The first recorded track defines the initial loop length. Adjust Loop length to resize the grid, drag audible clips to place them, and wheel over a clip to change its repeat span.</div>
       </div>
       <div style="height:10px"></div>
       <h2>Monitor</h2>
@@ -845,11 +852,43 @@ function loopPhasePct() {
   return ((loopPositionSamples % loopLengthSamples) / loopLengthSamples) * 100;
 }
 
+function loopLengthSeconds() {
+  return loopLengthSamples / 48000;
+}
+
+function setLoopLengthSamples(nextSamples) {
+  if (nextSamples <= 0) throw new Error(`Invalid loop length: ${nextSamples}`);
+  loopLengthSamples = Math.max(1, Math.round(nextSamples));
+  if (loopPositionSamples >= loopLengthSamples) loopPositionSamples %= loopLengthSamples;
+  syncLoopLengthControl();
+  if (worklet) {
+    worklet.port.postMessage({ type: 'updateLoopLength', loopLengthSamples });
+    for (const track of loopTracks) updateLoopTrack(track);
+  }
+  drawTimeline();
+  updateReadouts();
+}
+
+function syncLoopLengthControl() {
+  const input = $('loop-length-control');
+  if (!input) return;
+  input.disabled = loopLengthSamples <= 0;
+  if (!loopLengthSamples) {
+    $('loop-length-v').textContent = '-';
+    return;
+  }
+  const hundredths = Math.round(loopLengthSeconds() * 100);
+  input.max = String(Math.max(3200, hundredths * 2));
+  input.value = String(clamp(hundredths, Number(input.min), Number(input.max)));
+  $('loop-length-v').textContent = `${loopLengthSeconds().toFixed(2)}s`;
+}
+
 function makeLoopTrackFromStereo(left, right, offsetPct) {
   if (left.length <= 0 || right.length <= 0) throw new Error('Recorded track has no frames');
   if (left.length !== right.length) throw new Error('Recorded stereo buffers do not match');
   if (!loopLengthSamples) loopLengthSamples = left.length;
   const playSamples = Math.max(1, Math.min(left.length, loopLengthSamples));
+  const startSamples = Math.round(loopLengthSamples * clamp(offsetPct, 0, 99.9) / 100);
   const waveform = makeTrackWaveform(left, right, 96);
   return {
     id: nextLoopTrackId++,
@@ -859,8 +898,8 @@ function makeLoopTrackFromStereo(left, right, offsetPct) {
     waveform,
     trimStartPct: 0,
     trimEndPct: 100,
-    offsetPct: clamp(offsetPct, 0, 99.9),
-    lengthPct: clamp(playSamples / loopLengthSamples * 100, 1, 100),
+    startSamples,
+    repeatSamples: playSamples,
     gain: 1 / Math.sqrt(loopTracks.length + 1),
     effect: 'none',
     effectAmount: 0,
@@ -955,12 +994,12 @@ function trackTrimBounds(track) {
 
 function trackAudibleLengthPct(track) {
   const { startPct, endPct } = trackTrimBounds(track);
-  return clamp(track.lengthPct * (endPct - startPct) / 100, 1, 100);
+  return clamp((track.repeatSamples / loopLengthSamples) * (endPct - startPct), 1, 100);
 }
 
 function trackGhostLeftPct(track) {
   const { startPct } = trackTrimBounds(track);
-  return track.offsetPct - track.lengthPct * startPct / 100;
+  return trackOffsetPct(track) - (track.repeatSamples / loopLengthSamples) * startPct;
 }
 
 function activeWaveformStyle(track) {
@@ -969,6 +1008,17 @@ function activeWaveformStyle(track) {
   const scale = 10000 / visiblePct;
   const left = -startPct * 100 / visiblePct;
   return `background-image:${waveformBackground(track)}; width:${scale}%; left:${left}%`;
+}
+
+function trackOffsetPct(track) {
+  if (!loopLengthSamples) return 0;
+  const wrapped = ((track.startSamples % loopLengthSamples) + loopLengthSamples) % loopLengthSamples;
+  return clamp(wrapped / loopLengthSamples * 100, 0, 99.9);
+}
+
+function trackRepeatPct(track) {
+  if (!loopLengthSamples) return 1;
+  return clamp(track.repeatSamples / loopLengthSamples * 100, 1, 100);
 }
 
 function sendLoopTrack(track) {
@@ -983,7 +1033,7 @@ function sendLoopTrack(track) {
       id: track.id,
       left: left.buffer,
       right: right.buffer,
-      offsetSamples: Math.round(loopLengthSamples * track.offsetPct / 100),
+      offsetSamples: Math.round(track.startSamples % loopLengthSamples),
       playSamples: Math.round(loopLengthSamples * audibleLengthPct / 100),
       sourceStartSamples,
       sourceEndSamples,
@@ -1003,7 +1053,7 @@ function updateLoopTrack(track) {
     type: 'updateLoopTrack',
     track: {
       id: track.id,
-      offsetSamples: Math.round(loopLengthSamples * track.offsetPct / 100),
+      offsetSamples: Math.round(track.startSamples % loopLengthSamples),
       playSamples: Math.round(loopLengthSamples * audibleLengthPct / 100),
       sourceStartSamples,
       sourceEndSamples,
@@ -1053,6 +1103,7 @@ function finishPadRecording(data) {
 function syncLoopTracks() {
   if (!worklet) return;
   worklet.port.postMessage({ type: 'clearLoopTracks' });
+  if (loopLengthSamples > 0) worklet.port.postMessage({ type: 'updateLoopLength', loopLengthSamples });
   for (const track of loopTracks) sendLoopTrack(track);
 }
 
@@ -1081,6 +1132,7 @@ function clearLoops() {
   renderPads();
   drawTimeline();
   drawTrackMixer();
+  syncLoopLengthControl();
   updateReadouts();
 }
 
@@ -1145,18 +1197,18 @@ function drawTimeline() {
     const ghost = document.createElement('div');
     ghost.className = 'track-ghost';
     ghost.style.left = `${trackGhostLeftPct(track)}%`;
-    ghost.style.width = `${Math.max(2, track.lengthPct)}%`;
+    ghost.style.width = `${Math.max(2, trackRepeatPct(track))}%`;
     ghost.innerHTML = `<div class="waveform-layer" style="background-image:${waveformBackground(track)}"></div>`;
     lane.appendChild(ghost);
 
     const clip = document.createElement('div');
     clip.className = `track-clip ${track.id === baseTrackId ? 'base' : ''}`;
     clip.dataset.trackId = track.id;
-    clip.style.left = `${track.offsetPct}%`;
+    clip.style.left = `${trackOffsetPct(track)}%`;
     clip.style.width = `${Math.max(2, trackAudibleLengthPct(track))}%`;
     clip.innerHTML = `
       <div class="waveform-layer" style="${activeWaveformStyle(track)}"></div>
-      <span>${track.name} ${Math.round(track.offsetPct)}%</span>
+      <span>${track.name} ${Math.round(trackOffsetPct(track))}%</span>
     `;
     clip.addEventListener('pointerdown', event => {
       event.preventDefault();
@@ -1167,8 +1219,9 @@ function drawTimeline() {
     clip.addEventListener('wheel', event => {
       event.preventDefault();
       const { startPct, endPct } = trackTrimBounds(track);
-      const minLengthPct = 100 / Math.max(1, endPct - startPct);
-      track.lengthPct = clamp(track.lengthPct + Math.sign(-event.deltaY) * 2, minLengthPct, 100);
+      const minRepeatSamples = Math.ceil(loopLengthSamples / Math.max(1, endPct - startPct));
+      const deltaSamples = Math.round(loopLengthSamples * Math.sign(-event.deltaY) * .02);
+      track.repeatSamples = clamp(track.repeatSamples + deltaSamples, minRepeatSamples, loopLengthSamples);
       updateLoopTrack(track);
       drawTimeline();
     }, { passive: false });
@@ -1244,13 +1297,13 @@ function initTimelineDrag() {
     const track = loopTracks.find(item => item.id === draggedTrackId);
     if (!track) throw new Error(`Missing loop track: ${draggedTrackId}`);
     const pct = ((event.clientX - rect.left) / rect.width) * 100;
-    track.offsetPct = clamp(pct - draggedTrackGrabPct, 0, 99.9);
+    track.startSamples = Math.round(loopLengthSamples * clamp(pct - draggedTrackGrabPct, 0, 99.9) / 100);
     updateLoopTrack(track);
     const clip = root.querySelector(`[data-track-id="${track.id}"]`);
     if (clip) {
-      clip.style.left = `${track.offsetPct}%`;
+      clip.style.left = `${trackOffsetPct(track)}%`;
       const label = clip.querySelector('span');
-      if (label) label.textContent = `${track.name} ${Math.round(track.offsetPct)}%`;
+      if (label) label.textContent = `${track.name} ${Math.round(trackOffsetPct(track))}%`;
       const ghost = clip.parentElement?.querySelector('.track-ghost');
       if (ghost) ghost.style.left = `${trackGhostLeftPct(track)}%`;
     }
@@ -1532,6 +1585,7 @@ function updateReadouts() {
   $('loop-length').textContent = loopLengthSamples ? `${(loopLengthSamples / 48000).toFixed(2)}s` : '-';
   $('loop-phase').textContent = `${Math.round(loopPhasePct())}%`;
   $('metro-bpm-v').textContent = `${$('metro-bpm').value} BPM`;
+  syncLoopLengthControl();
   updatePianoFocus();
   if (worklet) {
     worklet.port.postMessage({ type: 'gain', value: parseInt($('gain').value) / 100 });
@@ -1623,6 +1677,13 @@ $('loop-stop').onclick = stopLoops;
 $('loop-clear').onclick = clearLoops;
 $('metro-toggle').onclick = toggleMetronome;
 $('metro-bpm').addEventListener('input', updateReadouts);
+$('loop-length-control').addEventListener('input', event => {
+  setLoopLengthSamples(Math.round(Number(event.target.value) * 480));
+});
+$('loop-length-reset').onclick = () => {
+  if (!loopTracks.length) return;
+  setLoopLengthSamples(loopTracks[0].left.length);
+};
 $('system-toggle').onclick = () => $('system-panel').classList.toggle('open');
 
 connect(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
