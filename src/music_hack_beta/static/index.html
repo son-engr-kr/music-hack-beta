@@ -3419,7 +3419,7 @@
   }
 
   .keyboard-midi-slot .minirow {
-    grid-template-columns: minmax(0, 1fr) 112px !important;
+    grid-template-columns: minmax(0, 1fr) 112px 72px !important;
     gap: 8px !important;
   }
 
@@ -3431,7 +3431,8 @@
     font-size: .66rem !important;
   }
 
-  #midi-refresh {
+  #midi-refresh,
+  #keyboard-stop {
     font-size: .62rem !important;
   }
 
@@ -3495,6 +3496,7 @@
 
   .mod-wheel {
     height: 188px !important;
+    transform: translateY(-12px) !important;
   }
 
   .piano-wrap {
@@ -3914,23 +3916,29 @@
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-style-row {
     display: grid !important;
-    grid-template-columns: minmax(260px, 1fr) minmax(360px, 1.65fr) !important;
-    gap: 26px !important;
+    grid-template-columns: minmax(230px, .56fr) minmax(0, 1.44fr) !important;
+    gap: 8px !important;
     align-items: center !important;
     height: 100% !important;
+    min-width: 0 !important;
+    transform: translateY(10px) !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field,
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-field {
     margin: 0 !important;
     padding: 0 !important;
-    min-height: 84px !important;
+    min-height: 74px !important;
     display: grid !important;
-    grid-template-rows: 24px 50px !important;
-    gap: 8px !important;
+    grid-template-rows: 18px 48px !important;
+    gap: 6px !important;
     align-items: center !important;
     background: transparent !important;
     border: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-field {
+    transform: translateY(2px) !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field label,
@@ -3947,26 +3955,43 @@
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field .minirow {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-    height: 50px !important;
+    gap: 8px !important;
+    height: 48px !important;
     align-items: center !important;
   }
 
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field button {
-    height: 44px !important;
-    min-height: 44px !important;
+    height: 42px !important;
+    min-height: 42px !important;
     font-size: .72rem !important;
     line-height: 1 !important;
     padding: 0 8px !important;
     white-space: normal !important;
   }
 
+  .clone-mix-bar {
+    --audio: 70%;
+    position: relative;
+    display: block;
+    height: 18px;
+    min-width: 0;
+    width: 100%;
+    border: 3px solid #171717;
+    border-radius: 999px;
+    background: #f7edda;
+    cursor: ew-resize;
+    overflow: visible;
+    touch-action: none;
+  }
+
   .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-readout {
     display: grid !important;
-    grid-template-columns: 82px minmax(260px, 1fr) 72px !important;
-    gap: 18px !important;
+    grid-template-columns: 68px minmax(0, 1fr) 60px !important;
+    gap: 6px !important;
     align-items: center !important;
-    height: 50px !important;
+    min-width: 0 !important;
+    width: calc(100% + 150px) !important;
+    transform: translateX(-75px) !important;
     color: #171717 !important;
     font-size: .72rem !important;
     font-weight: 800 !important;
@@ -3978,20 +4003,38 @@
     text-align: center !important;
   }
 
-  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] #audio-weight {
-    display: block !important;
-    width: 100% !important;
-    height: 18px !important;
-    accent-color: #f8b844 !important;
-    cursor: ew-resize !important;
+  .clone-mix-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
   }
 
-  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] #text-weight {
-    display: none !important;
+  .clone-mix-fill.audio {
+    left: 0;
+    width: var(--audio);
+    background: #a8c5e4;
+    border-radius: 999px 0 0 999px;
   }
 
-  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .hint {
-    display: none !important;
+  .clone-mix-fill.text {
+    left: var(--audio);
+    right: 0;
+    background: #f8b844;
+    border-radius: 0 999px 999px 0;
+  }
+
+  .clone-mix-thumb {
+    position: absolute;
+    left: var(--audio);
+    top: 50%;
+    width: 24px;
+    height: 24px;
+    border: 4px solid #171717;
+    border-radius: 50%;
+    background: #f2624a;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
   }
 
   /* Nodes mode: align knobs and mode buttons like Prompt/Clone controls. */
@@ -4191,6 +4234,16 @@
     padding: 5px 5px 7px !important;
     grid-template-rows: 20px 46px !important;
     gap: 5px !important;
+    justify-items: center !important;
+    text-align: center !important;
+  }
+
+  .generation-card.nodes-layout .advanced-mode-field label {
+    width: 100% !important;
+    display: grid !important;
+    place-items: center !important;
+    text-align: center !important;
+    line-height: 1 !important;
   }
 
   .generation-card.nodes-layout .advanced-mode-field:not(.numeric-field) .segrow {
@@ -4210,6 +4263,10 @@
     min-height: 42px !important;
     max-height: 42px !important;
     padding: 0 4px !important;
+    display: grid !important;
+    place-items: center !important;
+    text-align: center !important;
+    line-height: .95 !important;
   }
 
   @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
@@ -4297,7 +4354,7 @@
       <div class="source-panel" data-panel="clone">
         <div class="clone-style-row">
           <div class="field clone-actions-field"><label>Clone</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload</button><button class="smallbtn primary" id="clone-loop-audio">Clone Loop</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Clone source mode. Upload audio or bounce the loop station, then play using that audio style.</div></div>
-          <div class="field clone-blend-field"><label>Style Blend</label><div class="clone-blend-readout"><span>Audio <b id="audio-weight-v">0.70</b></span><input id="audio-weight" class="clone-style-slider" type="range" min="0" max="100" value="70"><span>Text <b id="text-weight-v">0.30</b></span></div><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">Move left for text style, right for audio style.</div></div>
+          <div class="field clone-blend-field"><label>Style Blend</label><div class="clone-blend-readout"><span>Audio <b id="audio-weight-v">0.70</b></span><div class="clone-mix-bar" id="clone-mix-bar" role="slider" aria-label="Audio and text style blend" aria-valuemin="0" aria-valuemax="100" aria-valuenow="70"><div class="clone-mix-fill audio"></div><div class="clone-mix-fill text"></div><div class="clone-mix-thumb"></div></div><span>Text <b id="text-weight-v">0.30</b></span></div><input id="audio-weight" type="hidden" value="70"><input id="text-weight" type="hidden" value="30"><div class="hint">Move left for text style, right for audio style.</div></div>
         </div>
       </div>
       <div class="field hidden-mode-field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
@@ -4331,7 +4388,7 @@
 
     <section class="card keyboard-card">
       <h2>Keyboard</h2>
-      <div class="field midi-device-field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
+      <div class="field midi-device-field"><label>MIDI input</label><div class="minirow"><select id="midi-input"><option value="">No MIDI device</option></select><button class="smallbtn" id="midi-refresh">Refresh MIDI</button><button class="smallbtn keyboard-stop-button" id="keyboard-stop">Stop</button></div><div class="hint" id="midi-status">Connect a MIDI keyboard, then allow MIDI access in Chrome. Notes feed the same onset/sustain path as QWERTY input.</div></div>
       <div class="keyboard-control-row"><div class="field keyboard-notes-field"><label>Notes mode</label><div class="segrow" id="notes-mode"><div class="seg on" data-value="masked">Conditioned</div><div class="seg" data-value="unconditioned">Off</div><div class="octave-control" id="octave-control"><span>Oct</span><b class="octave-value" id="octave-offset">0</b></div></div><div class="hint">Physical keyboard notes are momentary. Clicked piano notes latch. Tap events become onset tokens for the next frame.</div></div><div class="keyboard-midi-slot" id="keyboard-midi-slot"></div></div>
       <div class="typing">
         <div class="typing-row"><div class="key black" data-code="KeyW">W</div><div class="key black" data-code="KeyE">E</div><div class="key black" data-code="KeyT">T</div><div class="key black" data-code="KeyY">Y</div><div class="key black" data-code="KeyU">U</div><div class="key black" data-code="KeyO">O</div><div class="key black" data-code="KeyP">P</div></div>
@@ -6445,15 +6502,69 @@ function setupNumericDragControls() {
 function setupCloneBlendSlider() {
   const audio = $('audio-weight');
   const text = $('text-weight');
+  const bar = $('clone-mix-bar');
   if (!audio || !text || audio.dataset.blendReady === 'true') return;
   audio.dataset.blendReady = 'true';
-  const sync = () => {
-    text.value = String(100 - Number(audio.value));
+  text.dataset.blendReady = 'true';
+  const setAudioWeight = value => {
+    const next = clamp(Math.round(Number(value)), 0, 100);
+    audio.value = String(next);
+    text.value = String(100 - next);
+    if (bar) {
+      bar.style.setProperty('--audio', `${next}%`);
+      bar.setAttribute('aria-valuenow', String(next));
+    }
     updateReadouts();
     resetForPromptChange();
   };
-  audio.addEventListener('input', sync);
-  sync();
+  const syncFromAudio = () => {
+    text.value = String(100 - Number(audio.value));
+    if (bar) {
+      bar.style.setProperty('--audio', `${Number(audio.value)}%`);
+      bar.setAttribute('aria-valuenow', audio.value);
+    }
+    updateReadouts();
+    resetForPromptChange();
+  };
+  const syncFromText = () => {
+    audio.value = String(100 - Number(text.value));
+    if (bar) {
+      bar.style.setProperty('--audio', `${Number(audio.value)}%`);
+      bar.setAttribute('aria-valuenow', audio.value);
+    }
+    updateReadouts();
+    resetForPromptChange();
+  };
+  audio.addEventListener('input', syncFromAudio);
+  text.addEventListener('input', syncFromText);
+  if (bar) {
+    const updateFromPointer = event => {
+      const rect = bar.getBoundingClientRect();
+      setAudioWeight(((event.clientX - rect.left) / rect.width) * 100);
+    };
+    bar.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      bar.setPointerCapture(event.pointerId);
+      updateFromPointer(event);
+    });
+    bar.addEventListener('pointermove', event => {
+      if (!bar.hasPointerCapture(event.pointerId)) return;
+      updateFromPointer(event);
+    });
+    bar.addEventListener('keydown', event => {
+      const step = event.shiftKey ? 10 : 1;
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        setAudioWeight(Number(audio.value) - step);
+      }
+      if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        setAudioWeight(Number(audio.value) + step);
+      }
+    });
+    bar.tabIndex = 0;
+  }
+  syncFromAudio();
 }
 
 function buildPiano() {
@@ -6521,12 +6632,14 @@ function shiftOctave(delta, source) {
 }
 
 async function down(e) {
-  if ((e.metaKey || e.ctrlKey) && e.code === 'Space') {
+  const target = e.target;
+  const isTextTarget = target?.matches?.('input, textarea, select') || target?.isContentEditable;
+  if (e.code === 'Space' && !isTextTarget) {
     e.preventDefault();
     stopLiveInput('shortcut');
     return;
   }
-  if (e.repeat || e.target.matches('input, textarea, select')) return;
+  if (e.repeat || isTextTarget) return;
   if (e.code === 'KeyZ') { shiftOctave(-1, 'keyboard'); mark(e.code, true); return; }
   if (e.code === 'KeyX') { shiftOctave(1, 'keyboard'); mark(e.code, true); return; }
   if (!(e.code in TYPING)) return;
@@ -6706,6 +6819,10 @@ function updateReadouts() {
   $('gain-v').textContent = (parseInt($('gain').value) / 100).toFixed(2);
   $('audio-weight-v').textContent = (parseInt($('audio-weight').value) / 100).toFixed(2);
   $('text-weight-v').textContent = (parseInt($('text-weight').value) / 100).toFixed(2);
+  if ($('clone-mix-bar')) {
+    $('clone-mix-bar').style.setProperty('--audio', `${parseInt($('audio-weight').value)}%`);
+    $('clone-mix-bar').setAttribute('aria-valuenow', $('audio-weight').value);
+  }
   $('queue-text').textContent = `${queuedSeconds.toFixed(2)}s`;
   $('underruns').textContent = underruns;
   $('mode').textContent = live ? (waiting ? 'live generating' : 'live') : 'idle';
@@ -6919,6 +7036,7 @@ $('midi-refresh').addEventListener('click', async () => {
     $('midi-status').textContent = `MIDI unavailable: ${error.message}`;
   }
 });
+$('keyboard-stop').addEventListener('click', () => stopLiveInput('keyboard stop'));
 $('midi-input').addEventListener('change', connectMidiInput);
 window.addEventListener('keydown', down); window.addEventListener('keyup', up); window.addEventListener('resize', resize);
 setInterval(() => { updateReadouts(); if (!loopRecording) drawRoll(); updateTimelinePlayhead(); pump(); }, 120);
