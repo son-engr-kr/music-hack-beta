@@ -3649,6 +3649,360 @@
     z-index: 4 !important;
   }
 
+  /* Prompt/Clone generation final proportion pass */
+  .generation-card:not(.nodes-layout) {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    grid-template-rows: 30px 66px 72px 98px 126px 94px !important;
+    gap: 12px !important;
+    align-content: stretch !important;
+    overflow: hidden !important;
+  }
+
+  .generation-card:not(.nodes-layout) > h2 {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    margin: 0 !important;
+    align-self: start !important;
+    color: var(--text) !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .source-tabs {
+    grid-column: 1 / -1 !important;
+    grid-row: 2 !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    margin: 0 !important;
+    align-self: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .field:first-of-type {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    height: 70px !important;
+    min-height: 70px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .source-panel.on {
+    grid-column: 1 / -1 !important;
+    grid-row: 4 !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-style-row {
+    grid-template-columns: minmax(0, 3.15fr) minmax(0, 1.05fr) 122px 60px !important;
+    gap: 14px !important;
+    align-items: end !important;
+    height: 100% !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field {
+    height: 76px !important;
+    min-height: 76px !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-rows: 20px 50px !important;
+    gap: 6px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #prompt,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field .seg {
+    height: 50px !important;
+    min-height: 50px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle {
+    width: 122px !important;
+    height: 54px !important;
+    min-height: 54px !important;
+    align-self: end !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
+    width: 60px !important;
+    min-height: 86px !important;
+    margin: 0 !important;
+    align-self: end !important;
+    grid-template-rows: 34px 46px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field .knob {
+    width: 44px !important;
+    height: 44px !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .split {
+    display: contents !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) {
+    grid-row: 5 !important;
+    width: 100% !important;
+    height: 124px !important;
+    min-height: 124px !important;
+    margin: 0 !important;
+    padding: 8px 6px !important;
+    align-self: stretch !important;
+    justify-self: stretch !important;
+    display: grid !important;
+    grid-template-rows: 36px 1fr !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(#temp) { grid-column: 1 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#topk) { grid-column: 2 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#cfgs) { grid-column: 3 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#cfgn) { grid-column: 4 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#unmask) { grid-column: 5 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#seed) { grid-column: 6 !important; }
+  .generation-card:not(.nodes-layout) .field:has(#cfgd) { grid-column: 7 !important; display: grid !important; }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 50px !important;
+    height: 50px !important;
+    margin: 6px auto 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .advanced-mode-row {
+    grid-column: 1 / -1 !important;
+    grid-row: 6 !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    height: 92px !important;
+    min-height: 92px !important;
+    margin: 0 !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field {
+    height: 92px !important;
+    min-height: 92px !important;
+    margin: 0 !important;
+    padding: 8px 6px !important;
+    grid-template-rows: 22px 50px !important;
+    gap: 6px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field .segrow {
+    gap: 6px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field .seg {
+    height: 42px !important;
+    min-height: 42px !important;
+    color: var(--text) !important;
+    display: grid !important;
+    place-items: center !important;
+    width: 100% !important;
+    padding: 0 4px !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+    text-align: center !important;
+    line-height: .95 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field input[type="number"] {
+    height: 50px !important;
+    min-height: 50px !important;
+    color: var(--text) !important;
+    text-align: center !important;
+  }
+
+  .generation-card .advanced-mode-field.numeric-field input[type="number"] {
+    -moz-appearance: textfield !important;
+    appearance: textfield !important;
+    text-align: center !important;
+    padding: 0 !important;
+    cursor: ns-resize !important;
+    user-select: none !important;
+    touch-action: none !important;
+  }
+
+  .generation-card .advanced-mode-field.numeric-field input[type="number"]::-webkit-outer-spin-button,
+  .generation-card .advanced-mode-field.numeric-field input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    margin: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) label,
+  .generation-card:not(.nodes-layout) label b,
+  .generation-card:not(.nodes-layout) .field > label,
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]) label,
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]) label b,
+  .generation-card:not(.nodes-layout) .advanced-mode-field label,
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field label {
+    color: var(--text) !important;
+    font-weight: 800 !important;
+  }
+
+  .generation-card:not(.nodes-layout) input,
+  .generation-card:not(.nodes-layout) select,
+  .generation-card:not(.nodes-layout) .seg,
+  .generation-card:not(.nodes-layout) button {
+    color: var(--text) !important;
+  }
+
+  /* Fill the Generation card vertically like the reference layout */
+  .generation-card:not(.nodes-layout) {
+    grid-template-rows: 30px 66px 72px 104px minmax(116px, 1fr) 94px !important;
+    gap: 14px !important;
+    align-content: stretch !important;
+    height: 100% !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .source-panel.on {
+    display: grid !important;
+    align-items: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-style-row {
+    align-items: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] #jam-solo-toggle,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .gain-inline-field {
+    align-self: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) {
+    height: 100% !important;
+    min-height: 116px !important;
+    align-self: stretch !important;
+    padding-top: 8px !important;
+    padding-bottom: 10px !important;
+    grid-template-rows: 34px 1fr !important;
+  }
+
+  .generation-card:not(.nodes-layout) > .advanced-mode-row {
+    height: 100% !important;
+    min-height: 92px !important;
+    align-self: stretch !important;
+  }
+
+  .generation-card:not(.nodes-layout) .advanced-mode-field,
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field {
+    height: 100% !important;
+    min-height: 92px !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) .knob {
+    width: 44px !important;
+    height: 44px !important;
+    margin: 4px auto 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label,
+  .generation-card:not(.nodes-layout) .advanced-mode-field label,
+  .generation-card:not(.nodes-layout) .advanced-mode-field.numeric-field label,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .prompt-input-field label,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="prompt"] .style-mode-field label,
+  .generation-card:not(.nodes-layout) .gain-inline-field label {
+    color: #171717 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .field:has(input[type="range"]):not(.gain-inline-field) label b,
+  .generation-card:not(.nodes-layout) .gain-inline-field label b {
+    color: #171717 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"].on {
+    display: grid !important;
+    align-items: center !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    height: 100% !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-style-row {
+    display: grid !important;
+    grid-template-columns: minmax(260px, 1fr) minmax(360px, 1.65fr) !important;
+    gap: 26px !important;
+    align-items: center !important;
+    height: 100% !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-field {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: 84px !important;
+    display: grid !important;
+    grid-template-rows: 24px 50px !important;
+    gap: 8px !important;
+    align-items: center !important;
+    background: transparent !important;
+    border: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field label,
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-field label {
+    display: block !important;
+    color: #171717 !important;
+    text-align: center !important;
+    font-size: .74rem !important;
+    line-height: 1 !important;
+    min-height: 18px !important;
+    margin: 0 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field .minirow {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    height: 50px !important;
+    align-items: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-actions-field button {
+    height: 44px !important;
+    min-height: 44px !important;
+    font-size: .72rem !important;
+    line-height: 1 !important;
+    padding: 0 8px !important;
+    white-space: normal !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-readout {
+    display: grid !important;
+    grid-template-columns: 82px minmax(260px, 1fr) 72px !important;
+    gap: 18px !important;
+    align-items: center !important;
+    height: 50px !important;
+    color: #171717 !important;
+    font-size: .72rem !important;
+    font-weight: 800 !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .clone-blend-readout span {
+    color: #171717 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] #audio-weight {
+    display: block !important;
+    width: 100% !important;
+    height: 18px !important;
+    accent-color: #f8b844 !important;
+    cursor: ew-resize !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] #text-weight {
+    display: none !important;
+  }
+
+  .generation-card:not(.nodes-layout) .source-panel[data-panel="clone"] .hint {
+    display: none !important;
+  }
+
   @media (max-width: 1120px) { .grid { grid-template-columns: 1fr; grid-template-rows: auto auto auto; grid-template-areas: "generation" "loop" "keyboard"; } .status { min-width: 0; } .keyboard-card { max-height: none; } }
   @media (max-width: 1120px) { .advanced-mode-row { grid-template-columns: repeat(6, minmax(0, 1fr)) !important; } .advanced-mode-field { grid-column: auto !important; } }
   @media (max-width: 720px) { .shell { padding: 13px; } .transport, .split, .segrow, .preset-topbar { grid-template-columns: 1fr 1fr; } .preset-current { grid-column: 1 / -1; order: -1; } .preset-current-meta { justify-content: flex-start; } .transport button { min-height: 52px; } }
@@ -3731,10 +4085,9 @@
         </div>
       </div>
       <div class="source-panel" data-panel="clone">
-        <div class="field"><label>Audio cloning</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload Audio Prompt</button><button class="smallbtn primary" id="clone-loop-audio">Clone Current Loop</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Clone source mode. Upload audio or bounce the loop station, then play using that audio style.</div></div>
-        <div class="split">
-          <div class="field"><label>Audio Style <b id="audio-weight-v">0.70</b></label><input id="audio-weight" type="range" min="0" max="100" value="70"><div class="hint">How much uploaded audio controls the style.</div></div>
-          <div class="field"><label>Text Style <b id="text-weight-v">0.30</b></label><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">How much the text prompt steers the uploaded audio style.</div></div>
+        <div class="clone-style-row">
+          <div class="field clone-actions-field"><label>Clone</label><div class="minirow"><button class="smallbtn" id="upload-audio">Upload</button><button class="smallbtn primary" id="clone-loop-audio">Clone Loop</button><button class="smallbtn" id="clear-audio">Clear Audio</button></div><input id="audio-file" type="file" accept="audio/*" hidden><div class="hint" id="audio-style-status">Clone source mode. Upload audio or bounce the loop station, then play using that audio style.</div></div>
+          <div class="field clone-blend-field"><label>Style Blend</label><div class="clone-blend-readout"><span>Audio <b id="audio-weight-v">0.70</b></span><input id="audio-weight" class="clone-style-slider" type="range" min="0" max="100" value="70"><span>Text <b id="text-weight-v">0.30</b></span></div><input id="text-weight" type="range" min="0" max="100" value="30"><div class="hint">Move left for text style, right for audio style.</div></div>
         </div>
       </div>
       <div class="field hidden-mode-field"><label>Jam mode</label><div class="segrow" id="jam-mode"><div class="seg on" data-value="accompany">Accompany</div><div class="seg" data-value="solo">Solo prefix</div></div><div class="hint">Official Jam sends SOLO before instrument prompts. Python API cannot expose C++ unmask-width yet, but the prefix still helps steer instrument-like output.</div></div>
@@ -3758,7 +4111,7 @@
       </div>
       <div class="advanced-mode-row">
         <div class="field advanced-mode-field"><label>Drums</label><div class="segrow" id="drumless"><div class="seg on" data-value="off">On</div><div class="seg" data-value="on">Off</div></div><div class="hint">Turns drum conditioning on or off.</div></div>
-        <div class="field advanced-mode-field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset/Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
+        <div class="field advanced-mode-field"><label>Onset mode</label><div class="segrow" id="onset-mode"><div class="seg" data-value="masked">Auto active</div><div class="seg on" data-value="unmasked">Onset<br>Sustain</div></div><div class="hint">Official C++ mode separates note attack token 2 from sustain token 1. This makes keyboard taps less likely to be missed.</div></div>
         <div class="field advanced-mode-field"><label>MIDI gate</label><div class="segrow" id="midi-gate"><div class="seg on" data-value="off">Off</div><div class="seg" data-value="on">On</div></div><div class="hint">When enabled, generated audio fades down while no notes are held. Useful for playable Solo mode.</div></div>
         <div class="field advanced-mode-field"><label>Streaming state</label><div class="segrow" id="continuous"><div class="seg on" data-value="true">Keep</div><div class="seg" data-value="false">Fresh</div></div><div class="hint">Keep state gives continuity. Fresh is more reactive but less musical.</div></div>
         <div class="field advanced-mode-field numeric-field"><label>Frames</label><input id="frames" type="number" min="1" max="25" value="1"><div class="hint">1 frame is 40ms. Higher values are smoother but less immediate.</div></div>
@@ -5838,6 +6191,56 @@ function buildKnobs() {
 }
 function paintKnob(knob, input) { const n = (Number(input.value) - Number(input.min)) / (Number(input.max) - Number(input.min)); knob.style.setProperty('--angle', `${-135 + n * 270}deg`); knob.style.setProperty('--fill', `${n * 75}%`); }
 
+function setupNumericDragControls() {
+  ['frames', 'target'].forEach(id => {
+    const input = $(id);
+    if (!input || input.dataset.dragReady === 'true') return;
+    input.dataset.dragReady = 'true';
+    const min = Number(input.min);
+    const max = Number(input.max);
+    const step = Number(input.step || 1);
+    let y0 = 0;
+    let v0 = 0;
+    const set = value => {
+      const rounded = Math.round(value / step) * step;
+      input.value = String(Math.max(min, Math.min(max, rounded)));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+      syncSelectedNodeParamsFromControls();
+      updateReadouts();
+    };
+    input.addEventListener('pointerdown', event => {
+      event.preventDefault();
+      input.focus();
+      input.setPointerCapture(event.pointerId);
+      y0 = event.clientY;
+      v0 = Number(input.value);
+    });
+    input.addEventListener('pointermove', event => {
+      if (!input.hasPointerCapture(event.pointerId)) return;
+      set(v0 + (y0 - event.clientY) / 8);
+    });
+    input.addEventListener('wheel', event => {
+      event.preventDefault();
+      set(Number(input.value) + Math.sign(-event.deltaY) * step);
+    }, { passive: false });
+  });
+}
+
+function setupCloneBlendSlider() {
+  const audio = $('audio-weight');
+  const text = $('text-weight');
+  if (!audio || !text || audio.dataset.blendReady === 'true') return;
+  audio.dataset.blendReady = 'true';
+  const sync = () => {
+    text.value = String(100 - Number(audio.value));
+    updateReadouts();
+    resetForPromptChange();
+  };
+  audio.addEventListener('input', sync);
+  sync();
+}
+
 function buildPiano() {
   const root = $('piano');
   const whitePcs = [0,2,4,5,7,9,11];
@@ -6233,7 +6636,7 @@ $('preset-drawer-close').onclick = closePresetDrawer;
 $('preset-drawer-scrim').onclick = closePresetDrawer;
 $('system-toggle').onclick = () => $('system-panel').classList.toggle('open');
 
-connect(); placeMidiInputTop(); placeMetronomeInRecordHead(); setupMetroBpmStepper(); setupKeyboardHardwareControls(); buildPiano(); buildKnobs(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
+connect(); placeMidiInputTop(); placeMetronomeInRecordHead(); setupMetroBpmStepper(); setupKeyboardHardwareControls(); buildPiano(); buildKnobs(); setupNumericDragControls(); setupCloneBlendSlider(); bindSegments('style-mode'); bindSegments('notes-mode'); bindSegments('drums-mode'); bindSegments('drumless');
 setupButtonTooltips();
 buildPresets(); bindSegments('jam-mode'); bindSegments('onset-mode'); bindSegments('midi-gate'); bindSegments('continuous');
 bindSegments('voice-mode');
